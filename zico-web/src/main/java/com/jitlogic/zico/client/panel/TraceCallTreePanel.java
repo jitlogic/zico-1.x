@@ -19,6 +19,7 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
@@ -29,8 +30,6 @@ import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
@@ -54,14 +53,13 @@ import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
+import com.jitlogic.zico.client.widgets.MenuItem;
+import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
 import com.jitlogic.zico.shared.data.TraceRecordProxy;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.menu.Item;
-import com.sencha.gxt.widget.core.client.menu.Menu;
-import com.sencha.gxt.widget.core.client.menu.MenuItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
@@ -100,7 +98,7 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
     private HorizontalPanel statusBar;
     private Label statusLabel;
 
-    private Menu contextMenu;
+    private PopupMenu contextMenu;
 
     private boolean fullyExpanded;
 
@@ -278,7 +276,10 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
                 }
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selection.setSelected(event.getValue(), true);
-                    contextMenu.showAt(event.getNativeEvent().getClientX(), event.getNativeEvent().getClientY());
+                    contextMenu.setPopupPosition(
+                            event.getNativeEvent().getClientX(),
+                            event.getNativeEvent().getClientY());
+                    contextMenu.show();
                 }
             }
         });
@@ -304,6 +305,7 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
         add(grid, new VerticalLayoutData(1, 1));
     }
 
+
     private void createStatusBar() {
         statusBar = new HorizontalPanel();
         statusLabel = new Label("Loading ...");
@@ -320,21 +322,22 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
 
     }
 
-    private void createContextMenu() {
-        contextMenu = new Menu();
 
-        MenuItem mnuMethodAttrs = new MenuItem("Trace Attributes");
-        mnuMethodAttrs.setIcon(Resources.INSTANCE.methodAttrsIcon());
-        mnuMethodAttrs.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                TraceRecordProxy tr = selection.getSelectedObject();
-                if (tr != null) {
-                    panelFactory.methodAttrsDialog(trace.getHostName(), trace.getDataOffs(), tr.getPath(), 0L).show();
-                }
-            }
-        });
-        contextMenu.add(mnuMethodAttrs);
+    private void createContextMenu() {
+        contextMenu = new PopupMenu();
+
+
+        MenuItem mnuMethodAttrs = new MenuItem("Trace Attributes", Resources.INSTANCE.methodAttrsIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        TraceRecordProxy tr = selection.getSelectedObject();
+                        if (tr != null) {
+                            panelFactory.methodAttrsDialog(trace.getHostName(), trace.getDataOffs(), tr.getPath(), 0L).show();
+                        }
+                    }
+                });
+        contextMenu.addItem(mnuMethodAttrs);
     }
 
 

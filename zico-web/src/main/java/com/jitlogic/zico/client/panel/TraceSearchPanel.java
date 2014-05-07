@@ -19,6 +19,7 @@ package com.jitlogic.zico.client.panel;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
@@ -57,6 +58,8 @@ import com.jitlogic.zico.client.ZicoShell;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
+import com.jitlogic.zico.client.widgets.MenuItem;
+import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.data.SymbolProxy;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
@@ -72,10 +75,6 @@ import com.sencha.gxt.widget.core.client.form.NumberPropertyEditor;
 import com.sencha.gxt.widget.core.client.form.SpinnerField;
 import com.sencha.gxt.widget.core.client.form.TextField;
 import com.sencha.gxt.widget.core.client.form.validator.RegExValidator;
-import com.sencha.gxt.widget.core.client.menu.Item;
-import com.sencha.gxt.widget.core.client.menu.Menu;
-import com.sencha.gxt.widget.core.client.menu.MenuItem;
-import com.sencha.gxt.widget.core.client.menu.SeparatorMenuItem;
 import com.sencha.gxt.widget.core.client.tips.ToolTipConfig;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
@@ -128,7 +127,8 @@ public class TraceSearchPanel extends VerticalLayoutContainer {
     private Label statusLabel;
     private Hyperlink lnkCancelSearch, lnkMore50Results, lnkMore250Results;
 
-    private Menu contextMenu;
+    private PopupMenu contextMenu;
+    private PopupMenu traceTypeMenu;
     private boolean moreResults;
 
 
@@ -177,7 +177,7 @@ public class TraceSearchPanel extends VerticalLayoutContainer {
         btnTraceType = new TextButton();
         btnTraceType.setIcon(Resources.INSTANCE.filterIcon());
         btnTraceType.setToolTip("Filter by trace type");
-        btnTraceType.setMenu(new Menu());
+        //btnTraceType.setMenu(new Menu());  TODO configure menu here
         toolBar.add(btnTraceType);
 
         SeparatorToolItem separator = new SeparatorToolItem();
@@ -365,7 +365,10 @@ public class TraceSearchPanel extends VerticalLayoutContainer {
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selection.setSelected(event.getValue(), true);
                     if (selection.getSelectedObject() != null) {
-                        contextMenu.showAt(event.getNativeEvent().getClientX(), event.getNativeEvent().getClientY());
+                        contextMenu.setPopupPosition(
+                                event.getNativeEvent().getClientX(),
+                                event.getNativeEvent().getClientY());
+                        contextMenu.show();
                     }
                 }
             }
@@ -429,39 +432,37 @@ public class TraceSearchPanel extends VerticalLayoutContainer {
     }
 
     private void createContextMenu() {
-        contextMenu = new Menu();
+        contextMenu = new PopupMenu();
 
-        MenuItem mnuMethodTree = new MenuItem("Method call tree");
-        mnuMethodTree.setIcon(Resources.INSTANCE.methodTreeIcon());
-        mnuMethodTree.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                openDetailView();
-            }
-        });
-        contextMenu.add(mnuMethodTree);
 
-        MenuItem mnuMethodRank = new MenuItem("Method call stats");
-        mnuMethodRank.setIcon(Resources.INSTANCE.methodRankIcon());
-        mnuMethodRank.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                openRankingView();
-            }
-        });
-        contextMenu.add(mnuMethodRank);
+        MenuItem mnuMethodTree = new MenuItem("Method call tree", Resources.INSTANCE.methodTreeIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        openDetailView();
+                    }
+                });
+        contextMenu.addItem(mnuMethodTree);
 
-        contextMenu.add(new SeparatorMenuItem());
+        MenuItem mnuMethodRank = new MenuItem("Method call stats", Resources.INSTANCE.methodRankIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        openRankingView();
+                    }
+                });
+        contextMenu.addItem(mnuMethodRank);
 
-        MenuItem mnuMethodAttrs = new MenuItem("Trace Attributes");
-        mnuMethodAttrs.setIcon(Resources.INSTANCE.methodAttrsIcon());
-        mnuMethodAttrs.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                openMethodAttrsDialog();
-            }
-        });
-        contextMenu.add(mnuMethodAttrs);
+        contextMenu.addSeparator();
+
+        MenuItem mnuMethodAttrs = new MenuItem("Trace Attributes", Resources.INSTANCE.methodAttrsIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        openMethodAttrsDialog();
+                    }
+                });
+        contextMenu.addItem(mnuMethodAttrs);
     }
 
 
@@ -592,32 +593,46 @@ public class TraceSearchPanel extends VerticalLayoutContainer {
         rf.systemService().getTidMap(host.getName()).fire(new Receiver<List<SymbolProxy>>() {
             @Override
             public void onSuccess(List<SymbolProxy> response) {
-                Menu menu = new Menu();
-
-                MenuItem miAll = new MenuItem("<all>");
-                miAll.addSelectionHandler(new SelectionHandler<Item>() {
+                traceTypeMenu = new PopupMenu();
+                MenuItem miAll = new MenuItem("<all>",
+                new Scheduler.ScheduledCommand() {
                     @Override
-                    public void onSelection(SelectionEvent<Item> event) {
+                    public void execute() {
                         strTraceType = null;
                         refresh();
                     }
                 });
-                menu.add(miAll);
-                menu.add(new SeparatorMenuItem());
+                traceTypeMenu.addItem(miAll);
+                traceTypeMenu.addSeparator();
 
                 for (final SymbolProxy e : response) {
-                    MenuItem item = new MenuItem(e.getName());
-                    item.addSelectionHandler(new SelectionHandler<Item>() {
+                    MenuItem item = new MenuItem(e.getName(),
+                    new Scheduler.ScheduledCommand() {
                         @Override
-                        public void onSelection(SelectionEvent<Item> event) {
+                        public void execute() {
                             strTraceType = e.getName();
                             refresh();
                         }
                     });
-                    menu.add(item);
+                    traceTypeMenu.addItem(item);
                 }
 
-                btnTraceType.setMenu(menu);
+                btnTraceType.addSelectHandler(
+                        new SelectEvent.SelectHandler() {
+                            @Override
+                            public void onSelect(SelectEvent event) {
+                                if (traceTypeMenu.isVisible()) {
+                                    traceTypeMenu.setPopupPosition(
+                                            btnTraceType.getAbsoluteLeft() + 10,
+                                            btnTraceType.getAbsoluteTop() + 10
+                                    );
+                                    traceTypeMenu.show();
+                                } else {
+                                    traceTypeMenu.hide();
+                                }
+                            }
+                        }
+                );
             }
 
             @Override

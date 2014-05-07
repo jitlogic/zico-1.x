@@ -36,6 +36,7 @@ import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.shared.data.KeyValueProxy;
 import com.jitlogic.zico.shared.data.SymbolicExceptionProxy;
 import com.jitlogic.zico.shared.data.TraceRecordProxy;
@@ -194,7 +195,7 @@ public class MethodAttrsDialog extends Dialog {
             }
         };
 
-        attrGrid = new DataGrid<String[]>(1024*1024, KEY_PROVIDER);
+        attrGrid = new DataGrid<String[]>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<String[]>(KEY_PROVIDER);
         attrGrid.setSelectionModel(selectionModel);
 

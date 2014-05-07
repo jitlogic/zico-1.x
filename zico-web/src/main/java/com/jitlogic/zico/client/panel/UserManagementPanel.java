@@ -17,6 +17,7 @@ package com.jitlogic.zico.client.panel;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
@@ -42,6 +43,8 @@ import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.widgets.MenuItem;
+import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.data.UserProxy;
 import com.sencha.gxt.widget.core.client.Dialog;
@@ -50,10 +53,6 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.menu.Item;
-import com.sencha.gxt.widget.core.client.menu.Menu;
-import com.sencha.gxt.widget.core.client.menu.MenuItem;
-import com.sencha.gxt.widget.core.client.menu.SeparatorMenuItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
@@ -72,7 +71,7 @@ public class UserManagementPanel extends VerticalLayoutContainer {
     private DataGrid<UserProxy> userGrid;
     private SingleSelectionModel<UserProxy> selectionModel;
 
-    private Menu contextMenu;
+    private PopupMenu contextMenu;
 
     private List<String> hostNames = new ArrayList<String>();
 
@@ -242,7 +241,10 @@ public class UserManagementPanel extends VerticalLayoutContainer {
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
                     if (event.getValue() != null) {
-                        contextMenu.showAt(event.getNativeEvent().getClientX(), event.getNativeEvent().getClientY());
+                        contextMenu.setPopupPosition(
+                                event.getNativeEvent().getClientX(),
+                                event.getNativeEvent().getClientY());
+                        contextMenu.show();
                     }
                 }
 
@@ -268,58 +270,56 @@ public class UserManagementPanel extends VerticalLayoutContainer {
 
 
     private void createContextMenu() {
-        contextMenu = new Menu();
+        contextMenu = new PopupMenu();
 
-        MenuItem mnuRefresh = new MenuItem("Refresh");
-        mnuRefresh.setIcon(Resources.INSTANCE.refreshIcon());
-        mnuRefresh.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                refreshUsers();
-            }
-        });
+        MenuItem mnuRefresh = new MenuItem("Refresh", Resources.INSTANCE.refreshIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        refreshUsers();
+                    }
+                });
+        contextMenu.addItem(mnuRefresh);
 
-        contextMenu.add(new SeparatorMenuItem());
+        contextMenu.addSeparator();
 
-        MenuItem mnuAddUser = new MenuItem("Add user");
-        mnuAddUser.setIcon(Resources.INSTANCE.addIcon());
-        mnuAddUser.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                addUser();
-            }
-        });
-        contextMenu.add(mnuAddUser);
+        MenuItem mnuAddUser = new MenuItem("Add user", Resources.INSTANCE.addIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        addUser();
+                    }
+                });
+        contextMenu.addItem(mnuAddUser);
 
-        MenuItem mnuRemoveUser = new MenuItem("Remove user");
-        mnuRemoveUser.setIcon(Resources.INSTANCE.removeIcon());
-        mnuRemoveUser.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                removeUser();
-            }
-        });
-        contextMenu.add(mnuRemoveUser);
+        MenuItem mnuRemoveUser = new MenuItem("Remove user", Resources.INSTANCE.removeIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        removeUser();
+                    }
+                });
+        contextMenu.addItem(mnuRemoveUser);
 
-        MenuItem mnuEditUser = new MenuItem("Edit user");
-        mnuEditUser.setIcon(Resources.INSTANCE.editIcon());
-        mnuEditUser.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                editUser();
-            }
-        });
+        MenuItem mnuEditUser = new MenuItem("Edit user", Resources.INSTANCE.editIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        editUser();
+                    }
+                });
+        contextMenu.addItem(mnuEditUser);
 
-        contextMenu.add(new SeparatorMenuItem());
+        contextMenu.addSeparator();
 
-        MenuItem mnuChangePassword = new MenuItem("Change password");
-        mnuChangePassword.setIcon(Resources.INSTANCE.keyIcon());
-        mnuChangePassword.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                changePassword();
-            }
-        });
+        MenuItem mnuChangePassword = new MenuItem("Change password", Resources.INSTANCE.keyIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        changePassword();
+                    }
+                });
+        contextMenu.addItem(mnuChangePassword);
     }
 
 

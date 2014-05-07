@@ -17,6 +17,7 @@ package com.jitlogic.zico.client.panel;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
@@ -42,14 +43,12 @@ import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.widgets.MenuItem;
+import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.shared.data.TraceTemplateProxy;
 import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.menu.Item;
-import com.sencha.gxt.widget.core.client.menu.Menu;
-import com.sencha.gxt.widget.core.client.menu.MenuItem;
-import com.sencha.gxt.widget.core.client.menu.SeparatorMenuItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
@@ -67,7 +66,7 @@ public class TraceTemplatePanel extends VerticalLayoutContainer {
     private ErrorHandler errorHandler;
     private ZicoRequestFactory rf;
 
-    private Menu contextMenu;
+    private PopupMenu contextMenu;
 
 
     @Inject
@@ -145,7 +144,10 @@ public class TraceTemplatePanel extends VerticalLayoutContainer {
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
                     if (event.getValue() != null) {
-                        contextMenu.showAt(event.getNativeEvent().getClientX(), event.getNativeEvent().getClientY());
+                        contextMenu.setPopupPosition(
+                                event.getNativeEvent().getClientX(),
+                                event.getNativeEvent().getClientY());
+                        contextMenu.show();
                     }
                 }
 
@@ -234,53 +236,47 @@ public class TraceTemplatePanel extends VerticalLayoutContainer {
 
 
     private void createContextMenu() {
-        contextMenu = new Menu();
+        contextMenu = new PopupMenu();
 
-        MenuItem mnuRefresh = new MenuItem("Refresh");
-        mnuRefresh.setIcon(Resources.INSTANCE.refreshIcon());
-        mnuRefresh.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                refreshTemplates();
-            }
-        });
-        contextMenu.add(mnuRefresh);
+        MenuItem mnuRefresh = new MenuItem("Refresh", Resources.INSTANCE.refreshIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        refreshTemplates();
+                    }
+                });
+        contextMenu.addItem(mnuRefresh);
 
-        contextMenu.add(new SeparatorMenuItem());
+        contextMenu.addSeparator();
 
-        MenuItem mnuCreateTemplate = new MenuItem("New template");
-        mnuCreateTemplate.setIcon(Resources.INSTANCE.addIcon());
-        mnuCreateTemplate.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                addTemplate();
-            }
-        });
-        contextMenu.add(mnuCreateTemplate);
+        MenuItem mnuCreateTemplate = new MenuItem("New template", Resources.INSTANCE.addIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        addTemplate();
+                    }
+                });
+        contextMenu.addItem(mnuCreateTemplate);
 
+        MenuItem mnuRemoveTemplate = new MenuItem("Remove template", Resources.INSTANCE.removeIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        removeTemplate();
+                    }
+                });
+        contextMenu.addItem(mnuRemoveTemplate);
 
-        MenuItem mnuRemoveTemplate = new MenuItem("Remove template");
-        mnuRemoveTemplate.setIcon(Resources.INSTANCE.removeIcon());
-        mnuRemoveTemplate.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                removeTemplate();
-            }
-        });
-        contextMenu.add(mnuRemoveTemplate);
+        contextMenu.addSeparator();
 
-        contextMenu.add(new SeparatorMenuItem());
-
-        MenuItem mnuEditTemplate = new MenuItem("Edit Template");
-        mnuEditTemplate.setIcon(Resources.INSTANCE.editIcon());
-        mnuEditTemplate.addSelectionHandler(new SelectionHandler<Item>() {
-            @Override
-            public void onSelection(SelectionEvent<Item> event) {
-                editTemplate();
-            }
-        });
-
-        contextMenu.add(mnuEditTemplate);
+        MenuItem mnuEditTemplate = new MenuItem("Edit Template", Resources.INSTANCE.editIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        editTemplate();
+                    }
+                });
+        contextMenu.addItem(mnuEditTemplate);
     }
 
 

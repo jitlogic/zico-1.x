@@ -431,9 +431,6 @@ public class HostListPanel extends VerticalLayoutContainer {
             public void onSuccess(List<HostProxy> response) {
                 rebuildHostGroups(response);
                 redrawHostList();
-                //hostGridStore.getList().addAll(response);
-                //selectionModel.setSelected(selectionModel.getSelectedObject(), false);
-                //enableSelectionDependentControls(null);
             }
             @Override
             public void onFailure(ServerFailure error) {
@@ -464,7 +461,7 @@ public class HostListPanel extends VerticalLayoutContainer {
 
     private void createContextMenu() {
         contextMenu = new PopupMenu();
-        contextMenu.setAnimationEnabled(true);
+
 
         mnuRefresh = new MenuItem("Refresh", Resources.INSTANCE.refreshIcon(), new Scheduler.ScheduledCommand() {
             @Override
