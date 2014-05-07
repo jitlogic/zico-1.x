@@ -13,140 +13,138 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.client;
+package com.jitlogic.zico.client.resources;
 
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.DataResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.resources.client.TextResource;
-import com.google.gwt.user.cellview.client.DataGrid;
 
 public interface Resources extends ClientBundle {
 
     public final static Resources INSTANCE = GWT.create(Resources.class);
 
-    @Source("resources/Zico.css")
+    @Source("Zico.css")
     ZicoCssResources zicoCssResources();
 
-    @Source("images/error-mark.png")
+    @Source("../images/error-mark.png")
     ImageResource errorMarkIcon();
 
-    @Source("images/refresh.png")
+    @Source("../images/refresh.png")
     ImageResource refreshIcon();
 
-    @Source("images/time.png")
+    @Source("../images/time.png")
     ImageResource timeIcon();
 
-    @Source("images/filter.png")
+    @Source("../images/filter.png")
     ImageResource filterIcon();
 
-    @Source("images/go-next.png")
+    @Source("../images/go-next.png")
     ImageResource goNextIcon();
 
-    @Source("images/go-previous.png")
+    @Source("../images/go-previous.png")
     ImageResource goPrevIcon();
 
-    @Source("images/go-down-search.png")
+    @Source("../images/go-down-search.png")
     ImageResource goDownIcon();
 
-    @Source("images/go-up-search.png")
+    @Source("../images/go-up-search.png")
     ImageResource goUpIcon();
 
-    @Source("images/exception-thrown.png")
+    @Source("../images/exception-thrown.png")
     ImageResource exceptionIcon();
 
-    @Source("images/expand.png")
+    @Source("../images/expand.png")
     ImageResource expandIcon();
 
-    @Source("images/lightning-go.png")
+    @Source("../images/lightning-go.png")
     ImageResource ligtningGo();
 
-    @Source("images/add.png")
+    @Source("../images/add.png")
     ImageResource addIcon();
 
-    @Source("images/remove.png")
+    @Source("../images/remove.png")
     ImageResource removeIcon();
 
-    @Source("images/edit.png")
+    @Source("../images/edit.png")
     ImageResource editIcon();
 
-    @Source("images/list-columns.png")
+    @Source("../images/list-columns.png")
     ImageResource listColumnsIcon();
 
-    @Source("images/clear.png")
+    @Source("../images/clear.png")
     ImageResource clearIcon();
 
-    @Source("images/search.png")
+    @Source("../images/search.png")
     ImageResource searchIcon();
 
-    @Source("images/method-tree.png")
+    @Source("../images/method-tree.png")
     ImageResource methodTreeIcon();
 
-    @Source("images/method-attrs.png")
+    @Source("../images/method-attrs.png")
     ImageResource methodAttrsIcon();
 
-    @Source("images/method-rank.png")
+    @Source("../images/method-rank.png")
     ImageResource methodRankIcon();
 
-    @Source("images/treePlus.gif")
+    @Source("../images/treePlus.gif")
     ImageResource treeMinusIcon();
 
-    @Source("images/treeMinusSlim.png")
+    @Source("../images/treeMinusSlim.png")
     ImageResource treeMinusSlimIcon();
 
-    @Source("images/treeMinus.gif")
+    @Source("../images/treeMinus.gif")
     ImageResource treePlusIcon();
 
-    @Source("images/treePlusSlim.png")
+    @Source("../images/treePlusSlim.png")
     ImageResource treePlusSlimIcon();
 
-    @Source("images/goto.png")
+    @Source("../images/goto.png")
     ImageResource gotoIcon();
 
-    @Source("images/eql.png")
+    @Source("../images/eql.png")
     ImageResource eqlIcon();
 
-    @Source("images/clock.png")
+    @Source("../images/clock.png")
     ImageResource clockIcon();
 
-    @Source("images/disable.png")
+    @Source("../images/disable.png")
     ImageResource disableIcon();
 
-    @Source("images/enable.png")
+    @Source("../images/enable.png")
     ImageResource enableIcon();
 
-    @Source("images/msgbox-ok.png")
+    @Source("../images/msgbox-ok.png")
     ImageResource msgBoxOkIcon();
 
-    @Source("images/key.png")
+    @Source("../images/key.png")
     ImageResource keyIcon();
 
-    @Source("images/zoom-in-5.png")
+    @Source("../images/zoom-in-5.png")
     ImageResource zoomIn();
 
-    @Source("images/zoom-out-5.png")
+    @Source("../images/zoom-out-5.png")
     ImageResource zoomOut();
 
-    @Source("images/attachment.png")
+    @Source("../images/attachment.png")
     ImageResource attachment();
 
-    @Source("images/expander-expand.png")
+    @Source("../images/expander-expand.png")
     ImageResource expanderExpand();
 
-    @Source("images/expander-collapse.png")
+    @Source("../images/expander-collapse.png")
     ImageResource expanderCollapse();
 
-    @Source("images/cancel.png")
+    @Source("../images/cancel.png")
     ImageResource cancel();
 
-    @Source("images/sort.png")
+    @Source("../images/sort.png")
     ImageResource sort();
 
     @DataResource.MimeType("text/html")
-    @Source("resources/tips.html")
+    @Source("tips.html")
     TextResource tipsHtml();
 
 }

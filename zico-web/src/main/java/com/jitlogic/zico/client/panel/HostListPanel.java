@@ -37,8 +37,6 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.IdentityColumn;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.MenuBar;
-import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -48,11 +46,13 @@ import com.google.inject.Inject;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
-import com.jitlogic.zico.client.Resources;
+import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.ZicoShell;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
+import com.jitlogic.zico.client.widgets.MenuBar;
+import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
@@ -348,7 +348,10 @@ public class HostListPanel extends VerticalLayoutContainer {
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
                     if (event.getValue() != null) {
-                        contextMenu.setVisible(true);
+                        contextMenu.setPopupPosition(
+                                event.getNativeEvent().getClientX(),
+                                event.getNativeEvent().getClientY());
+                        contextMenu.show();
                     }
                 }
 
@@ -458,7 +461,7 @@ public class HostListPanel extends VerticalLayoutContainer {
 
 
     private void createContextMenu() {
-        contextMenu = new MenuBar(true);
+        contextMenu = new MenuBar();
         contextMenu.setAnimationEnabled(true);
 
         mnuRefresh = new MenuItem("Refresh", new Scheduler.ScheduledCommand() {
