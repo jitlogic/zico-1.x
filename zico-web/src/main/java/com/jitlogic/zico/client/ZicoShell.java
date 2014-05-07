@@ -15,7 +15,6 @@
  */
 package com.jitlogic.zico.client;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Window;
@@ -44,15 +43,6 @@ public class ZicoShell extends BorderLayoutContainer {
     private final static int DY = 0;
 
     private ErrorHandler errorHandler;
-
-    public static final Resources.ZicoDataGridCssResources ZICO_DATA_GRID_CSS_RESOURCES
-            = GWT.create(Resources.ZicoDataGridCssResources.class);
-
-    static {
-        ZICO_DATA_GRID_CSS_RESOURCES.dataGridStyle().ensureInjected();
-        Resources.INSTANCE.zicoCssResources().ensureInjected();
-    }
-
 
     @Inject
     public ZicoShell(final HostListPanel hostListPanel,

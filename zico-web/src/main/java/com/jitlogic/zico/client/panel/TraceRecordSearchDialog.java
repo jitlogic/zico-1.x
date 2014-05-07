@@ -52,6 +52,7 @@ import com.jitlogic.zico.client.ClientUtil;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.Resources;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.core.model.TraceRecordSearchQuery;
 import com.jitlogic.zico.shared.data.TraceRecordSearchQueryProxy;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
@@ -313,7 +314,7 @@ public class TraceRecordSearchDialog extends Dialog {
 
     private void createResultsGrid() {
 
-        resultsGrid = new DataGrid<TraceRecordProxy>(1024*1024, KEY_PROVIDER);
+        resultsGrid = new DataGrid<TraceRecordProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<TraceRecordProxy>(KEY_PROVIDER);
         resultsGrid.setSelectionModel(selectionModel);
 

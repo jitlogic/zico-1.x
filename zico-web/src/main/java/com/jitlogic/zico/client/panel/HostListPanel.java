@@ -19,6 +19,7 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.ValueUpdater;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
@@ -29,8 +30,6 @@ import com.google.gwt.event.dom.client.ContextMenuHandler;
 import com.google.gwt.event.dom.client.DoubleClickEvent;
 import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.logical.shared.SelectionEvent;
-import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
@@ -38,6 +37,8 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.IdentityColumn;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.MenuBar;
+import com.google.gwt.user.client.ui.MenuItem;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -51,6 +52,7 @@ import com.jitlogic.zico.client.Resources;
 import com.jitlogic.zico.client.ZicoShell;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
@@ -60,10 +62,6 @@ import com.sencha.gxt.widget.core.client.button.TextButton;
 import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
 import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.menu.Item;
-import com.sencha.gxt.widget.core.client.menu.Menu;
-import com.sencha.gxt.widget.core.client.menu.MenuItem;
-import com.sencha.gxt.widget.core.client.menu.SeparatorMenuItem;
 import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
@@ -106,7 +104,8 @@ public class HostListPanel extends VerticalLayoutContainer {
     private boolean selectionDependentControlsEnabled = true;
 
     private boolean adminMode = false;
-    private Menu contextMenu;
+    private MenuBar contextMenu;
+
 
     @Inject
     public HostListPanel(Provider<ZicoShell> shell, PanelFactory panelFactory,
@@ -310,7 +309,7 @@ public class HostListPanel extends VerticalLayoutContainer {
 
     private void createHostListPanel() {
 
-        hostGrid = new DataGrid<HostListObject>(1024*1024, KEY_PROVIDER);
+        hostGrid = new DataGrid<HostListObject>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<HostListObject>(KEY_PROVIDER);
         hostGrid.setSelectionModel(selectionModel);
 
@@ -349,7 +348,7 @@ public class HostListPanel extends VerticalLayoutContainer {
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
                     if (event.getValue() != null) {
-                        contextMenu.showAt(event.getNativeEvent().getClientX(), event.getNativeEvent().getClientY());
+                        contextMenu.setVisible(true);
                     }
                 }
 
@@ -459,83 +458,69 @@ public class HostListPanel extends VerticalLayoutContainer {
 
 
     private void createContextMenu() {
-        contextMenu = new Menu();
+        contextMenu = new MenuBar(true);
+        contextMenu.setAnimationEnabled(true);
 
-        mnuRefresh = new MenuItem("Refresh");
-        mnuRefresh.setIcon(Resources.INSTANCE.refreshIcon());
-        mnuRefresh.addSelectionHandler(new SelectionHandler<Item>() {
+        mnuRefresh = new MenuItem("Refresh", new Scheduler.ScheduledCommand() {
             @Override
-            public void onSelection(SelectionEvent<Item> event) {
+            public void execute() {
                 refresh();
             }
         });
-        contextMenu.add(mnuRefresh);
+        contextMenu.addItem(mnuRefresh);
 
-        contextMenu.add(new SeparatorMenuItem());
+        contextMenu.addSeparator();
 
-        mnuAddHost = new MenuItem("New host");
-        mnuAddHost.setIcon(Resources.INSTANCE.addIcon());
-        mnuAddHost.addSelectionHandler(new SelectionHandler<Item>() {
+        mnuAddHost = new MenuItem("New host", new Scheduler.ScheduledCommand() {
             @Override
-            public void onSelection(SelectionEvent<Item> event) {
+            public void execute() {
                 addHost();
             }
         });
-        contextMenu.add(mnuAddHost);
+        contextMenu.addItem(mnuAddHost);
 
-        mnuRemoveHost = new MenuItem("Remove host");
-        mnuRemoveHost.setIcon(Resources.INSTANCE.removeIcon());
-        mnuRemoveHost.addSelectionHandler(new SelectionHandler<Item>() {
+        mnuRemoveHost = new MenuItem("Remove Host", new Scheduler.ScheduledCommand() {
             @Override
-            public void onSelection(SelectionEvent<Item> event) {
+            public void execute() {
                 removeHost();
             }
         });
-        contextMenu.add(mnuRemoveHost);
+        contextMenu.addItem(mnuRemoveHost);
 
-        mnuEditHost = new MenuItem("Edit host");
-        mnuEditHost.setIcon(Resources.INSTANCE.editIcon());
-        mnuEditHost.addSelectionHandler(new SelectionHandler<Item>() {
+        mnuEditHost = new MenuItem("Edit host", new Scheduler.ScheduledCommand() {
             @Override
-            public void onSelection(SelectionEvent<Item> event) {
+            public void execute() {
                 editHost();
             }
         });
-        contextMenu.add(mnuEditHost);
+        contextMenu.addItem(mnuEditHost);
 
-        contextMenu.add(new SeparatorMenuItem());
+        contextMenu.addSeparator();
 
-        mnuDisableHost = new MenuItem("Disable host");
-        mnuDisableHost.setIcon(Resources.INSTANCE.disableIcon());
-        mnuDisableHost.addSelectionHandler(new SelectionHandler<Item>() {
+        mnuDisableHost = new MenuItem("Disable Host", new Scheduler.ScheduledCommand() {
             @Override
-            public void onSelection(SelectionEvent<Item> event) {
+            public void execute() {
                 toggleHost(false);
             }
         });
-        contextMenu.add(mnuDisableHost);
+        contextMenu.addItem(mnuDisableHost);
 
-        mnuEnableHost = new MenuItem("Enable host");
-        mnuEnableHost.setIcon(Resources.INSTANCE.enableIcon());
-        mnuEnableHost.addSelectionHandler(new SelectionHandler<Item>() {
+        mnuEnableHost = new MenuItem("Enable Host", new Scheduler.ScheduledCommand() {
             @Override
-            public void onSelection(SelectionEvent<Item> event) {
+            public void execute() {
                 toggleHost(true);
             }
         });
-        contextMenu.add(mnuEnableHost);
+        contextMenu.addItem(mnuEnableHost);
 
-        contextMenu.add(new SeparatorMenuItem());
+        contextMenu.addSeparator();
 
-        mnuListTraces = new MenuItem("List traces");
-        mnuListTraces.setIcon(Resources.INSTANCE.listColumnsIcon());
-        mnuListTraces.addSelectionHandler(new SelectionHandler<Item>() {
+        mnuListTraces = new MenuItem("List traces", new Scheduler.ScheduledCommand() {
             @Override
-            public void onSelection(SelectionEvent<Item> event) {
+            public void execute() {
                 listTraces();
             }
         });
-        contextMenu.add(mnuListTraces);
     }
 
 

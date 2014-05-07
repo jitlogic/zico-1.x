@@ -53,6 +53,7 @@ import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
 import com.jitlogic.zico.shared.data.TraceRecordProxy;
 import com.sencha.gxt.widget.core.client.button.TextButton;
@@ -218,7 +219,7 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
     private final static String SMALL_CELL_CSS = Resources.INSTANCE.zicoCssResources().traceSmallCell();
 
     private void createCallTreeGrid() {
-        grid = new DataGrid<TraceRecordProxy>(1024*1024, KEY_PROVIDER);
+        grid = new DataGrid<TraceRecordProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selection = new SingleSelectionModel<TraceRecordProxy>(KEY_PROVIDER);
         grid.setSelectionModel(selection);
 

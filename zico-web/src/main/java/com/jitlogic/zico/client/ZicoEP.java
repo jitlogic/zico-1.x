@@ -21,9 +21,14 @@ import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.jitlogic.zico.client.inject.ClientGinjector;
+import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 
 
 public class ZicoEP implements EntryPoint {
+
+    static {
+        ZicoDataGridResources.INSTANCE.dataGridStyle().ensureInjected();
+    }
 
     private ZicoShell shell;
     private ClientGinjector injector = GWT.create(ClientGinjector.class);

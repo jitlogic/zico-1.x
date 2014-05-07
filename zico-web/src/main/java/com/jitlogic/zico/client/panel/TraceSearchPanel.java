@@ -56,6 +56,7 @@ import com.jitlogic.zico.client.Resources;
 import com.jitlogic.zico.client.ZicoShell;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.data.SymbolProxy;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
@@ -294,7 +295,7 @@ public class TraceSearchPanel extends VerticalLayoutContainer {
     }
 
     private void createTraceGrid() {
-        grid = new DataGrid<TraceInfoProxy>(1024*1024, KEY_PROVIDER);
+        grid = new DataGrid<TraceInfoProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selection = new SingleSelectionModel<TraceInfoProxy>(KEY_PROVIDER);
         grid.setSelectionModel(selection);
 

@@ -26,12 +26,6 @@ import com.google.gwt.user.cellview.client.DataGrid;
 
 public interface Resources extends ClientBundle {
 
-
-    public static interface ZicoDataGridCssResources extends DataGrid.Resources {
-        @Source({DataGrid.Style.DEFAULT_CSS, "resources/ZicoDataGrid.css"})
-        DataGrid.Style dataGridStyle();
-    }
-
     public final static Resources INSTANCE = GWT.create(Resources.class);
 
     @Source("resources/Zico.css")
