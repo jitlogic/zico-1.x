@@ -37,6 +37,7 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.IdentityColumn;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -53,6 +54,7 @@ import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.MenuBar;
 import com.jitlogic.zico.client.widgets.MenuItem;
+import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
@@ -104,7 +106,7 @@ public class HostListPanel extends VerticalLayoutContainer {
     private boolean selectionDependentControlsEnabled = true;
 
     private boolean adminMode = false;
-    private MenuBar contextMenu;
+    private PopupMenu contextMenu;
 
 
     @Inject
@@ -116,9 +118,9 @@ public class HostListPanel extends VerticalLayoutContainer {
         this.rf = rf;
         this.errorHandler = errorHandler;
 
+        createContextMenu();
         createToolbar();
         createHostListPanel();
-        createContextMenu();
 
         enableSelectionDependentControls(null);
     }
@@ -461,10 +463,10 @@ public class HostListPanel extends VerticalLayoutContainer {
 
 
     private void createContextMenu() {
-        contextMenu = new MenuBar();
+        contextMenu = new PopupMenu();
         contextMenu.setAnimationEnabled(true);
 
-        mnuRefresh = new MenuItem("Refresh", new Scheduler.ScheduledCommand() {
+        mnuRefresh = new MenuItem("Refresh", Resources.INSTANCE.refreshIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 refresh();
@@ -474,7 +476,7 @@ public class HostListPanel extends VerticalLayoutContainer {
 
         contextMenu.addSeparator();
 
-        mnuAddHost = new MenuItem("New host", new Scheduler.ScheduledCommand() {
+        mnuAddHost = new MenuItem("New host", Resources.INSTANCE.addIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 addHost();
@@ -482,7 +484,7 @@ public class HostListPanel extends VerticalLayoutContainer {
         });
         contextMenu.addItem(mnuAddHost);
 
-        mnuRemoveHost = new MenuItem("Remove Host", new Scheduler.ScheduledCommand() {
+        mnuRemoveHost = new MenuItem("Remove Host", Resources.INSTANCE.removeIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 removeHost();
@@ -490,7 +492,7 @@ public class HostListPanel extends VerticalLayoutContainer {
         });
         contextMenu.addItem(mnuRemoveHost);
 
-        mnuEditHost = new MenuItem("Edit host", new Scheduler.ScheduledCommand() {
+        mnuEditHost = new MenuItem("Edit host", Resources.INSTANCE.editIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 editHost();
@@ -500,7 +502,7 @@ public class HostListPanel extends VerticalLayoutContainer {
 
         contextMenu.addSeparator();
 
-        mnuDisableHost = new MenuItem("Disable Host", new Scheduler.ScheduledCommand() {
+        mnuDisableHost = new MenuItem("Disable Host", Resources.INSTANCE.disableIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 toggleHost(false);
@@ -508,7 +510,7 @@ public class HostListPanel extends VerticalLayoutContainer {
         });
         contextMenu.addItem(mnuDisableHost);
 
-        mnuEnableHost = new MenuItem("Enable Host", new Scheduler.ScheduledCommand() {
+        mnuEnableHost = new MenuItem("Enable Host", Resources.INSTANCE.enableIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 toggleHost(true);
@@ -518,12 +520,13 @@ public class HostListPanel extends VerticalLayoutContainer {
 
         contextMenu.addSeparator();
 
-        mnuListTraces = new MenuItem("List traces", new Scheduler.ScheduledCommand() {
+        mnuListTraces = new MenuItem("List traces", Resources.INSTANCE.listColumnsIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 listTraces();
             }
         });
+        contextMenu.addItem(mnuListTraces);
     }
 
 
