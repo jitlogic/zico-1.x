@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.client.panel;
+package com.jitlogic.zico.client.views.traces;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell;
@@ -49,6 +49,7 @@ import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ClientUtil;
 import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;

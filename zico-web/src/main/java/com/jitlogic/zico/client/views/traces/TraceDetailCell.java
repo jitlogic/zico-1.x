@@ -13,58 +13,51 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.client.panel;
+package com.jitlogic.zico.client.views.traces;
 
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
-import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.shared.data.KeyValueProxy;
 import com.jitlogic.zico.shared.data.SymbolicExceptionProxy;
-import com.jitlogic.zico.shared.data.TraceRecordProxy;
+import com.jitlogic.zico.shared.data.TraceInfoProxy;
 
-public class MethodDetailCell extends AbstractCell<TraceRecordProxy> {
-
-    private String methodAttributeKey = Resources.INSTANCE.zicoCssResources().methodAttributeKey();
-    private String methodAttributeVal = Resources.INSTANCE.zicoCssResources().methodAttributeVal();
-    private String methodErrorClassName = Resources.INSTANCE.zicoCssResources().methodErrorClassName();
-    private String methodErrorMessage = Resources.INSTANCE.zicoCssResources().methodErrorMessage();
-    private String methodErrorStack = Resources.INSTANCE.zicoCssResources().methodErrorStack();
+public class TraceDetailCell extends AbstractCell<TraceInfoProxy> {
 
     @Override
-    public void render(Context context, TraceRecordProxy tr, SafeHtmlBuilder sb) {
-        if (tr.getAttributes() != null) {
+    public void render(Context context, TraceInfoProxy ti, SafeHtmlBuilder sb) {
+        if (ti.getAttributes() != null) {
             sb.appendHtmlConstant("<table border=\"0\" cellspacing=\"2\"><tbody>");
-            for (KeyValueProxy e : tr.getAttributes()) {
-                sb.appendHtmlConstant("<tr><td align=\"right\" class=\"" + methodAttributeKey + "\"><b>");
+            for (KeyValueProxy e : ti.getAttributes()) {
+                sb.appendHtmlConstant("<tr><td align=\"right\" style=\"color:blue; font-size: small;\"><b>");
                 sb.append(SafeHtmlUtils.fromString(e.getKey()));
-                sb.appendHtmlConstant("</b></td><td><div class=\"" + methodAttributeVal + "\">");
+                sb.appendHtmlConstant("</b></td><td><div style=\"text-wrap: unrestricted; white-space: pre; word-wrap: break-word; font-size: small;\">");
                 sb.append(SafeHtmlUtils.fromString(e.getValue() != null ? e.getValue().toString() : ""));
                 sb.appendHtmlConstant("</div></td></tr>");
             }
             sb.appendHtmlConstant("</tbody></table>");
         }
-        if (tr.getExceptionInfo() != null) {
-            SymbolicExceptionProxy e = tr.getExceptionInfo();
-            sb.appendHtmlConstant("<div class=\"" + methodErrorClassName + "\">");
+        if (ti.getExceptionInfo() != null) {
+            SymbolicExceptionProxy e = ti.getExceptionInfo();
+            sb.appendHtmlConstant("<div><span style=\"color: red;\">");
             sb.append(SafeHtmlUtils.fromString("Caught: " + e.getExClass()));
-            sb.appendHtmlConstant("</div>");
-            sb.appendHtmlConstant("<div class=\"" + methodErrorMessage + "\">");
+            sb.appendHtmlConstant("</span></div><div><b>");
             sb.append(SafeHtmlUtils.fromString("" + e.getMessage()));
             sb.appendHtmlConstant("</b></div>");
             int i = 0;
             for (String s : e.getStackTrace()) {
-                sb.appendHtmlConstant("<div class=\"" + methodErrorStack + "\">");
+                sb.appendHtmlConstant("<div>");
                 sb.append(SafeHtmlUtils.fromString("" + s));
                 sb.appendHtmlConstant("</div>");
                 i++;
                 if (i > 5) {
-                    sb.appendHtmlConstant("<div class=\"" + methodErrorMessage + "\">");
-                    sb.append(SafeHtmlUtils.fromString("...  (double click on this method to see full stack trace)"));
+                    sb.appendHtmlConstant("<div>");
+                    sb.append(SafeHtmlUtils.fromString("...      (open trace attributes window to see full stack trace)"));
                     sb.appendHtmlConstant("</div>");
                     break;
                 }
+
             }
         }
     }

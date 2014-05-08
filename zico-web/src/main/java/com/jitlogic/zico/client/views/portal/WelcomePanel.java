@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.client.portal;
+package com.jitlogic.zico.client.views.portal;
 
 
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -28,7 +28,7 @@ import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.client.ZicoShell;
+import com.jitlogic.zico.client.views.ZicoShell;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.sencha.gxt.widget.core.client.Portlet;

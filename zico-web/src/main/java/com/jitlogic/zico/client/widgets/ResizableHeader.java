@@ -3,7 +3,7 @@
  * http://code.google.com/p/google-web-toolkit/issues/detail?id=6401
  */
 
-package com.jitlogic.zico.client.panel;
+package com.jitlogic.zico.client.widgets;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;

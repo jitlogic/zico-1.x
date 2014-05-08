@@ -23,7 +23,7 @@ import com.google.inject.Provides;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.jitlogic.zico.client.ErrorHandler;
-import com.jitlogic.zico.client.ZicoShell;
+import com.jitlogic.zico.client.views.ZicoShell;
 
 import javax.inject.Singleton;
 

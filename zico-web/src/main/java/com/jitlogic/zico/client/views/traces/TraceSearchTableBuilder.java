@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.client.panel;
+package com.jitlogic.zico.client.views.traces;
 
 
 import com.google.gwt.cell.client.Cell;
@@ -30,11 +30,11 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.view.client.SelectionModel;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.shared.data.TraceRecordProxy;
+import com.jitlogic.zico.shared.data.TraceInfoProxy;
 
 import java.util.Set;
 
-public class TraceCallTableBuilder extends AbstractCellTableBuilder<TraceRecordProxy> {
+public class TraceSearchTableBuilder extends AbstractCellTableBuilder<TraceInfoProxy> {
 
     private final String evenRowStyle;
     private final String selectedRowStyle;
@@ -46,16 +46,16 @@ public class TraceCallTableBuilder extends AbstractCellTableBuilder<TraceRecordP
     private final String extenderCellStyle;
 
 
-    private Set<String> expandedDetails;
-    private Column<TraceRecordProxy,TraceRecordProxy> colDetails;
+    private Set<Long> expandedDetails;
+    private Column<TraceInfoProxy,TraceInfoProxy> colDetails;
 
     /**
      * Construct a new table builder.
      *
      * @param cellTable the table this builder will build rows for
      */
-    public TraceCallTableBuilder(AbstractCellTable<TraceRecordProxy> cellTable,
-                                 Set<String> expandedDetails) {
+    public TraceSearchTableBuilder(AbstractCellTable<TraceInfoProxy> cellTable,
+                                   Set<Long> expandedDetails) {
         super(cellTable);
 
         // Cache styles for faster access.
@@ -69,22 +69,22 @@ public class TraceCallTableBuilder extends AbstractCellTableBuilder<TraceRecordP
         selectedCellStyle = " " + style.selectedRowCell();
         extenderCellStyle = Resources.INSTANCE.zicoCssResources().methodDetailCell();
 
-        this.colDetails = new IdentityColumn<TraceRecordProxy>(new MethodDetailCell());
+        this.colDetails = new IdentityColumn<TraceInfoProxy>(new TraceDetailCell());
         this.expandedDetails = expandedDetails;
     }
 
 
     @Override
-    protected void buildRowImpl(TraceRecordProxy rowValue, int absRowIndex) {
+    protected void buildRowImpl(TraceInfoProxy rowValue, int absRowIndex) {
         // Calculate the row styles.
-        SelectionModel<? super TraceRecordProxy> selectionModel = cellTable.getSelectionModel();
+        SelectionModel<? super TraceInfoProxy> selectionModel = cellTable.getSelectionModel();
         boolean isSelected = (selectionModel == null || rowValue == null) ? false : selectionModel.isSelected(rowValue);
         StringBuilder trClasses = new StringBuilder(evenRowStyle);
         if (isSelected) {
             trClasses.append(selectedRowStyle);
         }
         // Add custom row styles.
-        RowStyles<TraceRecordProxy> rowStyles = cellTable.getRowStyles();
+        RowStyles<TraceInfoProxy> rowStyles = cellTable.getRowStyles();
         if (rowStyles != null) {
             String extraRowStyles = rowStyles.getStyleNames(rowValue, absRowIndex);
             if (extraRowStyles != null) {
@@ -93,13 +93,13 @@ public class TraceCallTableBuilder extends AbstractCellTableBuilder<TraceRecordP
         }
 
         buildStandardRow(rowValue, absRowIndex, isSelected, trClasses.toString());
-        if (expandedDetails.contains(rowValue.getPath())) {
+        if (expandedDetails.contains(rowValue.getDataOffs())) {
             buildDetailRow(rowValue, absRowIndex, isSelected, trClasses.toString());
         }
     }
 
 
-    private void buildDetailRow(TraceRecordProxy value, int absRowIndex, boolean isSelected, String trClasses) {
+    private void buildDetailRow(TraceInfoProxy value, int absRowIndex, boolean isSelected, String trClasses) {
         TableRowBuilder tr = startRow();
         tr.className(trClasses);
         tr.startTD().endTD();
@@ -113,7 +113,7 @@ public class TraceCallTableBuilder extends AbstractCellTableBuilder<TraceRecordP
     }
 
 
-    private void buildStandardRow(TraceRecordProxy rowValue, int absRowIndex, boolean isSelected, String trClasses) {
+    private void buildStandardRow(TraceInfoProxy rowValue, int absRowIndex, boolean isSelected, String trClasses) {
         //boolean isEven = absRowIndex % 2 == 0;
 
 
@@ -124,7 +124,7 @@ public class TraceCallTableBuilder extends AbstractCellTableBuilder<TraceRecordP
         // Build the columns.
         int columnCount = cellTable.getColumnCount();
         for (int curColumn = 0; curColumn < columnCount; curColumn++) {
-            Column<TraceRecordProxy, ?> column = cellTable.getColumn(curColumn);
+            Column<TraceInfoProxy, ?> column = cellTable.getColumn(curColumn);
             // Create the cell styles.
             StringBuilder tdClasses = new StringBuilder(cellStyle);
             tdClasses.append(evenCellStyle);
