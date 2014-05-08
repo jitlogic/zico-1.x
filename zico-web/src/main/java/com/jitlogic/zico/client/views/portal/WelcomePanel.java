@@ -28,7 +28,7 @@ import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.client.views.ZicoShell;
+import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.sencha.gxt.widget.core.client.Portlet;
@@ -45,7 +45,7 @@ public class WelcomePanel implements IsWidget {
 
     private ZicoRequestFactory rf;
 
-    private Provider<ZicoShell> shell;
+    private Provider<Shell> shell;
 
     private SystemInfoPortlet systemInfoPortlet;
     private PanelFactory panelFactory;
@@ -55,7 +55,7 @@ public class WelcomePanel implements IsWidget {
     @Inject
     public WelcomePanel(ZicoRequestFactory rf,
                         SystemInfoPortlet systemInfoPortlet,
-                        PanelFactory panelFactory, Provider<ZicoShell> shell,
+                        PanelFactory panelFactory, Provider<Shell> shell,
                         ErrorHandler errorHandler) {
 
         this.rf = rf;
@@ -83,14 +83,6 @@ public class WelcomePanel implements IsWidget {
         portal.setColumnWidth(2, .25);
 
         createHelpPortlet();
-
-        //Portlet wndTopHosts = newPortlet("Top Hosts", false);
-        //wndTopHosts.add(new HTML("TBD"));
-        //portal.add(wndTopHosts, 1);
-
-        //Portlet wndTopOffenders = newPortlet("Top Offenders", false);
-        //wndTopOffenders.add(new HTML("TBD"));
-        //portal.add(wndTopOffenders, 1);
 
         portal.add(systemInfoPortlet, 2);
 
@@ -187,10 +179,6 @@ public class WelcomePanel implements IsWidget {
                 panelFactory.passwordChangeDialog("").show();
             }
         }, ClickEvent.getType());
-
-
-        //Hyperlink lnkUsersAccess = new Hyperlink("Users & Access Privileges", "");
-        //vp.add(lnkUsersAccess);
 
         wndUser.add(vp);
         portal.add(wndUser, 2);

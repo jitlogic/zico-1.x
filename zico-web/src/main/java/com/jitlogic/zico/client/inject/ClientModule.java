@@ -23,7 +23,7 @@ import com.google.inject.Provides;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.jitlogic.zico.client.ErrorHandler;
-import com.jitlogic.zico.client.views.ZicoShell;
+import com.jitlogic.zico.client.views.Shell;
 
 import javax.inject.Singleton;
 
@@ -33,7 +33,7 @@ public class ClientModule extends AbstractGinModule {
     protected void configure() {
         bind(ErrorHandler.class);
         bind(EventBus.class).to(SimpleEventBus.class);
-        bind(ZicoShell.class).in(Singleton.class);
+        bind(Shell.class).in(Singleton.class);
         install(new GinFactoryModuleBuilder().build(PanelFactory.class));
     }
 

@@ -51,9 +51,9 @@ import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ClientUtil;
 import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.client.views.ZicoShell;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
@@ -95,7 +95,7 @@ public class TraceSearchPanel extends VerticalLayoutContainer {
 
     private ErrorHandler errorHandler;
 
-    private Provider<ZicoShell> shell;
+    private Provider<Shell> shell;
 
     private HostProxy host;
 
@@ -132,7 +132,7 @@ public class TraceSearchPanel extends VerticalLayoutContainer {
 
 
     @Inject
-    public TraceSearchPanel(Provider<ZicoShell> shell, ZicoRequestFactory rf,
+    public TraceSearchPanel(Provider<Shell> shell, ZicoRequestFactory rf,
                             PanelFactory pf, @Assisted HostProxy host,
                             ErrorHandler errorHandler) {
         this.shell = shell;

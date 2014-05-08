@@ -1,0 +1,26 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <g:HTMLPanel>
+        <h1>Welcome !</h1>
+
+        <p>Zorka Intranet Collector collects performance data from Zorka agents across the network. You can view details about execution of all instrumented applications here. </p>
+
+        <h1>Tips</h1>
+        <ul>
+        <li>to display trace list from host of interest, double click host from the list from left panel;</li>
+        <li>to display more details about trace, click that small arrow icon on the left;</li>
+        <li>to display call method tree of a trace double click on specific trace in trace list;</li>
+        <li>to search among traces, type some text (or regexp starting with '<b>~</b>') in the input box above and press ENTER or click '<b>Search</b>' button; </li>
+        <li>you can also use SQL-like queries; click '<b>QL</b>' button to enable it;</li>
+        <li>in order to enable searching full call tree (not only data visible in top level trace list), click '<b>Deep Search</b>' button;</li>
+        </ul>
+
+        <g:Label ui:field="infoLabel">System info:</g:Label>
+
+        <g:Hyperlink ui:field="lnkChangePassword">Change password</g:Hyperlink>
+        <g:Hyperlink ui:field="lnkManageUsers">Manage Users</g:Hyperlink>
+        <g:Hyperlink ui:field="lnkBackup">Back up Symbols and Config</g:Hyperlink>
+        <g:Hyperlink ui:field="lnkTraceDisplayTemplates">Trace List Display Templates</g:Hyperlink>
+
+    </g:HTMLPanel>
+</ui:UiBinder>

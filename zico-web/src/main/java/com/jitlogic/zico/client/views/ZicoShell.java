@@ -38,8 +38,6 @@ public class ZicoShell extends BorderLayoutContainer {
 
     private TabPanel tabPanel;
 
-    private ZicoRequestFactory rf;
-
     private final static int DX = 0;
     private final static int DY = 0;
 
@@ -50,7 +48,6 @@ public class ZicoShell extends BorderLayoutContainer {
                      ZicoRequestFactory rf, ErrorHandler errorHandler,
                      WelcomePanel welcomePanel) {
 
-        this.rf = rf;
         this.errorHandler = errorHandler;
 
         Window.enableScrolling(false);

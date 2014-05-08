@@ -46,9 +46,9 @@ import com.google.inject.Inject;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.client.views.ZicoShell;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
@@ -74,23 +74,10 @@ import java.util.TreeMap;
 
 public class HostListPanel extends VerticalLayoutContainer {
 
-    private Provider<ZicoShell> shell;
+    private Provider<Shell> shell;
     private PanelFactory panelFactory;
     private ZicoRequestFactory rf;
 
-    /* [RLE]
-     * This is quite ugly hack simulating tree with a list.
-     * Yet I don't have enough patience to implement another
-     * bunch of classes just to switch from list to tree.
-     * GWT is IMO a dead-end. GXT with its
-     * buggy-beta-as-open-source approach makes things worse.
-     *
-     * ReactJS+Om+ClojureScript seems to be the way
-     * to go, so current ZICO UI implementation will be
-     * scrapped at some point in the future and replaced
-     * with better technology, more friendly for both user
-     * and developer.
-     */
     private DataGrid<HostListObject> hostGrid;
     private ListDataProvider<HostListObject> hostGridStore;
     private SingleSelectionModel<HostListObject> selectionModel;
@@ -109,7 +96,7 @@ public class HostListPanel extends VerticalLayoutContainer {
 
 
     @Inject
-    public HostListPanel(Provider<ZicoShell> shell, PanelFactory panelFactory,
+    public HostListPanel(Provider<Shell> shell, PanelFactory panelFactory,
                          ZicoRequestFactory rf, ErrorHandler errorHandler) {
 
         this.shell = shell;
