@@ -25,18 +25,14 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ContextMenuEvent;
-import com.google.gwt.event.dom.client.ContextMenuHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.IdentityColumn;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -54,17 +50,13 @@ import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.client.widgets.PopupMenu;
+import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
 import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.box.ConfirmMessageBox;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
-import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 import javax.inject.Provider;
 import java.util.List;
@@ -72,7 +64,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 
-public class HostListPanel extends VerticalLayoutContainer {
+public class HostListPanel extends Composite {
+
 
     private Provider<Shell> shell;
     private PanelFactory panelFactory;
@@ -86,7 +79,7 @@ public class HostListPanel extends VerticalLayoutContainer {
 
     private ErrorHandler errorHandler;
 
-    private TextButton btnRefresh, btnAddHost, btnRemoveHost, btnEditHost, btnListTraces, btnDisableHost, btnEnableHost;
+    private ToolButton btnRefresh, btnAddHost, btnRemoveHost, btnEditHost, btnListTraces, btnDisableHost, btnEnableHost;
     private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces, mnuDisableHost, mnuEnableHost;
 
     private boolean selectionDependentControlsEnabled = true;
@@ -94,6 +87,7 @@ public class HostListPanel extends VerticalLayoutContainer {
     private boolean adminMode = false;
     private PopupMenu contextMenu;
 
+    private DockLayoutPanel panel;
 
     @Inject
     public HostListPanel(Provider<Shell> shell, PanelFactory panelFactory,
@@ -104,11 +98,15 @@ public class HostListPanel extends VerticalLayoutContainer {
         this.rf = rf;
         this.errorHandler = errorHandler;
 
+        panel = new DockLayoutPanel(Style.Unit.PX);
+
         createContextMenu();
         createToolbar();
         createHostListPanel();
 
         enableSelectionDependentControls(null);
+
+        initWidget(panel);
     }
 
     public void setAdminMode(boolean adminMode) {
@@ -140,95 +138,88 @@ public class HostListPanel extends VerticalLayoutContainer {
     }
 
     private void createToolbar() {
-        ToolBar toolBar = new ToolBar();
+        HorizontalPanel toolBar = new HorizontalPanel();
+        toolBar.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 
-        btnRefresh = new TextButton();
-        btnRefresh.setIcon(Resources.INSTANCE.refreshIcon());
-        btnRefresh.setToolTip("Refresh host list");
-        btnRefresh.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                refresh();
-            }
-        });
+        btnRefresh = new ToolButton(Resources.INSTANCE.refreshIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        refresh();
+                    }
+                });
+        // TODO btnRefresh.setToolTip("Refresh host list");
         toolBar.add(btnRefresh);
 
-        toolBar.add(new SeparatorToolItem());
+        // TODO toolBar.add(new SeparatorToolItem());
 
-        btnAddHost = new TextButton();
-        btnAddHost.setIcon(Resources.INSTANCE.addIcon());
-        btnAddHost.setToolTip("Add new host");
-        btnAddHost.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                addHost();
-            }
-        });
+        btnAddHost = new ToolButton(Resources.INSTANCE.addIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        addHost();
+                    }
+                });
+        // TODO btnAddHost.setToolTip("Add new host");
         toolBar.add(btnAddHost);
 
-        btnRemoveHost = new TextButton();
-        btnRemoveHost.setIcon(Resources.INSTANCE.removeIcon());
-        btnRemoveHost.setToolTip("Remove host");
-        btnRemoveHost.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                removeHost();
-            }
-        });
+        btnRemoveHost = new ToolButton(Resources.INSTANCE.removeIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        removeHost();
+                    }
+                });
+        // TODO btnRemoveHost.setToolTip("Remove host");
         toolBar.add(btnRemoveHost);
 
-        toolBar.add(new SeparatorToolItem());
+        // TODO toolBar.add(new SeparatorToolItem());
 
-        btnEditHost = new TextButton();
-        btnEditHost.setIcon(Resources.INSTANCE.editIcon());
-        btnEditHost.setToolTip("Edit host");
-        btnEditHost.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                editHost();
-            }
-        });
+        btnEditHost = new ToolButton(Resources.INSTANCE.editIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        editHost();
+                    }
+                });
+        // TODO btnEditHost.setToolTip("Edit host");
         toolBar.add(btnEditHost);
 
-        toolBar.add(new SeparatorToolItem());
+        //toolBar.add(new SeparatorToolItem());
 
-        btnDisableHost = new TextButton();
-        btnDisableHost.setIcon(Resources.INSTANCE.disableIcon());
-        btnDisableHost.setToolTip("Disable host");
-        btnDisableHost.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                toggleHost(false);
-            }
-        });
+        btnDisableHost = new ToolButton(Resources.INSTANCE.disableIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        toggleHost(false);
+                    }
+                });
+        //btnDisableHost.setToolTip("Disable host");
         toolBar.add(btnDisableHost);
 
-        btnEnableHost = new TextButton();
-        btnEnableHost.setIcon(Resources.INSTANCE.enableIcon());
-        btnEnableHost.setToolTip("Enable host");
-        btnEnableHost.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                toggleHost(true);
-            }
-        });
+        btnEnableHost = new ToolButton(Resources.INSTANCE.enableIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        toggleHost(true);
+                    }
+                });
+        //btnEnableHost.setToolTip("Enable host");
         toolBar.add(btnEnableHost);
 
-        toolBar.add(new SeparatorToolItem());
+        //toolBar.add(new SeparatorToolItem());
 
-        btnListTraces = new TextButton();
-        btnListTraces.setIcon(Resources.INSTANCE.listColumnsIcon());
-        btnListTraces.setToolTip("List traces");
+        btnListTraces = new ToolButton(Resources.INSTANCE.listColumnsIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        listTraces();
+                    }
+                });
+        //btnListTraces.setToolTip("List traces");
         toolBar.add(btnListTraces);
 
-        btnListTraces.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                listTraces();
-            }
-        });
-
-        add(toolBar, new VerticalLayoutData(1, -1));
+        panel.addNorth(toolBar, 28);
     }
 
     private static final ProvidesKey<HostListObject> KEY_PROVIDER = new ProvidesKey<HostListObject>() {
@@ -370,7 +361,7 @@ public class HostListPanel extends VerticalLayoutContainer {
 
         refresh();
 
-        add(hostGrid, new VerticalLayoutData(1, 1));
+        panel.add(hostGrid);
     }
 
 

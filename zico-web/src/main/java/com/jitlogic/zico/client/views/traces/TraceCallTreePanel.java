@@ -37,9 +37,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.IdentityColumn;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -56,13 +54,9 @@ import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.client.widgets.PopupMenu;
+import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
 import com.jitlogic.zico.shared.data.TraceRecordProxy;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
-import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -70,7 +64,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class TraceCallTreePanel extends VerticalLayoutContainer {
+public class TraceCallTreePanel extends Composite {
 
     private static final ProvidesKey<TraceRecordProxy> KEY_PROVIDER = new ProvidesKey<TraceRecordProxy>() {
         @Override
@@ -93,8 +87,8 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
 
     private Set<String> expandedDetails = new HashSet<String>();
 
-    private TextButton btnSearchPrev;
-    private TextButton btnSearchNext;
+    private ToolButton btnSearchPrev;
+    private ToolButton btnSearchNext;
 
     private HorizontalPanel statusBar;
     private Label statusLabel;
@@ -105,8 +99,9 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
 
     private List<TraceRecordProxy> searchResults = new ArrayList<TraceRecordProxy>();
     private int curentSearchResultIdx = -1;
-    private TextButton btnExpandAll;
+    private ToolButton btnExpandAll;
 
+    private DockLayoutPanel panel;
 
     @Inject
     public TraceCallTreePanel(ZicoRequestFactory rf, PanelFactory panelFactory, ErrorHandler errorHandler,
@@ -116,103 +111,98 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
         this.errorHandler = errorHandler;
         this.trace = trace;
 
+        panel = new DockLayoutPanel(Style.Unit.PX);
+        initWidget(panel);
+
         createToolbar();
-        createCallTreeGrid();
         createStatusBar();
+        createCallTreeGrid();
         createContextMenu();
+
         loadData(false, null);
     }
 
 
     private void createToolbar() {
-        ToolBar toolBar = new ToolBar();
+        HorizontalPanel toolBar = new HorizontalPanel();
 
-        TextButton btnParentMethod = new TextButton();
-        btnParentMethod.setIcon(Resources.INSTANCE.goUpIcon());
-        btnParentMethod.setToolTip("Go back to parent method");
-        btnParentMethod.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                findParent();
-            }
-        });
+        ToolButton btnParentMethod = new ToolButton(Resources.INSTANCE.goUpIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        findParent();
+                    }
+                });
+        //btnParentMethod.setToolTip("Go back to parent method");
         toolBar.add(btnParentMethod);
 
-        TextButton btnSlowestMethod = new TextButton();
-        btnSlowestMethod.setIcon(Resources.INSTANCE.goDownIcon());
-        btnSlowestMethod.setToolTip("Drill down: slowest method");
-        btnSlowestMethod.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                findSlowestMethod();
-            }
-        });
+        ToolButton btnSlowestMethod = new ToolButton(Resources.INSTANCE.goDownIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        findSlowestMethod();
+                    }
+                });
+        //btnSlowestMethod.setToolTip("Drill down: slowest method");
         toolBar.add(btnSlowestMethod);
 
-        TextButton btnErrorMethod = new TextButton();
-        btnErrorMethod.setIcon(Resources.INSTANCE.ligtningGo());
-        btnErrorMethod.setToolTip("Go to next error");
-        btnErrorMethod.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                findErrorMethod();
-            }
-        });
+        ToolButton btnErrorMethod = new ToolButton(Resources.INSTANCE.ligtningGo(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        findErrorMethod();
+                    }
+                });
+        //btnErrorMethod.setToolTip("Go to next error");
         toolBar.add(btnErrorMethod);
 
-        toolBar.add(new SeparatorToolItem());
+        //toolBar.add(new SeparatorToolItem());
 
-        btnExpandAll = new TextButton();
-        btnExpandAll.setIcon(Resources.INSTANCE.expandIcon());
-        btnExpandAll.setToolTip("Expand all");
-        btnExpandAll.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                loadData(true, null);
-            }
-        });
+        btnExpandAll = new ToolButton(Resources.INSTANCE.expandIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        loadData(true, null);
+                    }
+                });
+        //btnExpandAll.setToolTip("Expand all");
         toolBar.add(btnExpandAll);
 
+        //toolBar.add(new SeparatorToolItem());
 
-        toolBar.add(new SeparatorToolItem());
-
-        TextButton btnSearch = new TextButton();
-        btnSearch.setIcon(Resources.INSTANCE.searchIcon());
-        btnSearch.setToolTip("Search");
-        btnSearch.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                doSearch();
-            }
-        });
+        ToolButton btnSearch = new ToolButton(Resources.INSTANCE.searchIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        doSearch();
+                    }
+                });
+        //btnSearch.setToolTip("Search");
         toolBar.add(btnSearch);
 
-        btnSearchPrev = new TextButton();
-        btnSearchPrev.setIcon(Resources.INSTANCE.goPrevIcon());
-        btnSearchPrev.setToolTip("Go to previous search result");
+        btnSearchPrev = new ToolButton(Resources.INSTANCE.goPrevIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        goToResult(curentSearchResultIdx-1);
+                    }
+                });
+        //btnSearchPrev.setToolTip("Go to previous search result");
         btnSearchPrev.setEnabled(false);
-        btnSearchPrev.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                goToResult(curentSearchResultIdx-1);
-            }
-        });
         toolBar.add(btnSearchPrev);
 
-        btnSearchNext = new TextButton();
-        btnSearchNext.setIcon(Resources.INSTANCE.goNextIcon());
-        btnSearchNext.setToolTip("Go to next search result");
+        btnSearchNext = new ToolButton(Resources.INSTANCE.goPrevIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        goToResult(curentSearchResultIdx+1);
+                    }
+                });
+        //btnSearchNext.setToolTip("Go to next search result");
         btnSearchNext.setEnabled(false);
-        btnSearchNext.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                goToResult(curentSearchResultIdx+1);
-            }
-        });
         toolBar.add(btnSearchNext);
 
-
-        add(toolBar, new VerticalLayoutData(1, -1));
+        panel.addNorth(toolBar, 32);
     }
 
     private final static String SMALL_CELL_CSS = Resources.INSTANCE.zicoCssResources().traceSmallCell();
@@ -303,7 +293,7 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
 
         data.addDataDisplay(grid);
 
-        add(grid, new VerticalLayoutData(1, 1));
+        panel.add(grid);
     }
 
 
@@ -319,8 +309,7 @@ public class TraceCallTreePanel extends VerticalLayoutContainer {
         HorizontalPanel spacer = new HorizontalPanel(); spacer.setWidth("100px"); hp.add(spacer);
         hp.add(statusBar);
 
-        add(hp);
-
+        panel.addSouth(hp, 16);
     }
 
 

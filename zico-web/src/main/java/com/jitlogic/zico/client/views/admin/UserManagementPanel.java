@@ -31,6 +31,9 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.IdentityColumn;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -44,23 +47,19 @@ import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.client.widgets.PopupMenu;
+import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.data.UserProxy;
 import com.sencha.gxt.widget.core.client.Dialog;
 import com.sencha.gxt.widget.core.client.box.ConfirmMessageBox;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 import com.sencha.gxt.widget.core.client.event.HideEvent;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
-import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class UserManagementPanel extends VerticalLayoutContainer {
+public class UserManagementPanel extends Composite {
 
     private ZicoRequestFactory rf;
     private PanelFactory panelFactory;
@@ -74,6 +73,8 @@ public class UserManagementPanel extends VerticalLayoutContainer {
 
     private List<String> hostNames = new ArrayList<String>();
 
+    private DockLayoutPanel panel;
+
     @Inject
     public UserManagementPanel(ZicoRequestFactory requestFactory, PanelFactory panelFactory, ErrorHandler errorHandler) {
 
@@ -81,76 +82,65 @@ public class UserManagementPanel extends VerticalLayoutContainer {
         this.panelFactory = panelFactory;
         this.errorHandler = errorHandler;
 
+        panel = new DockLayoutPanel(Style.Unit.PX);
+        initWidget(panel);
+
         loadHosts();
-        createUi();
+        createToolBar();
+        createUserGrid();
+        createContextMenu();
         refreshUsers();
     }
 
 
-    private void createUi() {
-        createToolBar();
-        createUserGrid();
-        createContextMenu();
-    }
-
-
     private void createToolBar() {
-        ToolBar toolBar = new ToolBar();
+        HorizontalPanel toolBar = new HorizontalPanel();
 
-        TextButton btnRefresh = new TextButton();
-        btnRefresh.setIcon(Resources.INSTANCE.refreshIcon());
-        btnRefresh.setToolTip("Refresh user list");
+        ToolButton btnRefresh = new ToolButton(Resources.INSTANCE.refreshIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        refreshUsers();
+                    }
+                });
+        //btnRefresh.setToolTip("Refresh user list");
         toolBar.add(btnRefresh);
 
-        btnRefresh.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                refreshUsers();
-            }
-        });
+        //toolBar.add(new SeparatorToolItem());
 
-        toolBar.add(new SeparatorToolItem());
-
-        TextButton btnAdd = new TextButton();
-        btnAdd.setIcon(Resources.INSTANCE.addIcon());
-        btnAdd.setToolTip("Add user");
+        ToolButton btnAdd = new ToolButton(Resources.INSTANCE.addIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        addUser();
+                    }
+                });
+        //btnAdd.setToolTip("Add user");
         toolBar.add(btnAdd);
 
-        btnAdd.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                addUser();
-            }
-        });
-
-        TextButton btnRemove = new TextButton();
-        btnRemove.setIcon(Resources.INSTANCE.removeIcon());
-        btnRemove.setToolTip("Remove user");
+        ToolButton btnRemove = new ToolButton(Resources.INSTANCE.removeIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        removeUser();
+                    }
+                });
+        //btnRemove.setToolTip("Remove user");
         toolBar.add(btnRemove);
 
-        btnRemove.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                removeUser();
-            }
-        });
+        //toolBar.add(new SeparatorToolItem());
 
-        toolBar.add(new SeparatorToolItem());
-
-        TextButton btnPassword = new TextButton();
-        btnPassword.setIcon(Resources.INSTANCE.keyIcon());
-        btnPassword.setToolTip("Change user password");
+        ToolButton btnPassword = new ToolButton(Resources.INSTANCE.keyIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        changePassword();
+                    }
+                });
+        //btnPassword.setToolTip("Change user password");
         toolBar.add(btnPassword);
 
-        btnPassword.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                changePassword();
-            }
-        });
-
-
-        add(toolBar, new VerticalLayoutData(1, -1));
+        panel.addNorth(toolBar, 32);
     }
 
 
@@ -264,7 +254,7 @@ public class UserManagementPanel extends VerticalLayoutContainer {
             }
         }, ContextMenuEvent.getType());
 
-        add(userGrid, new VerticalLayoutData(1, 1));
+        panel.add(userGrid);
     }
 
 

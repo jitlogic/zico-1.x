@@ -31,6 +31,9 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.IdentityColumn;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -44,19 +47,15 @@ import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.client.widgets.PopupMenu;
+import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.TraceTemplateProxy;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.toolbar.SeparatorToolItem;
-import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 
-public class TraceTemplatePanel extends VerticalLayoutContainer {
+public class TraceTemplatePanel extends Composite {
 
     private ListDataProvider<TraceTemplateProxy> templateStore;
     private DataGrid<TraceTemplateProxy> templateGrid;
@@ -67,6 +66,7 @@ public class TraceTemplatePanel extends VerticalLayoutContainer {
 
     private PopupMenu contextMenu;
 
+    private DockLayoutPanel panel;
 
     @Inject
     public TraceTemplatePanel(ZicoRequestFactory rf, ErrorHandler errorHandler) {
@@ -74,9 +74,12 @@ public class TraceTemplatePanel extends VerticalLayoutContainer {
         this.errorHandler = errorHandler;
         this.rf = rf;
 
+        panel = new DockLayoutPanel(Style.Unit.PX);
+        initWidget(panel);
+
         createToolbar();
-        createTemplateListGrid();
         createContextMenu();
+        createTemplateListGrid();
 
         refreshTemplates();
     }
@@ -167,70 +170,62 @@ public class TraceTemplatePanel extends VerticalLayoutContainer {
             }
         }, ContextMenuEvent.getType());
 
-        add(templateGrid, new VerticalLayoutData(1, 1));
+        panel.add(templateGrid);
     }
 
 
     private void createToolbar() {
-        ToolBar toolBar = new ToolBar();
+        HorizontalPanel toolBar = new HorizontalPanel();
 
-        TextButton btnRefresh = new TextButton();
-        btnRefresh.setIcon(Resources.INSTANCE.refreshIcon());
-        btnRefresh.setToolTip("Refresh list");
+        ToolButton btnRefresh = new ToolButton(Resources.INSTANCE.refreshIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        refreshTemplates();
+                    }
+                });
+        //btnRefresh.setToolTip("Refresh list");
 
         toolBar.add(btnRefresh);
 
-        btnRefresh.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                refreshTemplates();
-            }
-        });
+        //toolBar.add(new SeparatorToolItem());
 
-        toolBar.add(new SeparatorToolItem());
-
-        TextButton btnNew = new TextButton();
-        btnNew.setIcon(Resources.INSTANCE.addIcon());
-        btnNew.setToolTip("Add new template");
+        ToolButton btnNew = new ToolButton(Resources.INSTANCE.addIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        addTemplate();
+                    }
+                });
+        //btnNew.setToolTip("Add new template");
 
         toolBar.add(btnNew);
 
-        btnNew.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                addTemplate();
-            }
-        });
-
-        TextButton btnRemove = new TextButton();
-        btnRemove.setIcon(Resources.INSTANCE.removeIcon());
-        btnRemove.setToolTip("Remove template");
+        ToolButton btnRemove = new ToolButton(Resources.INSTANCE.removeIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        removeTemplate();
+                    }
+                });
+        //btnRemove.setToolTip("Remove template");
 
         toolBar.add(btnRemove);
 
-        btnRemove.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                removeTemplate();
-            }
-        });
+        //toolBar.add(new SeparatorToolItem());
 
-        toolBar.add(new SeparatorToolItem());
-
-        TextButton btnEdit = new TextButton();
-        btnEdit.setIcon(Resources.INSTANCE.editIcon());
-        btnEdit.setToolTip("Modify template");
+        ToolButton btnEdit = new ToolButton(Resources.INSTANCE.editIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        editTemplate();
+                    }
+                });
+        //btnEdit.setToolTip("Modify template");
 
         toolBar.add(btnEdit);
 
-        btnEdit.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                editTemplate();
-            }
-        });
-
-        add(toolBar, new VerticalLayoutData(1, -1));
+        panel.addNorth(toolBar, 32);
     }
 
 
