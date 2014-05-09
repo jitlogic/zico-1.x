@@ -20,27 +20,25 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.HTMLPanel;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
-import com.jitlogic.zico.client.views.portal.SystemInfoPortlet;
 
 import javax.inject.Provider;
+import java.util.List;
 
 public class WelcomeView extends Composite {
     interface WelcomeViewUiBinder extends UiBinder<HTMLPanel, WelcomeView> { }
     private static WelcomeViewUiBinder ourUiBinder = GWT.create(WelcomeViewUiBinder.class);
 
     @UiField
-    Label infoLabel;
+    VerticalPanel infoPanel;
 
     @UiField
     Hyperlink lnkChangePassword;
@@ -61,6 +59,8 @@ public class WelcomeView extends Composite {
     private PanelFactory panelFactory;
 
     private ErrorHandler errorHandler;
+
+    private Timer timer;
 
     @Inject
     public WelcomeView(final ZicoRequestFactory rf,
@@ -135,10 +135,36 @@ public class WelcomeView extends Composite {
             }
         }, ClickEvent.getType());
 
+        timer = new Timer() {
+            @Override
+            public void run() {
+                loadData();
+            }
+        };
+        timer.scheduleRepeating(10000);
+
     }
 
     private void openTemplatePanel() {
         shell.get().addView(panelFactory.traceTemplatePanel(), "Templates");
+    }
+
+    private void loadData() {
+        rf.systemService().systemInfo().fire(new Receiver<List<String>>() {
+            @Override
+            public void onSuccess(List<String> response) {
+                infoPanel.clear();
+                for (String s : response) {
+                    infoPanel.add(new Label(s));
+                }
+            }
+
+            @Override
+            public void onFailure(ServerFailure e) {
+                infoPanel.clear();
+                infoPanel.add(new Label("Error: " + e.getMessage()));
+            }
+        });
     }
 
 }

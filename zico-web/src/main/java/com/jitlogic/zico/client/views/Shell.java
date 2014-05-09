@@ -1,7 +1,6 @@
 package com.jitlogic.zico.client.views;
 
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.DivElement;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.client.ui.Composite;
@@ -13,7 +12,6 @@ import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.views.hosts.HostListPanel;
-import com.jitlogic.zico.client.views.portal.WelcomePanel;
 
 public class Shell extends Composite {
     interface ShellUiBinder extends UiBinder<Widget, Shell> { }

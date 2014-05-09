@@ -15,12 +15,14 @@
         <li>in order to enable searching full call tree (not only data visible in top level trace list), click '<b>Deep Search</b>' button;</li>
         </ul>
 
-        <g:Label ui:field="infoLabel">System info:</g:Label>
 
         <g:Hyperlink ui:field="lnkChangePassword">Change password</g:Hyperlink>
         <g:Hyperlink ui:field="lnkManageUsers">Manage Users</g:Hyperlink>
         <g:Hyperlink ui:field="lnkBackup">Back up Symbols and Config</g:Hyperlink>
         <g:Hyperlink ui:field="lnkTraceDisplayTemplates">Trace List Display Templates</g:Hyperlink>
+
+        <g:Label>System info:</g:Label>
+        <g:VerticalPanel ui:field="infoPanel"/>
 
     </g:HTMLPanel>
 </ui:UiBinder>
