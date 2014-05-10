@@ -15,19 +15,26 @@
  */
 package com.jitlogic.zico.main;
 
-import org.mortbay.jetty.security.Credential;
+import org.eclipse.jetty.server.UserIdentity;
+import org.eclipse.jetty.util.security.Credential;
+
+import javax.security.auth.Subject;
 import java.security.Principal;
 
-public class ZicoUser implements Principal {
+public class ZicoUser implements Principal, UserIdentity {
 
     private String username;
     private Credential credential;
     private boolean admin, authenticated;
+    private transient Subject subject;
 
     public ZicoUser(String username, String password, boolean admin) {
         this.username = username;
         credential = Credential.getCredential(password != null ? password : "");
         this.admin = admin;
+        Subject subject = new Subject();
+        subject.getPrincipals().add(this);
+        subject.getPrivateCredentials().add(credential);
     }
 
     @Override
@@ -49,5 +56,23 @@ public class ZicoUser implements Principal {
 
     public synchronized boolean authenticate(Object pass) {
         return credential.check(pass);
+    }
+
+
+    @Override
+    public Subject getSubject() {
+        return subject;
+    }
+
+
+    @Override
+    public Principal getUserPrincipal() {
+        return this;
+    }
+
+
+    @Override
+    public boolean isUserInRole(String role, Scope scope) {
+        return false;
     }
 }

@@ -16,17 +16,15 @@
 package com.jitlogic.zico.main;
 
 
-import org.mortbay.jetty.Request;
-import org.mortbay.jetty.Response;
-import org.mortbay.jetty.security.Credential;
-import org.mortbay.jetty.security.SSORealm;
-import org.mortbay.jetty.security.UserRealm;
 
-import java.security.Principal;
+import org.eclipse.jetty.security.IdentityService;
+import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.server.UserIdentity;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ZicoUserRealm implements UserRealm, SSORealm {
+public class ZicoUserRealm implements LoginService {
 
     private static ZicoUserRealm instance;
 
@@ -49,24 +47,12 @@ public class ZicoUserRealm implements UserRealm, SSORealm {
         return name;
     }
 
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-
     @Override
-    public Principal getPrincipal(String username) {
-        return users.get(username);
-    }
-
-
-    @Override
-    public Principal authenticate(String username, Object pass, Request request) {
+    public UserIdentity login(String username, Object credentials) {
         ZicoUser user = users.get(username);
 
         if (user != null) {
-            if (user.authenticate(pass)) {
+            if (user.authenticate(credentials)) {
                 user.setAuthenticated(true);
                 return user;
             }
@@ -75,56 +61,29 @@ public class ZicoUserRealm implements UserRealm, SSORealm {
         return null;
     }
 
-
     @Override
-    public boolean reauthenticate(Principal principal) {
-        return ((ZicoUser)principal).isAuthenticated();
+    public boolean validate(UserIdentity user) {
+        return false;
     }
 
-
     @Override
-    public boolean isUserInRole(Principal principal, String role) {
-        return "VIEWER".equals(role) ||
-                ("ADMIN".equals(role) && principal instanceof ZicoUser && ((ZicoUser)principal).isAdmin());
-    }
-
-
-    @Override
-    public void disassociate(Principal principal) {
-    }
-
-
-    @Override
-    public Principal pushRole(Principal principal, String s) {
-        return principal;
-    }
-
-
-    @Override
-    public Principal popRole(Principal principal) {
-        return principal;
-    }
-
-
-    @Override
-    public void logout(Principal principal) {
-        ((ZicoUser)principal).setAuthenticated(false);
-    }
-
-
-    @Override
-    public Credential getSingleSignOn(Request request, Response response) {
+    public IdentityService getIdentityService() {
         return null;
     }
 
+    @Override
+    public void setIdentityService(IdentityService service) {
+
+    }
 
     @Override
-    public void setSingleSignOn(Request request, Response response, Principal principal, Credential credential) {
+    public void logout(UserIdentity user) {
+
     }
 
 
-    @Override
-    public void clearSingleSignOn(String s) {
+    public void setName(String name) {
+        this.name = name;
     }
 
 

@@ -18,6 +18,7 @@
         <source.plugin.version>2.1.2</source.plugin.version>
         <surefire.plugin.version>2.12</surefire.plugin.version>
         <war.plugin.version>2.1.1</war.plugin.version>
+        <gwt.plugin.version>2.6.1-rc2</gwt.plugin.version>
 
         <asm.version>5.0.2</asm.version>
         <bval.version>0.5</bval.version>
@@ -27,8 +28,8 @@
         <gin.version>2.1.2</gin.version>
         <guava.version>17.0</guava.version>
         <guice.version>3.0</guice.version>
-        <gwt.version>2.5.1</gwt.version>
-        <jetty.version>6.1.26</jetty.version>
+        <gwt.version>2.6.1</gwt.version>
+        <jetty.version>9.1.5.v20140505</jetty.version>
         <json.version>1.2</json.version>
         <junit.version>4.11</junit.version>
         <libsnmp.version>0.0.1</libsnmp.version>
