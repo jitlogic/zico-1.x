@@ -28,7 +28,6 @@
         <guava.version>17.0</guava.version>
         <guice.version>3.0</guice.version>
         <gwt.version>2.5.1</gwt.version>
-        <gxt.version>3.0.1</gxt.version>
         <jetty.version>6.1.26</jetty.version>
         <json.version>1.2</json.version>
         <junit.version>4.11</junit.version>
