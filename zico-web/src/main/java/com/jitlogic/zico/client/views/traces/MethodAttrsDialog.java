@@ -23,9 +23,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.SplitLayoutPanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
@@ -40,10 +38,6 @@ import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.shared.data.KeyValueProxy;
 import com.jitlogic.zico.shared.data.SymbolicExceptionProxy;
 import com.jitlogic.zico.shared.data.TraceRecordProxy;
-import com.sencha.gxt.core.client.ValueProvider;
-import com.sencha.gxt.widget.core.client.Dialog;
-import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
-import com.sencha.gxt.widget.core.client.form.TextArea;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -51,7 +45,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class MethodAttrsDialog extends Dialog {
+public class MethodAttrsDialog extends DialogBox {
 
     private DataGrid<String[]> attrGrid;
     private ListDataProvider<String[]> attrStore;
@@ -174,26 +168,8 @@ public class MethodAttrsDialog extends Dialog {
     };
 
     private void configure(String headingText) {
-        setHeadingText(headingText);
-        setPredefinedButtons();
+        setTitle(headingText);
         setPixelSize(1200, 750);
-
-        ValueProvider<String[], String> vpr = new ValueProvider<String[], String>() {
-            @Override
-            public String getValue(String[] object) {
-                return object[0];
-            }
-
-            @Override
-            public void setValue(String[] object, String value) {
-                object[0] = value;
-            }
-
-            @Override
-            public String getPath() {
-                return "";
-            }
-        };
 
         attrGrid = new DataGrid<String[]>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<String[]>(KEY_PROVIDER);
@@ -230,17 +206,16 @@ public class MethodAttrsDialog extends Dialog {
         attrGrid.setSize("100%", "100%");
         panel.add(attrGrid);
 
-
         container.addWest(panel, 200);
 
         txtAttrVal = new TextArea();
         txtAttrVal.setReadOnly(true);
         txtAttrVal.setText("Please wait ...");
 
-        VerticalLayoutContainer vp = new VerticalLayoutContainer();
+        VerticalPanel vp = new VerticalPanel();
         lblAttrName = new Label("Selected attribute:");
         vp.add(lblAttrName);
-        vp.add(txtAttrVal, new VerticalLayoutContainer.VerticalLayoutData(1, 1));
+        vp.add(txtAttrVal);
 
         container.add(vp);
 

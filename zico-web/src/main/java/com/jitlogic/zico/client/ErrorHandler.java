@@ -16,24 +16,21 @@
 package com.jitlogic.zico.client;
 
 
+import com.google.gwt.user.client.Window;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.sencha.gxt.widget.core.client.box.AlertMessageBox;
 
 public class ErrorHandler {
 
     public void error(String message) {
-        AlertMessageBox amb = new AlertMessageBox(message, "Error");
-        amb.show();
+        Window.alert(message);
     }
 
     public void error(String message, Throwable e) {
-        AlertMessageBox amb = new AlertMessageBox(message, e.getMessage());
-        amb.show();
+        Window.alert(message + ": " + e.getMessage());
     }
 
     public void error(String message, ServerFailure e) {
-        AlertMessageBox amb = new AlertMessageBox(message, e.getMessage());
-        amb.show();
+        Window.alert(message + ": " + e.getMessage());
     }
 
 }

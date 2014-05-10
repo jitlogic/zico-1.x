@@ -13,52 +13,54 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.jitlogic.zico.client.views.admin;
 
-
-import com.google.gwt.user.client.ui.ScrollPanel;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.shared.data.UserProxy;
 import com.jitlogic.zico.shared.services.UserServiceProxy;
-import com.sencha.gxt.widget.core.client.Dialog;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.form.CheckBox;
-import com.sencha.gxt.widget.core.client.form.FieldLabel;
-import com.sencha.gxt.widget.core.client.form.TextField;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class UserPrefsDialog extends Dialog {
+public class UserPrefsView extends DialogBox {
+    interface UserPrefsViewUiBinder extends UiBinder<Widget, UserPrefsView> { }
+    private static UserPrefsViewUiBinder ourUiBinder = GWT.create(UserPrefsViewUiBinder.class);
+
+    @UiField
+    TextBox txtUsername;
+
+    @UiField
+    TextBox txtRealName;
+
+    @UiField
+    CheckBox chkIsAdmin;
+
+    @UiField
+    VerticalPanel hostList;
+
 
     private UserServiceProxy editUserRequest;
     private UserProxy editedUser;
-
     private ErrorHandler errorHandler;
-
     public UserManagementPanel panel;
-
-    private TextField txtUsername;
-    private TextField txtRealName;
-    private CheckBox chkIsAdmin;
 
     private List<String> availableHosts;
 
     private Map<String,CheckBox> selectedHosts = new HashMap<String, CheckBox>();
 
-
-    public UserPrefsDialog(ZicoRequestFactory rf, UserProxy user, UserManagementPanel panel,
-                           List<String> availableHosts, ErrorHandler errorHandler) {
+    public UserPrefsView(ZicoRequestFactory rf, UserProxy user, UserManagementPanel panel,
+                         List<String> availableHosts, ErrorHandler errorHandler) {
+        add(ourUiBinder.createAndBindUi(this));
         editUserRequest = rf.userService();
         this.editedUser = user != null ? editUserRequest.edit(user) : editUserRequest.create(UserProxy.class);
         this.panel = panel;
@@ -66,50 +68,14 @@ public class UserPrefsDialog extends Dialog {
 
         this.availableHosts = availableHosts;
 
-        setHeadingText(user != null ? "Edit user: " + user.getUserName() : "New user");
-
-        createUi(user);
-    }
-
-
-    private void createUi(UserProxy user) {
-
-        setPredefinedButtons();
-
-        VerticalLayoutContainer vlc = new VerticalLayoutContainer();
-
-        txtUsername = new TextField();
-        txtUsername.setAllowBlank(false);
-        vlc.add(txtUsername);
-        vlc.add(new FieldLabel(txtUsername, "Username"),
-                new VerticalLayoutContainer.VerticalLayoutData(1, -1));
+        setTitle(user != null ? "Edit user: " + user.getUserName() : "New user");
 
         if (user != null) {
             txtUsername.setText(user.getUserName());
             txtUsername.setEnabled(false);
-        }
-
-        txtRealName = new TextField();
-        txtRealName.setAllowBlank(false);
-        vlc.add(txtRealName);
-        vlc.add(new FieldLabel(txtRealName, "Real Name"),
-                new VerticalLayoutContainer.VerticalLayoutData(1, -1));
-
-        if (user != null) {
             txtRealName.setText(user.getRealName());
-        }
-
-        chkIsAdmin = new CheckBox();
-        chkIsAdmin.setBoxLabel("Administrator role");
-        vlc.add(chkIsAdmin);
-        vlc.add(new FieldLabel(chkIsAdmin, "Roles"),
-                new VerticalLayoutContainer.VerticalLayoutData(1, -1));
-
-        if (user != null) {
             chkIsAdmin.setValue(user.isAdmin());
         }
-
-        VerticalLayoutContainer vlh = new VerticalLayoutContainer();
 
         Set<String> hosts = new HashSet<String>();
 
@@ -120,41 +86,24 @@ public class UserPrefsDialog extends Dialog {
         for (String host : availableHosts) {
             CheckBox chkHost = new CheckBox();
             chkHost.setValue(hosts.contains(host));
-            chkHost.setBoxLabel(host);
             selectedHosts.put(host, chkHost);
-            vlh.add(chkHost);
+            HorizontalPanel hp = new HorizontalPanel();
+            hp.add(chkHost);
+            hp.add(new Label(host));
+            hostList.add(hp);
         }
 
-        ScrollPanel scrHosts = new ScrollPanel(vlh);
+        setPixelSize(400,500);
+    }
 
-        vlc.add(scrHosts);
+    @UiHandler("btnOk")
+    void clickOk(ClickEvent e) {
+        save();
+    }
 
-        scrHosts.setWidth("100%"); scrHosts.setHeight("100%");
-
-        setWidth(400); setHeight(500);
-        setHideOnButtonClick(false);
-        add(vlc);
-
-        TextButton btnOk = new TextButton("OK");
-        addButton(btnOk);
-
-        btnOk.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                save();
-            }
-        });
-
-        TextButton btnCancel = new TextButton("Cancel");
-        addButton(btnCancel);
-
-        btnCancel.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                hide();
-            }
-        });
-
+    @UiHandler("btnCancel")
+    void clickCancel(ClickEvent e) {
+        hide();
     }
 
 
@@ -167,7 +116,7 @@ public class UserPrefsDialog extends Dialog {
 
         List<String> hosts = new ArrayList<String>(selectedHosts.size());
 
-        for (Map.Entry<String,CheckBox> e : selectedHosts.entrySet()) {
+        for (Map.Entry<String, CheckBox> e : selectedHosts.entrySet()) {
             if (e.getValue().getValue()) {
                 hosts.add(e.getKey());
             }
@@ -188,4 +137,5 @@ public class UserPrefsDialog extends Dialog {
             }
         });
     }
+
 }

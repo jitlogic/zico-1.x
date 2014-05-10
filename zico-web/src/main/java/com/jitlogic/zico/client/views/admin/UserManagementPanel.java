@@ -50,9 +50,6 @@ import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.data.UserProxy;
-import com.sencha.gxt.widget.core.client.Dialog;
-import com.sencha.gxt.widget.core.client.box.ConfirmMessageBox;
-import com.sencha.gxt.widget.core.client.event.HideEvent;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -315,50 +312,51 @@ public class UserManagementPanel extends Composite {
     private void editUser() {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
-            new UserPrefsDialog(rf, user, this, hostNames, errorHandler).show();
+            new UserPrefsView(rf, user, this, hostNames, errorHandler).show();
         }
     }
 
 
     private void addUser() {
-        new UserPrefsDialog(rf, null, this, hostNames, errorHandler).show();
+        new UserPrefsView(rf, null, this, hostNames, errorHandler).show();
     }
 
 
     private void removeUser() {
         final UserProxy user = selectionModel.getSelectedObject();
-        if (user != null) {
-            ConfirmMessageBox cmb = new ConfirmMessageBox(
-                    "Removing host", "Are you sure you want to remove " + user.getUserName() + " ?");
-            cmb.addHideHandler(new HideEvent.HideHandler() {
-                @Override
-                public void onHide(HideEvent event) {
-                    Dialog d = (Dialog) event.getSource();
-                    if ("Yes".equals(d.getHideButton().getText())) {
-                        userStore.getList().remove(user);
-                        rf.userService().remove(user).fire(
-                                new Receiver<Void>() {
-                                    @Override
-                                    public void onSuccess(Void response) {
-                                        refreshUsers();
-                                    }
-                                    public void onFailure(ServerFailure failure) {
-                                        errorHandler.error("Error removing user " + user.getUserName(), failure);
-                                    }
-                                }
-                        );
-                    }
-                }
-            });
-            cmb.show();
-        }
+        // TODO remove user
+//        if (user != null) {
+//            ConfirmMessageBox cmb = new ConfirmMessageBox(
+//                    "Removing host", "Are you sure you want to remove " + user.getUserName() + " ?");
+//            cmb.addHideHandler(new HideEvent.HideHandler() {
+//                @Override
+//                public void onHide(HideEvent event) {
+//                    Dialog d = (Dialog) event.getSource();
+//                    if ("Yes".equals(d.getHideButton().getText())) {
+//                        userStore.getList().remove(user);
+//                        rf.userService().remove(user).fire(
+//                                new Receiver<Void>() {
+//                                    @Override
+//                                    public void onSuccess(Void response) {
+//                                        refreshUsers();
+//                                    }
+//                                    public void onFailure(ServerFailure failure) {
+//                                        errorHandler.error("Error removing user " + user.getUserName(), failure);
+//                                    }
+//                                }
+//                        );
+//                    }
+//                }
+//            });
+//            cmb.show();
+//        }
     }
 
 
     private void changePassword() {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
-            PasswordChangeDialog dialog = panelFactory.passwordChangeDialog(user.getUserName());
+            PasswordChangeView dialog = panelFactory.passwordChangeView(user.getUserName());
             dialog.show();
         }
     }

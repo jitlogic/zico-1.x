@@ -13,34 +13,29 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.client.views.traces;
 
+package com.jitlogic.zico.client.views.traces;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ContextMenuEvent;
-import com.google.gwt.event.dom.client.ContextMenuHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.IdentityColumn;
-import com.google.gwt.user.client.ui.AbstractImagePrototype;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.SimplePanel;
+import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -48,36 +43,65 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ClientUtil;
+import com.jitlogic.zico.client.*;
 import com.jitlogic.zico.client.ErrorHandler;
-import com.jitlogic.zico.client.widgets.ResizableHeader;
-import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
+import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.core.model.TraceRecordSearchQuery;
-import com.jitlogic.zico.shared.data.TraceRecordSearchQueryProxy;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
 import com.jitlogic.zico.shared.data.TraceRecordProxy;
+import com.jitlogic.zico.shared.data.TraceRecordSearchQueryProxy;
 import com.jitlogic.zico.shared.data.TraceRecordSearchResultProxy;
 import com.jitlogic.zico.shared.services.TraceDataServiceProxy;
-import com.sencha.gxt.core.client.util.Margins;
-import com.sencha.gxt.widget.core.client.Dialog;
-import com.sencha.gxt.widget.core.client.button.TextButton;
-import com.sencha.gxt.widget.core.client.button.ToggleButton;
-import com.sencha.gxt.widget.core.client.container.HorizontalLayoutContainer;
-import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
-import com.sencha.gxt.widget.core.client.event.SelectEvent;
-import com.sencha.gxt.widget.core.client.event.ShowEvent;
-import com.sencha.gxt.widget.core.client.form.CheckBox;
-import com.sencha.gxt.widget.core.client.form.FieldLabel;
-import com.sencha.gxt.widget.core.client.form.TextField;
 
 import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TraceRecordSearchDialog extends Dialog {
+public class TraceRecordSearchView extends DialogBox {
+    interface TraceRecordSearchViewUiBinder extends UiBinder<Widget, TraceRecordSearchView> { }
 
+    private static TraceRecordSearchViewUiBinder ourUiBinder = GWT.create(TraceRecordSearchViewUiBinder.class);
+
+    @UiField
+    CheckBox chkEql;
+
+    @UiField
+    TextBox txtSearchFilter;
+
+    @UiField
+    CheckBox chkClass;
+
+    @UiField
+    CheckBox chkMethod;
+
+    @UiField
+    CheckBox chkAttribs;
+
+    @UiField
+    CheckBox chkExceptionText;
+
+    @UiField
+    CheckBox chkErrorsOnly;
+
+    @UiField
+    CheckBox chkMethodsWithAttrs;
+
+    @UiField
+    CheckBox chkIgnoreCase;
+
+    @UiField
+    Label lblSumStats;
+
+    @UiField(provided = true)
+    DataGrid<TraceRecordProxy> resultsGrid;
+
+    private ListDataProvider<TraceRecordProxy> resultsStore;
+    private TraceCallTableBuilder rowBuilder;
+    private SingleSelectionModel<TraceRecordProxy> selectionModel;
+    private Set<String> expandedDetails = new HashSet<String>();
 
     private TraceInfoProxy trace;
     private String rootPath = "";
@@ -85,67 +109,21 @@ public class TraceRecordSearchDialog extends Dialog {
     private TraceCallTreePanel panel;
     private ZicoRequestFactory rf;
 
-    private ListDataProvider<TraceRecordProxy> resultsStore;
-    private TraceCallTableBuilder rowBuilder;
-    private SingleSelectionModel<TraceRecordProxy> selectionModel;
-    private DataGrid<TraceRecordProxy> resultsGrid;
-    private Set<String> expandedDetails = new HashSet<String>();
-
-    private TextField txtSearchFilter;
-    private CheckBox chkClass;
-    private CheckBox chkMethod;
-    private CheckBox chkAttribs;
-    private CheckBox chkExceptionText;
-    private CheckBox chkErrorsOnly;
-    private CheckBox chkMethodsWithAttrs;
-    private CheckBox chkIgnoreCase;
-
-    private ToggleButton btnEql;
-
-    private ErrorHandler errorHandler;
-
-    private Label lblSumStats;
+    private com.jitlogic.zico.client.ErrorHandler errorHandler;
 
 
     @Inject
-    public TraceRecordSearchDialog(ZicoRequestFactory rf, ErrorHandler errorHandler,
-                                   @Assisted TraceCallTreePanel panel, @Assisted TraceInfoProxy trace) {
+    public TraceRecordSearchView(ZicoRequestFactory rf, ErrorHandler errorHandler,
+                                 @Assisted TraceCallTreePanel panel, @Assisted TraceInfoProxy trace) {
 
         this.rf = rf;
         this.trace = trace;
         this.panel = panel;
         this.errorHandler = errorHandler;
 
-        createUI();
-    }
+        createResultsGrid();
 
-
-    private void createUI() {
-
-        setHeadingText("Search for methods");
-        setPredefinedButtons();
-        setPixelSize(1200, 750);
-
-        VerticalLayoutContainer vp = new VerticalLayoutContainer();
-
-        VerticalLayoutContainer.VerticalLayoutData vd = new VerticalLayoutContainer.VerticalLayoutData();
-        vd.setMargins(new Margins(10, 0, 0, 0));
-
-        vp.setLayoutData(vd);
-
-        HorizontalLayoutContainer hl1 = new HorizontalLayoutContainer();
-        HorizontalLayoutContainer.HorizontalLayoutData hd1 = new HorizontalLayoutContainer.HorizontalLayoutData();
-        hd1.setMargins(new Margins(0, 4, 4, 0));
-        hl1.setLayoutData(hd1);
-
-        btnEql = new ToggleButton();
-        btnEql.setIcon(Resources.INSTANCE.eqlIcon());
-        btnEql.setToolTip("EQL query (instead of full text search)");
-        hl1.add(btnEql);
-
-        txtSearchFilter = new TextField();
-        txtSearchFilter.setEmptyText("Enter search text ...");
-        hl1.add(txtSearchFilter, new HorizontalLayoutContainer.HorizontalLayoutData(1, 1));
+        add(ourUiBinder.createAndBindUi(this));
 
         txtSearchFilter.addKeyDownHandler(new KeyDownHandler() {
             @Override
@@ -155,110 +133,17 @@ public class TraceRecordSearchDialog extends Dialog {
                 }
             }
         });
-
-        TextButton btnSearch = new TextButton();
-        btnSearch.setIcon(Resources.INSTANCE.searchIcon());
-        btnSearch.setToolTip("Run search");
-        btnSearch.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                doSearch();
-            }
-        });
-        hl1.add(btnSearch, new HorizontalLayoutContainer.HorizontalLayoutData(-1, -1));
-
-        TextButton btnFilter = new TextButton();
-        btnFilter.setIcon(Resources.INSTANCE.gotoIcon());
-        btnFilter.setToolTip("Go to ...");
-        btnFilter.addSelectHandler(new SelectEvent.SelectHandler() {
-            @Override
-            public void onSelect(SelectEvent event) {
-                doGoTo();
-            }
-        });
-        hl1.add(btnFilter, new HorizontalLayoutContainer.HorizontalLayoutData(-1, -1));
-
-        vp.add(new FieldLabel(hl1, "Search filter"),
-                new VerticalLayoutContainer.VerticalLayoutData(1, -1));
-
-
-        HorizontalPanel hp = new HorizontalPanel();
-
-        chkClass = new CheckBox();
-        chkClass.setBoxLabel("Class names");
-        chkClass.setValue(true);
-        hp.add(chkClass);
-
-        chkMethod = new CheckBox();
-        chkMethod.setBoxLabel("Method names");
-        chkMethod.setValue(true);
-        hp.add(chkMethod);
-
-        chkAttribs = new CheckBox();
-        chkAttribs.setBoxLabel("Attributes");
-        chkAttribs.setValue(true);
-        hp.add(chkAttribs);
-
-        chkExceptionText = new CheckBox();
-        chkExceptionText.setBoxLabel("Exception text");
-        hp.add(chkExceptionText);
-
-        vp.add(new FieldLabel(hp, "Search in"));
-
-        chkErrorsOnly = new CheckBox();
-        chkErrorsOnly.setBoxLabel("Only Errors and Exceptions");
-        chkErrorsOnly.setValue(false);
-        hp.add(chkErrorsOnly);
-
-        chkMethodsWithAttrs = new CheckBox();
-        chkMethodsWithAttrs.setBoxLabel("Only Methods with attributes");
-        chkMethodsWithAttrs.setValue(false);
-        hp.add(chkMethodsWithAttrs);
-
-        chkIgnoreCase = new CheckBox();
-        chkIgnoreCase.setBoxLabel("Ignore Case");
         chkIgnoreCase.setValue(true);
-        hp.add(chkIgnoreCase);
-
-        lblSumStats = new Label("n/a");
-
-        vp.add(new FieldLabel(lblSumStats, "Summary"));
-
-        createResultsGrid();
-
-        SimplePanel panel = new SimplePanel();
-        panel.addStyleName(Resources.INSTANCE.zicoCssResources().whitePanel());
-        panel.setSize("100%", "100%");
-        resultsGrid.setSize("100%", "100%");
-        panel.add(resultsGrid);
-
-        vp.add(panel, new VerticalLayoutContainer.VerticalLayoutData(1, 1));
-
-        add(vp);
-
-        addShowHandler(new ShowEvent.ShowHandler() {
-            @Override
-            public void onShow(ShowEvent event) {
-                setFocusWidget(txtSearchFilter);
-            }
-        });
     }
 
-
-    private void doGoTo() {
-        TraceRecordProxy tri = selectionModel.getSelectedObject();
-        int idx = tri != null ? resultsStore.getList().indexOf(tri) : 0;
-        panel.setResults(resultsStore.getList(), idx);
-        this.hide();
+    @UiHandler("btnSearch")
+    void clickSearch(ClickEvent e) {
+        doSearch();
     }
 
-
-    public void setRootPath(String rootPath) {
-        if (this.rootPath != rootPath) {
-            this.rootPath = rootPath;
-            this.resultsStore.getList().clear();
-            this.lblSumStats.setText("n/a");
-        }
+    @UiHandler("btnGoTo")
+    void clickGoTo(ClickEvent e) {
+        doSearch();
     }
 
     private static final ProvidesKey<TraceRecordProxy> KEY_PROVIDER = new ProvidesKey<TraceRecordProxy>() {
@@ -267,7 +152,6 @@ public class TraceRecordSearchDialog extends Dialog {
             return rec.getPath();
         }
     };
-
 
     private static final String EXPANDER_EXPAND = AbstractImagePrototype.create(Resources.INSTANCE.expanderExpand()).getHTML();
     private static final String EXPANDER_COLLAPSE = AbstractImagePrototype.create(Resources.INSTANCE.expanderCollapse()).getHTML();
@@ -412,11 +296,28 @@ public class TraceRecordSearchDialog extends Dialog {
     }
 
 
+    private void doGoTo() {
+        TraceRecordProxy tri = selectionModel.getSelectedObject();
+        int idx = tri != null ? resultsStore.getList().indexOf(tri) : 0;
+        panel.setResults(resultsStore.getList(), idx);
+        this.hide();
+    }
+
+
+    public void setRootPath(String rootPath) {
+        if (this.rootPath != rootPath) {
+            this.rootPath = rootPath;
+            this.resultsStore.getList().clear();
+            this.lblSumStats.setText("n/a");
+        }
+    }
+
+
     private void doSearch() {
         TraceDataServiceProxy req = rf.traceDataService();
         TraceRecordSearchQueryProxy expr = req.create(TraceRecordSearchQueryProxy.class);
 
-        expr.setType(btnEql.getValue() ? TraceRecordSearchQuery.EQL_QUERY : TraceRecordSearchQuery.TXT_QUERY);
+        expr.setType(chkEql.getValue() ? TraceRecordSearchQuery.EQL_QUERY : TraceRecordSearchQuery.TXT_QUERY);
 
         expr.setFlags(
                 (chkErrorsOnly.getValue() ? TraceRecordSearchQuery.ERRORS_ONLY : 0)
@@ -427,7 +328,7 @@ public class TraceRecordSearchDialog extends Dialog {
                         | (chkExceptionText.getValue() ? TraceRecordSearchQuery.SEARCH_EX_MSG : 0)
                         | (chkIgnoreCase.getValue() ? TraceRecordSearchQuery.IGNORE_CASE : 0));
 
-        expr.setSearchExpr(txtSearchFilter.getCurrentValue());
+        expr.setSearchExpr(txtSearchFilter.getText());
 
         req.searchRecords(trace.getHostName(), trace.getDataOffs(), 0, rootPath, expr).fire(
                 new Receiver<TraceRecordSearchResultProxy>() {
@@ -436,13 +337,13 @@ public class TraceRecordSearchDialog extends Dialog {
                         resultsStore.getList().clear();
                         resultsStore.getList().addAll(response.getResult());
                         lblSumStats.setText(response.getResult().size() + " methods, "
-                                + NumberFormat.getFormat("###.0").format(response.getRecurPct()) + "% of trace execution time. "
-                                + "Time: " + ClientUtil.formatDuration(response.getRecurTime()) + " non-recursive"
-                                + ", " + ClientUtil.formatDuration(response.getMinTime()) + " min, "
-                                + ", " + ClientUtil.formatDuration(response.getMaxTime()) + " max."
+                                        + NumberFormat.getFormat("###.0").format(response.getRecurPct()) + "% of trace execution time. "
+                                        + "Time: " + ClientUtil.formatDuration(response.getRecurTime()) + " non-recursive"
+                                        + ", " + ClientUtil.formatDuration(response.getMinTime()) + " min, "
+                                        + ", " + ClientUtil.formatDuration(response.getMaxTime()) + " max."
 
                         );
-                        setFocusWidget(txtSearchFilter);
+                        txtSearchFilter.setFocus(true);
                     }
                     @Override
                     public void onFailure(ServerFailure failure) {
@@ -451,4 +352,5 @@ public class TraceRecordSearchDialog extends Dialog {
                 }
         );
     }
+
 }

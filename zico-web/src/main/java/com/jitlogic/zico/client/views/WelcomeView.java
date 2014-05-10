@@ -131,7 +131,7 @@ public class WelcomeView extends Composite {
         lnkChangePassword.addHandler(new ClickHandler() {
             @Override
             public void onClick(ClickEvent event) {
-                panelFactory.passwordChangeDialog("").show();
+                panelFactory.passwordChangeView("").show();
             }
         }, ClickEvent.getType());
 

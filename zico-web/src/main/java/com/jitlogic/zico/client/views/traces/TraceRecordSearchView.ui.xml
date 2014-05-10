@@ -1,0 +1,29 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:gc='urn:import:com.google.gwt.user.cellview.client'>
+    <g:VerticalPanel>
+        <g:HorizontalPanel>
+            <g:CheckBox ui:field="chkEql">EQL</g:CheckBox>
+            <g:TextBox ui:field="txtSearchFilter"/>
+            <g:Button ui:field="btnSearch">Search</g:Button>
+            <g:Button ui:field="btnGoTo">GoTo</g:Button>
+        </g:HorizontalPanel>
+        <g:HorizontalPanel>
+            <g:CheckBox ui:field="chkClass">Class names</g:CheckBox>
+            <g:CheckBox ui:field="chkMethod">Method names</g:CheckBox>
+            <g:CheckBox ui:field="chkAttribs">Attributes</g:CheckBox>
+            <g:CheckBox ui:field="chkExceptionText">Exception text</g:CheckBox>
+        </g:HorizontalPanel>
+        <g:HorizontalPanel>
+            <g:CheckBox ui:field="chkErrorsOnly">Only Errors and Exceptions</g:CheckBox>
+            <g:CheckBox ui:field="chkMethodsWithAttrs">Only methods with attributes</g:CheckBox>
+            <g:CheckBox ui:field="chkIgnoreCase">Ignore case</g:CheckBox>
+        </g:HorizontalPanel>
+        <g:Label ui:field="lblSumStats"/>
+        <g:DockLayoutPanel>
+            <g:center>
+                <gc:DataGrid ui:field="resultsGrid"/>
+            </g:center>
+        </g:DockLayoutPanel>
+    </g:VerticalPanel>
+</ui:UiBinder>

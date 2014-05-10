@@ -277,13 +277,13 @@ public class TraceTemplatePanel extends Composite {
     private void editTemplate() {
         TraceTemplateProxy tti = selectionModel.getSelectedObject();
         if (tti != null) {
-            new TraceTemplateDialog(rf, this, tti, errorHandler).show();
+            new TraceTemplateView(rf, this, tti, errorHandler).show();
         }
     }
 
 
     private void addTemplate() {
-        new TraceTemplateDialog(rf, this, null, errorHandler).show();
+        new TraceTemplateView(rf, this, null, errorHandler).show();
     }
 
 

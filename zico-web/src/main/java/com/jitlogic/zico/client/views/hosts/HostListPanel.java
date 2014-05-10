@@ -54,9 +54,6 @@ import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
-import com.sencha.gxt.widget.core.client.Dialog;
-import com.sencha.gxt.widget.core.client.box.ConfirmMessageBox;
-import com.sencha.gxt.widget.core.client.event.HideEvent;
 
 import javax.inject.Provider;
 import java.util.List;
@@ -419,19 +416,20 @@ public class HostListPanel extends Composite {
 
     private void removeHost(final HostListObject hi) {
         if (hi instanceof HostProxy) {
-            ConfirmMessageBox cmb = new ConfirmMessageBox(
-                    "Removing host", "Are you sure you want to remove host " + hi.getName() + "?");
-            cmb.addHideHandler(new HideEvent.HideHandler() {
-                @Override
-                public void onHide(HideEvent event) {
-                    Dialog d = (Dialog) event.getSource();
-                    if ("Yes".equals(d.getHideButton().getText())) {
-                        hostGridStore.getList().remove(hi);
-                        rf.hostService().remove((HostProxy)hi).fire();
-                    }
-                }
-            });
-            cmb.show();
+            // TODO remove host
+//            ConfirmMessageBox cmb = new ConfirmMessageBox(
+//                    "Removing host", "Are you sure you want to remove host " + hi.getName() + "?");
+//            cmb.addHideHandler(new HideEvent.HideHandler() {
+//                @Override
+//                public void onHide(HideEvent event) {
+//                    Dialog d = (Dialog) event.getSource();
+//                    if ("Yes".equals(d.getHideButton().getText())) {
+//                        hostGridStore.getList().remove(hi);
+//                        rf.hostService().remove((HostProxy)hi).fire();
+//                    }
+//                }
+//            });
+//            cmb.show();
         }
     }
 
@@ -505,7 +503,7 @@ public class HostListPanel extends Composite {
 
 
     private void addHost() {
-        new HostPrefsDialog(rf, this, null, errorHandler).show();
+        new HostEditView(rf, this, null, errorHandler).show();
     }
 
 
@@ -517,7 +515,7 @@ public class HostListPanel extends Composite {
     private void editHost() {
         HostListObject hostInfo = selectionModel.getSelectedObject();
         if (hostInfo instanceof HostProxy) {
-            new HostPrefsDialog(rf, this, (HostProxy)hostInfo, errorHandler).show();
+            new HostEditView(rf, this, (HostProxy)hostInfo, errorHandler).show();
         }
     }
 

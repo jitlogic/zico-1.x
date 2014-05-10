@@ -1,0 +1,33 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <g:HTMLPanel>
+        <table>
+            <tr>
+                <td>Username:</td>
+                <td><g:TextBox ui:field="txtUsername"/></td>
+            </tr>
+            <tr>
+                <td>Real name:</td>
+                <td><g:TextBox ui:field="txtRealName"/></td>
+            </tr>
+            <tr>
+                <td>Admin role:</td>
+                <td><g:CheckBox ui:field="chkIsAdmin"/></td>
+            </tr>
+            <tr>
+                <td colspan="2">Hosts allowed:</td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <g:ScrollPanel>
+                        <g:VerticalPanel ui:field="hostList"/>
+                    </g:ScrollPanel>
+                </td>
+            </tr>
+            <tr>
+                <td><g:Button ui:field="btnOk">OK</g:Button></td>
+                <td><g:Button ui:field="btnCancel">Cancel</g:Button></td>
+            </tr>
+        </table>
+    </g:HTMLPanel>
+</ui:UiBinder>

@@ -20,6 +20,7 @@ import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -32,12 +33,11 @@ import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.shared.data.MethodRankInfoProxy;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
-import com.sencha.gxt.widget.core.client.container.VerticalLayoutContainer;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class MethodRankingPanel extends VerticalLayoutContainer {
+public class MethodRankingPanel extends DockLayoutPanel {
 
     private ZicoRequestFactory rf;
     private TraceInfoProxy traceInfo;
@@ -49,6 +49,7 @@ public class MethodRankingPanel extends VerticalLayoutContainer {
 
     @Inject
     public MethodRankingPanel(ZicoRequestFactory rf, ErrorHandler errorHandler, @Assisted TraceInfoProxy traceInfo) {
+        super(Style.Unit.PX);
         this.rf = rf;
         this.traceInfo = traceInfo;
         this.errorHandler = errorHandler;
@@ -165,7 +166,7 @@ public class MethodRankingPanel extends VerticalLayoutContainer {
         rankStore = new ListDataProvider<MethodRankInfoProxy>(KEY_PROVIDER);
         rankStore.addDataDisplay(rankGrid);
 
-        add(rankGrid, new VerticalLayoutData(1, 1));
+        add(rankGrid);
     }
 
 
