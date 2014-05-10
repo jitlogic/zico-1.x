@@ -54,6 +54,12 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.googlecode.gwt-test-utils</groupId>
+            <artifactId>gwt-test-utils</artifactId>
+            <version>${gwtest.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
     <build>
         <finalName>zico-web</finalName>

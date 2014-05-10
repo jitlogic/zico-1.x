@@ -18,17 +18,18 @@
         <source.plugin.version>2.1.2</source.plugin.version>
         <surefire.plugin.version>2.12</surefire.plugin.version>
         <war.plugin.version>2.1.1</war.plugin.version>
-        <gwt.plugin.version>2.6.1-rc2</gwt.plugin.version>
+        <gwt.plugin.version>2.6.0</gwt.plugin.version>
 
         <asm.version>5.0.2</asm.version>
         <bval.version>0.5</bval.version>
         <dbcp.version>1.4</dbcp.version>
-        <fest.version>1.4</fest.version>
+        <fest.version>2.0M7</fest.version>
         <fressian.version>0.6.5</fressian.version>
         <gin.version>2.1.2</gin.version>
         <guava.version>17.0</guava.version>
         <guice.version>3.0</guice.version>
-        <gwt.version>2.6.1</gwt.version>
+        <gwt.version>2.6.0</gwt.version>
+        <gwtest.version>0.47</gwtest.version>
         <jetty.version>9.1.5.v20140505</jetty.version>
         <json.version>1.2</json.version>
         <junit.version>4.11</junit.version>
