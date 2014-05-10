@@ -22,17 +22,19 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.widgets.IsPopupWindow;
+import com.jitlogic.zico.client.widgets.PopupWindow;
 
 import javax.inject.Inject;
 
-public class PasswordChangeView extends DialogBox {
+public class PasswordChangeView implements IsPopupWindow {
+
     interface PasswordChangeViewUiBinder extends UiBinder<Widget, PasswordChangeView> { }
 
     private static PasswordChangeViewUiBinder ourUiBinder = GWT.create(PasswordChangeViewUiBinder.class);
@@ -49,15 +51,17 @@ public class PasswordChangeView extends DialogBox {
     private ZicoRequestFactory rf;
     private String username;
 
+    private PopupWindow window;
+
     @Inject
     public PasswordChangeView(ZicoRequestFactory rf, @Assisted("userName") String username) {
 
         this.rf = rf;
         this.username = username;
 
-        add(ourUiBinder.createAndBindUi(this));
-        setTitle("Change password");
-        setPixelSize(400, 250);
+        window = new PopupWindow(ourUiBinder.createAndBindUi(this));
+        window.setCaption("Change password");
+        window.resizeAndCenter(400, 250);
     }
 
     @UiHandler("btnOk")
@@ -67,7 +71,7 @@ public class PasswordChangeView extends DialogBox {
 
     @UiHandler("btnCancel")
     void clickCancel(ClickEvent e) {
-        hide();
+        window.hide();
     }
 
     private void doPasswordChange() {
@@ -100,7 +104,7 @@ public class PasswordChangeView extends DialogBox {
                 txtRepPassword.setText("");
 
                 Window.alert("Password has been changed.");
-                hide();
+                window.hide();
             }
 
             public void onFailure(ServerFailure e) {
@@ -110,6 +114,11 @@ public class PasswordChangeView extends DialogBox {
                 Window.alert("Password change failed: " + e.getMessage());
             }
         });
+    }
+
+    @Override
+    public PopupWindow asPopupWindow() {
+        return window;
     }
 
 }

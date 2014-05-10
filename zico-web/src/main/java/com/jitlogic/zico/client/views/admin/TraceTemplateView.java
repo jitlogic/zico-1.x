@@ -26,10 +26,12 @@ import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.widgets.IsPopupWindow;
+import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.shared.data.TraceTemplateProxy;
 import com.jitlogic.zico.shared.services.SystemServiceProxy;
 
-public class TraceTemplateView extends DialogBox {
+public class TraceTemplateView implements IsPopupWindow {
     interface TraceTemplateViewUiBinder extends UiBinder<Widget, TraceTemplateView> { }
     private static TraceTemplateViewUiBinder ourUiBinder = GWT.create(TraceTemplateViewUiBinder.class);
 
@@ -47,6 +49,8 @@ public class TraceTemplateView extends DialogBox {
     private ErrorHandler errorHandler;
     private TraceTemplatePanel panel;
 
+    private PopupWindow window;
+
     public TraceTemplateView(ZicoRequestFactory rf, TraceTemplatePanel panel, TraceTemplateProxy tti, ErrorHandler errorHandler) {
 
         this.panel = panel;
@@ -57,9 +61,8 @@ public class TraceTemplateView extends DialogBox {
                 ? editTemplateRequest.edit(tti)
                 : editTemplateRequest.create(TraceTemplateProxy.class);
 
-        setTitle(tti != null ? "Editing template" : "New template");
-
-        add(ourUiBinder.createAndBindUi(this));
+        window = new PopupWindow(ourUiBinder.createAndBindUi(this));
+        window.setCaption(tti != null ? "Editing template" : "New template");
     }
 
     @UiHandler("btnOk")
@@ -69,7 +72,7 @@ public class TraceTemplateView extends DialogBox {
 
     @UiHandler("btnCancel")
     void handleCancel(ClickEvent e) {
-        hide();
+        window.hide();
     }
 
 
@@ -81,7 +84,7 @@ public class TraceTemplateView extends DialogBox {
         editTemplateRequest.saveTemplate(editedTemplate).fire(new Receiver<Integer>() {
             @Override
             public void onSuccess(Integer response) {
-                hide();
+                window.hide();
                 panel.refreshTemplates();
             }
             @Override
@@ -91,4 +94,8 @@ public class TraceTemplateView extends DialogBox {
         });
     }
 
+    @Override
+    public PopupWindow asPopupWindow() {
+        return window;
+    }
 }

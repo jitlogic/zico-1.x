@@ -21,16 +21,18 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.Request;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
 
-public class HostEditView extends DialogBox {
+public class HostEditView {
     interface HostEditViewUiBinder extends UiBinder<Widget, HostEditView> { }
 
     private static HostEditViewUiBinder ourUiBinder = GWT.create(HostEditViewUiBinder.class);
@@ -64,10 +66,11 @@ public class HostEditView extends DialogBox {
     private HostListPanel panel;
     private ErrorHandler errorHandler;
 
+    private PopupWindow window;
 
     public HostEditView(ZicoRequestFactory rf, HostListPanel panel, HostProxy info, ErrorHandler errorHandler) {
-        super(true);
-        add(ourUiBinder.createAndBindUi(this));
+        super();
+        window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         this.panel = panel;
         this.errorHandler = errorHandler;
 
@@ -76,10 +79,10 @@ public class HostEditView extends DialogBox {
             editedHost = editHostRequest.edit(info);
         }
 
-        setPixelSize(400, 400);
+        window.resizeAndCenter(300, 220);
 
         if (info != null) {
-            setTitle("Edit host: " + info.getName());
+            window.setCaption("Edit host: " + info.getName());
             txtHostName.setText(info.getName());
             txtHostName.setEnabled(false);
             txtHostGroup.setText(info.getGroup());
@@ -89,9 +92,13 @@ public class HostEditView extends DialogBox {
             txtMaxSize.setText(""+sz);
             txtHostDesc.setText(info.getComment());
         } else {
-            setTitle("New host");
+            window.setCaption("New host");
             txtMaxSize.setText("1");
         }
+    }
+
+    public PopupWindow getWindow() {
+        return window;
     }
 
     @UiHandler("btnOk")
@@ -101,7 +108,7 @@ public class HostEditView extends DialogBox {
 
     @UiHandler("btnCancel")
     void handleCancel(ClickEvent e) {
-        hide();
+        window.hide();
     }
 
 
@@ -136,7 +143,7 @@ public class HostEditView extends DialogBox {
         req.fire(new Receiver<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                hide();
+                window.hide();
                 panel.refresh();
             }
             @Override

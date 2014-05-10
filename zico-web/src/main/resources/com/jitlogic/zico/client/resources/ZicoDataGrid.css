@@ -9,6 +9,7 @@
     text-align: center !important;
     text-shadow: none !important;
     border: 1px solid #ccc;
+    margin-left: -1px;
     border-radius: 0;
 }
 

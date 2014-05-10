@@ -482,7 +482,7 @@ public class TraceSearchPanel extends Composite {
     private void openMethodAttrsDialog() {
         TraceInfoProxy ti = selection.getSelectedObject();
         if (ti != null) {
-            pf.methodAttrsDialog(ti.getHostName(), ti.getDataOffs(), "", 0L).show();
+            pf.methodAttrsDialog(ti.getHostName(), ti.getDataOffs(), "", 0L).asPopupWindow().show();
         }
     }
 

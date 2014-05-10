@@ -13,29 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.jitlogic.zico.client.widgets;
 
-import com.google.gwt.user.client.ui.PopupPanel;
-
-public class PopupMenu extends PopupPanel implements Menu {
-
-    private MenuBar menuBar;
-
-    public PopupMenu() {
-        super(true);
-        menuBar = new MenuBar(this);
-        removeStyleName("gwt-PopupPanel");
-        add(menuBar);
-    }
-
-
-    @Override
-    public void addItem(MenuItem item) {
-        menuBar.addItem(item);
-    }
-
-    @Override
-    public void addSeparator() {
-        menuBar.addSeparator();
-    }
+public interface IsPopupWindow {
+    PopupWindow asPopupWindow();
 }

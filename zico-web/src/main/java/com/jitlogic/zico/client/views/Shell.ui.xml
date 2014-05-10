@@ -9,7 +9,7 @@
                     <zh:HostListPanel ui:field="hostListPanel"/>
                 </g:west>
                 <g:center>
-                    <g:TabLayoutPanel barHeight="20" ui:field="tabPanel">
+                    <g:TabLayoutPanel barHeight="26" ui:field="tabPanel">
                         <g:tab>
                             <g:header>Welcome</g:header>
                             <z:WelcomeView ui:field="welcomeView"/>

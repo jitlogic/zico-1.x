@@ -18,9 +18,12 @@ package com.jitlogic.zico.client.views.traces;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.client.ui.*;
@@ -35,6 +38,8 @@ import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
+import com.jitlogic.zico.client.widgets.IsPopupWindow;
+import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.shared.data.KeyValueProxy;
 import com.jitlogic.zico.shared.data.SymbolicExceptionProxy;
 import com.jitlogic.zico.shared.data.TraceRecordProxy;
@@ -45,7 +50,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class MethodAttrsDialog extends DialogBox {
+public class MethodAttrsDialog implements IsPopupWindow {
+    interface MethodAttrsDialogUiBinder extends UiBinder<Widget, MethodAttrsDialog> { };
+    private static MethodAttrsDialogUiBinder uiBinder = GWT.create(MethodAttrsDialogUiBinder.class);
+
+    @UiField
+    SplitLayoutPanel container;
 
     private DataGrid<String[]> attrGrid;
     private ListDataProvider<String[]> attrStore;
@@ -54,11 +64,11 @@ public class MethodAttrsDialog extends DialogBox {
     private TextArea txtAttrVal;
     private Label lblAttrName;
 
-    private SplitLayoutPanel container;
 
     private ZicoRequestFactory rf;
     private ErrorHandler errorHandler;
 
+    private PopupWindow window;
 
     @Inject
     public MethodAttrsDialog(ZicoRequestFactory rf, ErrorHandler errorHandler,
@@ -66,7 +76,13 @@ public class MethodAttrsDialog extends DialogBox {
                              @Assisted String path, @Assisted("minTime") Long minTime) {
         this.rf = rf;
         this.errorHandler = errorHandler;
+
+        window = new PopupWindow(uiBinder.createAndBindUi(this));
+
         configure("Trace Details");
+
+        window.setCaption("Trace Details");
+        window.resizeAndCenter(1200, 750);
 
         loadTraceDetail(hostName, dataOffs, path, minTime);
     }
@@ -168,8 +184,8 @@ public class MethodAttrsDialog extends DialogBox {
     };
 
     private void configure(String headingText) {
-        setTitle(headingText);
-        setPixelSize(1200, 750);
+
+        // TODO move remaining UI construction to uibinder template
 
         attrGrid = new DataGrid<String[]>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<String[]>(KEY_PROVIDER);
@@ -198,8 +214,6 @@ public class MethodAttrsDialog extends DialogBox {
             }
         });
 
-        container = new SplitLayoutPanel();
-
         SimplePanel panel = new SimplePanel();
         panel.addStyleName(Resources.INSTANCE.zicoCssResources().whitePanel());
         panel.setSize("100%", "100%");
@@ -219,6 +233,13 @@ public class MethodAttrsDialog extends DialogBox {
 
         container.add(vp);
 
-        add(container);
     }
+
+
+    @Override
+    public PopupWindow asPopupWindow() {
+        return window;
+    }
+
+
 }

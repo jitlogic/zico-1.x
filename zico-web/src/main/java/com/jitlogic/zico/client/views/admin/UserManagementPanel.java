@@ -312,13 +312,13 @@ public class UserManagementPanel extends Composite {
     private void editUser() {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
-            new UserPrefsView(rf, user, this, hostNames, errorHandler).show();
+            new UserPrefsView(rf, user, this, hostNames, errorHandler).asPopupWindow().show();
         }
     }
 
 
     private void addUser() {
-        new UserPrefsView(rf, null, this, hostNames, errorHandler).show();
+        new UserPrefsView(rf, null, this, hostNames, errorHandler).asPopupWindow().show();
     }
 
 
@@ -357,7 +357,7 @@ public class UserManagementPanel extends Composite {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
             PasswordChangeView dialog = panelFactory.passwordChangeView(user.getUserName());
-            dialog.show();
+            dialog.asPopupWindow().show();
         }
     }
 

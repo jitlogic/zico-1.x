@@ -48,6 +48,8 @@ import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
+import com.jitlogic.zico.client.widgets.IsPopupWindow;
+import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.core.model.TraceRecordSearchQuery;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
@@ -60,9 +62,8 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TraceRecordSearchView extends DialogBox {
+public class TraceRecordSearchView implements IsPopupWindow {
     interface TraceRecordSearchViewUiBinder extends UiBinder<Widget, TraceRecordSearchView> { }
-
     private static TraceRecordSearchViewUiBinder ourUiBinder = GWT.create(TraceRecordSearchViewUiBinder.class);
 
     @UiField
@@ -111,6 +112,7 @@ public class TraceRecordSearchView extends DialogBox {
 
     private com.jitlogic.zico.client.ErrorHandler errorHandler;
 
+    private PopupWindow window;
 
     @Inject
     public TraceRecordSearchView(ZicoRequestFactory rf, ErrorHandler errorHandler,
@@ -123,7 +125,9 @@ public class TraceRecordSearchView extends DialogBox {
 
         createResultsGrid();
 
-        add(ourUiBinder.createAndBindUi(this));
+        window = new PopupWindow(ourUiBinder.createAndBindUi(this));
+        window.setCaption("Search for methods");
+        window.resizeAndCenter(1200, 700);
 
         txtSearchFilter.addKeyDownHandler(new KeyDownHandler() {
             @Override
@@ -300,7 +304,7 @@ public class TraceRecordSearchView extends DialogBox {
         TraceRecordProxy tri = selectionModel.getSelectedObject();
         int idx = tri != null ? resultsStore.getList().indexOf(tri) : 0;
         panel.setResults(resultsStore.getList(), idx);
-        this.hide();
+        window.hide();
     }
 
 
@@ -351,6 +355,11 @@ public class TraceRecordSearchView extends DialogBox {
                     }
                 }
         );
+    }
+
+    @Override
+    public PopupWindow asPopupWindow() {
+        return window;
     }
 
 }

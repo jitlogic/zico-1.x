@@ -503,7 +503,7 @@ public class HostListPanel extends Composite {
 
 
     private void addHost() {
-        new HostEditView(rf, this, null, errorHandler).show();
+        new HostEditView(rf, this, null, errorHandler).getWindow().show();
     }
 
 
@@ -515,7 +515,7 @@ public class HostListPanel extends Composite {
     private void editHost() {
         HostListObject hostInfo = selectionModel.getSelectedObject();
         if (hostInfo instanceof HostProxy) {
-            new HostEditView(rf, this, (HostProxy)hostInfo, errorHandler).show();
+            new HostEditView(rf, this, (HostProxy)hostInfo, errorHandler).getWindow().show();
         }
     }
 

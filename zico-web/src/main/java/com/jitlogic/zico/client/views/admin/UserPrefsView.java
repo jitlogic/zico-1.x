@@ -27,12 +27,14 @@ import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.widgets.IsPopupWindow;
+import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.shared.data.UserProxy;
 import com.jitlogic.zico.shared.services.UserServiceProxy;
 
 import java.util.*;
 
-public class UserPrefsView extends DialogBox {
+public class UserPrefsView implements IsPopupWindow {
     interface UserPrefsViewUiBinder extends UiBinder<Widget, UserPrefsView> { }
     private static UserPrefsViewUiBinder ourUiBinder = GWT.create(UserPrefsViewUiBinder.class);
 
@@ -58,9 +60,11 @@ public class UserPrefsView extends DialogBox {
 
     private Map<String,CheckBox> selectedHosts = new HashMap<String, CheckBox>();
 
+    private PopupWindow window;
+
     public UserPrefsView(ZicoRequestFactory rf, UserProxy user, UserManagementPanel panel,
                          List<String> availableHosts, ErrorHandler errorHandler) {
-        add(ourUiBinder.createAndBindUi(this));
+        window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         editUserRequest = rf.userService();
         this.editedUser = user != null ? editUserRequest.edit(user) : editUserRequest.create(UserProxy.class);
         this.panel = panel;
@@ -68,7 +72,7 @@ public class UserPrefsView extends DialogBox {
 
         this.availableHosts = availableHosts;
 
-        setTitle(user != null ? "Edit user: " + user.getUserName() : "New user");
+        window.setCaption(user != null ? "Edit user: " + user.getUserName() : "New user");
 
         if (user != null) {
             txtUsername.setText(user.getUserName());
@@ -93,7 +97,7 @@ public class UserPrefsView extends DialogBox {
             hostList.add(hp);
         }
 
-        setPixelSize(400,500);
+        window.resizeAndCenter(400, 500);
     }
 
     @UiHandler("btnOk")
@@ -103,7 +107,7 @@ public class UserPrefsView extends DialogBox {
 
     @UiHandler("btnCancel")
     void clickCancel(ClickEvent e) {
-        hide();
+        window.hide();
     }
 
 
@@ -128,7 +132,7 @@ public class UserPrefsView extends DialogBox {
         editUserRequest.persist(editedUser).fire(new Receiver<Void>() {
             @Override
             public void onSuccess(Void response) {
-                hide();
+                window.hide();
                 panel.refreshUsers();
             }
             @Override
@@ -138,4 +142,8 @@ public class UserPrefsView extends DialogBox {
         });
     }
 
+    @Override
+    public PopupWindow asPopupWindow() {
+        return window;
+    }
 }

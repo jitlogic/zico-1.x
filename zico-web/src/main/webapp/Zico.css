@@ -12,3 +12,73 @@ body {
     font-size: small;
     margin: 0px;
 }
+
+
+/* Predefined styles for GWT components. */
+
+.gwt-SplitLayoutPanel-HDragger {
+    margin-left: 4px;
+    border-left: 2px solid #aaa;
+    cursor: col-resize;
+}
+
+
+.gwt-TabLayoutPanel {
+}
+
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTabs {
+    padding-top: 2px;
+    border-bottom: 1px solid #ccc;
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+.gwt-TabLayoutPanelContentContainer {
+}
+
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelContent {
+    overflow: hidden;
+    padding: 6px;
+}
+
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab {
+    margin-left: 6px;
+    margin-bottom: -1px;
+    padding: 3px 6px 3px 6px;
+    cursor: pointer;
+    color: #555;
+    text-align: center;
+}
+
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab:hover {
+    background: #eee;
+}
+
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected {
+    cursor: default;
+    color: black;
+    background: white;
+    font-weight: bold;
+    border-top-right-radius: 4px;
+    border-top-left-radius: 4px;
+    border-top: 1px solid #ccc;
+    border-left: 1px solid #ccc;
+    border-right: 1px solid #ccc;
+}
+
+
+.gwt-TabLayoutPanel .gwt-TabLayoutPanelTab-selected:hover {
+    background: white;
+}
+

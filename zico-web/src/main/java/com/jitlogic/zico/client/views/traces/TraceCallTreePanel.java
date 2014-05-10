@@ -263,7 +263,7 @@ public class TraceCallTreePanel extends Composite {
                 if ((BrowserEvents.KEYDOWN.equals(eventType) && nev.getKeyCode() == KeyCodes.KEY_ENTER)
                         || BrowserEvents.DBLCLICK.equals(nev.getType())) {
                     TraceRecordProxy tr = event.getValue();
-                    panelFactory.methodAttrsDialog(trace.getHostName(), trace.getDataOffs(), tr.getPath(), 0L).show();
+                    panelFactory.methodAttrsDialog(trace.getHostName(), trace.getDataOffs(), tr.getPath(), 0L).asPopupWindow().show();
                 }
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selection.setSelected(event.getValue(), true);
@@ -323,7 +323,7 @@ public class TraceCallTreePanel extends Composite {
                     public void execute() {
                         TraceRecordProxy tr = selection.getSelectedObject();
                         if (tr != null) {
-                            panelFactory.methodAttrsDialog(trace.getHostName(), trace.getDataOffs(), tr.getPath(), 0L).show();
+                            panelFactory.methodAttrsDialog(trace.getHostName(), trace.getDataOffs(), tr.getPath(), 0L).asPopupWindow().show();
                         }
                     }
                 });
@@ -335,7 +335,7 @@ public class TraceCallTreePanel extends Composite {
         if (searchDialog == null) {
             searchDialog = panelFactory.traceRecordSearchDialog(this, trace);
         }
-        searchDialog.show();
+        searchDialog.asPopupWindow().show();
     }
 
 
