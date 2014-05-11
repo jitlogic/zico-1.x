@@ -61,7 +61,7 @@ public class PasswordChangeView implements IsPopupWindow {
 
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         window.setCaption("Change password");
-        window.resizeAndCenter(400, 250);
+        window.resizeAndCenter(300, 125);
     }
 
     @UiHandler("btnOk")

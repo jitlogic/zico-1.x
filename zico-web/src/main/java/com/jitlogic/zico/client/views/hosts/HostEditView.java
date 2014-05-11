@@ -79,7 +79,7 @@ public class HostEditView {
             editedHost = editHostRequest.edit(info);
         }
 
-        window.resizeAndCenter(300, 220);
+        window.resizeAndCenter(290, 210);
 
         if (info != null) {
             window.setCaption("Edit host: " + info.getName());

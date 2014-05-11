@@ -1,6 +1,16 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <g:HTMLPanel>
+    <ui:style>
+        .panel {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+    </ui:style>
+    <g:HTMLPanel styleName="{style.panel}">
         <h1>Welcome !</h1>
 
         <p>Zorka Intranet Collector collects performance data from Zorka agents across the network. You can view details about execution of all instrumented applications here. </p>
@@ -14,12 +24,6 @@
         <li>you can also use SQL-like queries; click '<b>QL</b>' button to enable it;</li>
         <li>in order to enable searching full call tree (not only data visible in top level trace list), click '<b>Deep Search</b>' button;</li>
         </ul>
-
-
-        <g:Hyperlink ui:field="lnkChangePassword">Change password</g:Hyperlink>
-        <g:Hyperlink ui:field="lnkManageUsers">Manage Users</g:Hyperlink>
-        <g:Hyperlink ui:field="lnkBackup">Back up Symbols and Config</g:Hyperlink>
-        <g:Hyperlink ui:field="lnkTraceDisplayTemplates">Trace List Display Templates</g:Hyperlink>
 
         <g:Label>System info:</g:Label>
         <g:VerticalPanel ui:field="infoPanel"/>

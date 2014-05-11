@@ -2,7 +2,66 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:z="urn:import:com.jitlogic.zico.client.views"
              xmlns:zh="urn:import:com.jitlogic.zico.client.views.hosts">
-    <g:DockLayoutPanel unit="EM">
+
+    <ui:style>
+        .toolbar {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            align-items: center;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+        .toolitem {
+            flex: 0 1 auto;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-left: 8px;
+            padding-right: 8px;
+            color: #666;
+            cursor: pointer;
+        }
+        .toolitem:hover {
+            background: #eee;
+        }
+        .toolfill {
+            flex: 10;
+            text-align: center;
+            padding-top: 4px;
+            padding-bottom: 4px;
+
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel unit="PX">
+        <g:north size="24">
+            <g:HTMLPanel>
+                <div class="{style.toolbar}">
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkManageUsers">Manage Users</g:Hyperlink>
+                    </div>
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkBackupConfig">Backup Config</g:Hyperlink>
+                    </div>
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkTraceTemplates">Trace Display Templates</g:Hyperlink>
+                    </div>
+                    <div class="{style.toolfill}">
+                        <g:Label>ZICO 1.0.3-SNAPSHOT</g:Label>
+                    </div>
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkChangePassword">Change password</g:Hyperlink>
+                    </div>
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkLogOut">Log out</g:Hyperlink>
+                    </div>
+                </div>
+            </g:HTMLPanel>
+        </g:north>
         <g:center>
             <g:SplitLayoutPanel>
                 <g:west size="256">

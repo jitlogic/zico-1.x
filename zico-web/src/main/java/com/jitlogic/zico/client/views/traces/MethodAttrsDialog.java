@@ -55,15 +55,20 @@ public class MethodAttrsDialog implements IsPopupWindow {
     private static MethodAttrsDialogUiBinder uiBinder = GWT.create(MethodAttrsDialogUiBinder.class);
 
     @UiField
-    SplitLayoutPanel container;
+    DockLayoutPanel container;
 
-    private DataGrid<String[]> attrGrid;
+    @UiField(provided=true)
+    DataGrid<String[]> attrGrid;
+
+    @UiField
+    TextArea txtAttrVal;
+
+    @UiField
+    Label lblAttrName;
+
+
     private ListDataProvider<String[]> attrStore;
     private SingleSelectionModel<String[]> selectionModel;
-
-    private TextArea txtAttrVal;
-    private Label lblAttrName;
-
 
     private ZicoRequestFactory rf;
     private ErrorHandler errorHandler;
@@ -77,9 +82,9 @@ public class MethodAttrsDialog implements IsPopupWindow {
         this.rf = rf;
         this.errorHandler = errorHandler;
 
-        window = new PopupWindow(uiBinder.createAndBindUi(this));
+        setupGrid();
 
-        configure("Trace Details");
+        window = new PopupWindow(uiBinder.createAndBindUi(this));
 
         window.setCaption("Trace Details");
         window.resizeAndCenter(1200, 750);
@@ -183,10 +188,8 @@ public class MethodAttrsDialog implements IsPopupWindow {
         }
     };
 
-    private void configure(String headingText) {
 
-        // TODO move remaining UI construction to uibinder template
-
+    private void setupGrid() {
         attrGrid = new DataGrid<String[]>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<String[]>(KEY_PROVIDER);
         attrGrid.setSelectionModel(selectionModel);
@@ -214,25 +217,7 @@ public class MethodAttrsDialog implements IsPopupWindow {
             }
         });
 
-        SimplePanel panel = new SimplePanel();
-        panel.addStyleName(Resources.INSTANCE.zicoCssResources().whitePanel());
-        panel.setSize("100%", "100%");
         attrGrid.setSize("100%", "100%");
-        panel.add(attrGrid);
-
-        container.addWest(panel, 200);
-
-        txtAttrVal = new TextArea();
-        txtAttrVal.setReadOnly(true);
-        txtAttrVal.setText("Please wait ...");
-
-        VerticalPanel vp = new VerticalPanel();
-        lblAttrName = new Label("Selected attribute:");
-        vp.add(lblAttrName);
-        vp.add(txtAttrVal);
-
-        container.add(vp);
-
     }
 
 

@@ -40,100 +40,15 @@ public class WelcomeView extends Composite {
     @UiField
     VerticalPanel infoPanel;
 
-    @UiField
-    Hyperlink lnkChangePassword;
-
-    @UiField
-    Hyperlink lnkManageUsers;
-
-    @UiField
-    Hyperlink lnkBackup;
-
-    @UiField
-    Hyperlink lnkTraceDisplayTemplates;
-
     private ZicoRequestFactory rf;
-
-    private Provider<Shell> shell;
-
-    private PanelFactory panelFactory;
-
-    private ErrorHandler errorHandler;
 
     private Timer timer;
 
     @Inject
-    public WelcomeView(final ZicoRequestFactory rf,
-                       final PanelFactory panelFactory, final Provider<Shell> shell,
-                       final ErrorHandler errorHandler) {
-
+    public WelcomeView(ZicoRequestFactory rf) {
         this.rf = rf;
-        this.panelFactory = panelFactory;
-        this.shell = shell;
-        this.errorHandler = errorHandler;
 
         initWidget(ourUiBinder.createAndBindUi(this));
-
-        rf.userService().isAdminMode().fire(new Receiver<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isAdmin) {
-                if (!isAdmin) {
-                    lnkBackup.setVisible(false);
-                    lnkManageUsers.setVisible(false);
-                    lnkTraceDisplayTemplates.setVisible(false);
-                } else {
-                    lnkTraceDisplayTemplates.addHandler(new ClickHandler() {
-                        @Override
-                        public void onClick(ClickEvent event) {
-                            openTemplatePanel();
-                        }
-                    }, ClickEvent.getType());
-
-                }
-            }
-            @Override
-            public void onFailure(ServerFailure failure) {
-                WelcomeView.this.errorHandler.error("Error performing server request", failure);
-            }
-        });
-
-        lnkTraceDisplayTemplates.addHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                openTemplatePanel();
-            }
-        }, ClickEvent.getType());
-
-        lnkManageUsers.addHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent clickEvent) {
-                shell.get().addView(panelFactory.userManagementPanel(), "User Management");
-            }
-        }, ClickEvent.getType());
-
-        lnkBackup.addHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                rf.systemService().backupConfig().fire(new Receiver<Void>() {
-                    @Override
-                    public void onSuccess(Void response) {
-                        Window.alert("Symbols and configuration backed up succesfully.");
-                    }
-
-                    @Override
-                    public void onFailure(ServerFailure failure) {
-                        errorHandler.error("Error backing up symbols and configuration.", failure);
-                    }
-                });
-            }
-        }, ClickEvent.getType());
-
-        lnkChangePassword.addHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                panelFactory.passwordChangeView("").asPopupWindow().show();
-            }
-        }, ClickEvent.getType());
 
         timer = new Timer() {
             @Override
@@ -142,12 +57,8 @@ public class WelcomeView extends Composite {
             }
         };
         timer.scheduleRepeating(10000);
-
     }
 
-    private void openTemplatePanel() {
-        shell.get().addView(panelFactory.traceTemplatePanel(), "Templates");
-    }
 
     private void loadData() {
         rf.systemService().systemInfo().fire(new Receiver<List<String>>() {
