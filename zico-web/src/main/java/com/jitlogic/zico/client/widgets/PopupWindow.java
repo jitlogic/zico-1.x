@@ -24,6 +24,8 @@ import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
+import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 
@@ -42,6 +44,9 @@ public class PopupWindow extends PopupPanel {
     @UiField(provided=true)
     WidgetResources res;
 
+    boolean isMoving;
+    int dx, dy;
+
     public PopupWindow(Widget content) {
         this(content, WidgetResources.INSTANCE);
     }
@@ -51,7 +56,11 @@ public class PopupWindow extends PopupPanel {
         this.res = res;
         panel = uiBinder.createAndBindUi(this);
         panel.add(content);
-        removeStyleName("gwt-PopupPanel");
+
+        //removeStyleName("gwt-PopupPanel");
+
+        sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEMOVE | Event.ONMOUSEUP | Event.ONMOUSEOUT);
+
         add(panel);
     }
 
@@ -68,4 +77,27 @@ public class PopupWindow extends PopupPanel {
     void clickClose(ClickEvent e) {
         hide();
     }
+
+    @Override
+    public void onBrowserEvent(Event event) {
+        switch (DOM.eventGetType(event)) {
+            case Event.ONMOUSEDOWN:
+                dx = event.getClientX() - getPopupLeft();
+                dy = event.getClientY() - getPopupTop();
+                if (dy < 24) {
+                    isMoving = true;
+                }
+                break;
+            case Event.ONMOUSEMOVE:
+                if (isMoving) {
+                    setPopupPosition(event.getClientX() - dx, event.getClientY() - dy);
+                }
+                break;
+            case Event.ONMOUSEUP:
+            case Event.ONMOUSEOUT:
+                isMoving = false;
+        }
+        super.onBrowserEvent(event);
+    }
+
 }
