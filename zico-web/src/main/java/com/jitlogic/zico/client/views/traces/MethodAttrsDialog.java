@@ -34,8 +34,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ErrorHandler;
-import com.jitlogic.zico.client.resources.Resources;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.IsPopupWindow;
@@ -71,16 +70,17 @@ public class MethodAttrsDialog implements IsPopupWindow {
     private SingleSelectionModel<String[]> selectionModel;
 
     private ZicoRequestFactory rf;
-    private ErrorHandler errorHandler;
 
     private PopupWindow window;
 
+    private MessageDisplay md;
+
     @Inject
-    public MethodAttrsDialog(ZicoRequestFactory rf, ErrorHandler errorHandler,
+    public MethodAttrsDialog(ZicoRequestFactory rf, MessageDisplay md,
                              @Assisted("hostName") String hostName, @Assisted Long dataOffs,
                              @Assisted String path, @Assisted("minTime") Long minTime) {
         this.rf = rf;
-        this.errorHandler = errorHandler;
+        this.md = md;
 
         setupGrid();
 
@@ -93,15 +93,19 @@ public class MethodAttrsDialog implements IsPopupWindow {
     }
 
 
+    private static final String MDS = "MethodAttrsDialog";
+
     private void loadTraceDetail(String hostName, Long dataOffs, String path, Long minTime) {
+        md.info(MDS, "Loading method attributes...");
         rf.traceDataService().getRecord(hostName, dataOffs, minTime, path).fire(new Receiver<TraceRecordProxy>() {
             @Override
             public void onSuccess(TraceRecordProxy tr) {
                 fillTraceDetail(tr);
+                md.clear(MDS);
             }
             @Override
             public void onFailure(ServerFailure error) {
-                errorHandler.error("Cannot load method/trace details", error);
+                md.error(MDS, "Cannot load method/trace details", error);
             }
         });
     }

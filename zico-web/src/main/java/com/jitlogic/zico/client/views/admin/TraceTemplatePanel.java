@@ -41,7 +41,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
@@ -61,17 +61,18 @@ public class TraceTemplatePanel extends Composite {
     private DataGrid<TraceTemplateProxy> templateGrid;
     private SingleSelectionModel<TraceTemplateProxy> selectionModel;
 
-    private ErrorHandler errorHandler;
     private ZicoRequestFactory rf;
 
     private PopupMenu contextMenu;
 
     private DockLayoutPanel panel;
 
-    @Inject
-    public TraceTemplatePanel(ZicoRequestFactory rf, ErrorHandler errorHandler) {
+    private MessageDisplay messageDisplay;
 
-        this.errorHandler = errorHandler;
+    @Inject
+    public TraceTemplatePanel(ZicoRequestFactory rf, MessageDisplay messageDisplay) {
+
+        this.messageDisplay = messageDisplay;
         this.rf = rf;
 
         panel = new DockLayoutPanel(Style.Unit.PX);
@@ -277,13 +278,13 @@ public class TraceTemplatePanel extends Composite {
     private void editTemplate() {
         TraceTemplateProxy tti = selectionModel.getSelectedObject();
         if (tti != null) {
-            new TraceTemplateView(rf, this, tti, errorHandler).asPopupWindow().show();
+            new TraceTemplateView(rf, this, tti, messageDisplay).asPopupWindow().show();
         }
     }
 
 
     private void addTemplate() {
-        new TraceTemplateView(rf, this, null, errorHandler).asPopupWindow().show();
+        new TraceTemplateView(rf, this, null, messageDisplay).asPopupWindow().show();
     }
 
 
@@ -301,8 +302,10 @@ public class TraceTemplatePanel extends Composite {
         }
     }
 
+    private final static String SRC = "TraceTemplatePanel";
 
     public void refreshTemplates() {
+        messageDisplay.info(SRC, "Loading trace display templates");
         rf.systemService().listTemplates().fire(new Receiver<List<TraceTemplateProxy>>() {
             @Override
             public void onSuccess(List<TraceTemplateProxy> response) {
@@ -318,7 +321,7 @@ public class TraceTemplatePanel extends Composite {
 
             @Override
             public void onFailure(ServerFailure e) {
-                errorHandler.error("Error loading trace templates: ", e);
+                messageDisplay.error(SRC, "Error loading trace templates: ", e);
             }
         });
     }

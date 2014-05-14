@@ -13,24 +13,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.jitlogic.zico.client;
 
-
-import com.google.gwt.user.client.Window;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
+import com.jitlogic.zico.client.views.StatusBar;
 
-public class ErrorHandler {
+/**
+ * Created by rlewczuk on 14.05.14.
+ */
+public interface MessageDisplay {
+    void info(String source, String msg);
 
-    public void error(String message) {
-        Window.alert(message);
-    }
+    void error(String source, String msg);
 
-    public void error(String message, Throwable e) {
-        Window.alert(message + ": " + e.getMessage());
-    }
+    void error(String source, String msg, ServerFailure e);
 
-    public void error(String message, ServerFailure e) {
-        Window.alert(message + ": " + e.getMessage());
-    }
+    void message(String source, StatusBar.MessageType type, String msg);
 
+    void clear(String source);
 }

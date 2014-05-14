@@ -25,7 +25,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.CheckBox;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.IsPopupWindow;
 import com.jitlogic.zico.client.widgets.PopupWindow;
@@ -53,7 +53,6 @@ public class UserPrefsView implements IsPopupWindow {
 
     private UserServiceProxy editUserRequest;
     private UserProxy editedUser;
-    private ErrorHandler errorHandler;
     public UserManagementPanel panel;
 
     private List<String> availableHosts;
@@ -62,13 +61,15 @@ public class UserPrefsView implements IsPopupWindow {
 
     private PopupWindow window;
 
+    private MessageDisplay md;
+
     public UserPrefsView(ZicoRequestFactory rf, UserProxy user, UserManagementPanel panel,
-                         List<String> availableHosts, ErrorHandler errorHandler) {
+                         List<String> availableHosts, MessageDisplay md) {
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         editUserRequest = rf.userService();
         this.editedUser = user != null ? editUserRequest.edit(user) : editUserRequest.create(UserProxy.class);
         this.panel = panel;
-        this.errorHandler = errorHandler;
+        this.md = md;
 
         this.availableHosts = availableHosts;
 
@@ -110,6 +111,7 @@ public class UserPrefsView implements IsPopupWindow {
         window.hide();
     }
 
+    private static final String MDS = "UserPrefsView";
 
     private void save() {
         if (editedUser.getUserName() == null) {
@@ -137,7 +139,7 @@ public class UserPrefsView implements IsPopupWindow {
             }
             @Override
             public void onFailure(ServerFailure failure) {
-                errorHandler.error("Error saving user data", failure);
+                md.error(MDS, "Error saving user data", failure);
             }
         });
     }

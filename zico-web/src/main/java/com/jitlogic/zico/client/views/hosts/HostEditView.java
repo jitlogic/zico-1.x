@@ -21,20 +21,20 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.Request;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
 
+import javax.inject.Inject;
+
 public class HostEditView {
     interface HostEditViewUiBinder extends UiBinder<Widget, HostEditView> { }
-
     private static HostEditViewUiBinder ourUiBinder = GWT.create(HostEditViewUiBinder.class);
 
     @UiField
@@ -55,24 +55,25 @@ public class HostEditView {
     @UiField
     TextBox txtMaxSize;
 
+    private String SRC = "HostEdit";
 
     private static final long KB = 1024;
     private static final long MB = 1024*KB;
     private static final long GB = 1024*MB;
 
-
     private HostProxy editedHost;
     private HostServiceProxy editHostRequest;
     private HostListPanel panel;
-    private ErrorHandler errorHandler;
 
     private PopupWindow window;
+    private MessageDisplay messageDisplay;
 
-    public HostEditView(ZicoRequestFactory rf, HostListPanel panel, HostProxy info, ErrorHandler errorHandler) {
+    @Inject
+    public HostEditView(ZicoRequestFactory rf, HostListPanel panel, HostProxy info, MessageDisplay messageDisplay) {
         super();
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         this.panel = panel;
-        this.errorHandler = errorHandler;
+        this.messageDisplay = messageDisplay;
 
         editHostRequest = rf.hostService();
         if (info != null) {
@@ -111,7 +112,6 @@ public class HostEditView {
         window.hide();
     }
 
-
     public void save() {
 
         Request<Void> req;
@@ -120,7 +120,7 @@ public class HostEditView {
 
             String name = txtHostName.getText();
             if (name.length() == 0 || !name.matches("^[0-9a-zA-Z_\\-\\.]+$")) {
-                errorHandler.error("Illegal host name: '" + name + "'. Use only those characters: 0-9a-zA-Z_-");
+                messageDisplay.error(SRC, "Illegal host name: '" + name + "'. Use only those characters: 0-9a-zA-Z_-");
                 return;
             }
 
@@ -144,11 +144,12 @@ public class HostEditView {
             @Override
             public void onSuccess(Void aVoid) {
                 window.hide();
+                messageDisplay.clear(SRC);
                 panel.refresh();
             }
             @Override
             public void onFailure(ServerFailure error) {
-                errorHandler.error("Cannot save host settings", error);
+                messageDisplay.error(SRC, "Cannot save host settings", error);
             }
         });
     }

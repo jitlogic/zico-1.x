@@ -41,7 +41,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
@@ -74,8 +74,6 @@ public class HostListPanel extends Composite {
 
     private Map<String,HostGroup> hostGroups = new TreeMap<String, HostGroup>();
 
-    private ErrorHandler errorHandler;
-
     private ToolButton btnRefresh, btnAddHost, btnRemoveHost, btnEditHost, btnListTraces, btnDisableHost, btnEnableHost;
     private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces, mnuDisableHost, mnuEnableHost;
 
@@ -86,14 +84,16 @@ public class HostListPanel extends Composite {
 
     private DockLayoutPanel panel;
 
+    private MessageDisplay messageDisplay;
+
     @Inject
     public HostListPanel(Provider<Shell> shell, PanelFactory panelFactory,
-                         ZicoRequestFactory rf, ErrorHandler errorHandler) {
+                         ZicoRequestFactory rf, MessageDisplay messageDisplay) {
 
         this.shell = shell;
         this.panelFactory = panelFactory;
         this.rf = rf;
-        this.errorHandler = errorHandler;
+        this.messageDisplay = messageDisplay;
 
         panel = new DockLayoutPanel(Style.Unit.PX);
 
@@ -397,18 +397,21 @@ public class HostListPanel extends Composite {
         }
     }
 
+    private static final String SRC = "HostListPanel";
 
     public void refresh() {
         hostGridStore.getList().clear();
+        messageDisplay.info(SRC, "Loading host list ...");
         rf.hostService().findAll().fire(new Receiver<List<HostProxy>>() {
             @Override
             public void onSuccess(List<HostProxy> response) {
+                messageDisplay.clear(SRC);
                 rebuildHostGroups(response);
                 redrawHostList();
             }
             @Override
             public void onFailure(ServerFailure error) {
-                errorHandler.error("Error loading host list", error);
+                messageDisplay.error(SRC, "Error loading host list.", error);
             }
         });
     }
@@ -416,7 +419,7 @@ public class HostListPanel extends Composite {
 
     private void removeHost(final HostListObject hi) {
         if (hi instanceof HostProxy) {
-            // TODO remove host
+            // TODO remove host - after implementing proper message (info) box
 //            ConfirmMessageBox cmb = new ConfirmMessageBox(
 //                    "Removing host", "Are you sure you want to remove host " + hi.getName() + "?");
 //            cmb.addHideHandler(new HideEvent.HideHandler() {
@@ -503,7 +506,7 @@ public class HostListPanel extends Composite {
 
 
     private void addHost() {
-        new HostEditView(rf, this, null, errorHandler).getWindow().show();
+        new HostEditView(rf, this, null, messageDisplay).getWindow().show();
     }
 
 
@@ -515,7 +518,7 @@ public class HostListPanel extends Composite {
     private void editHost() {
         HostListObject hostInfo = selectionModel.getSelectedObject();
         if (hostInfo instanceof HostProxy) {
-            new HostEditView(rf, this, (HostProxy)hostInfo, errorHandler).getWindow().show();
+            new HostEditView(rf, this, (HostProxy)hostInfo, messageDisplay).getWindow().show();
         }
     }
 
@@ -530,11 +533,11 @@ public class HostListPanel extends Composite {
             req.fire(new Receiver<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    refresh();
+                    refresh(); messageDisplay.clear(SRC);
                 }
                 @Override
                 public void onFailure(ServerFailure error) {
-                    errorHandler.error("Error enabling/disabling host", error);
+                    messageDisplay.error(SRC, "Error enabling/disabling host", error);
                 }
             });
         }

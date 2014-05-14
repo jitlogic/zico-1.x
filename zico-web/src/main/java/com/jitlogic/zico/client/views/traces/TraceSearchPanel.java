@@ -39,7 +39,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ClientUtil;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
@@ -70,8 +70,6 @@ public class TraceSearchPanel extends Composite {
 
     private PanelFactory pf;
     private ZicoRequestFactory rf;
-
-    private ErrorHandler errorHandler;
 
     private Provider<Shell> shell;
 
@@ -110,15 +108,19 @@ public class TraceSearchPanel extends Composite {
 
     private DockLayoutPanel panel;
 
+    private MessageDisplay md;
+    private final String MDS;
+
     @Inject
     public TraceSearchPanel(Provider<Shell> shell, ZicoRequestFactory rf,
                             PanelFactory pf, @Assisted HostProxy host,
-                            ErrorHandler errorHandler) {
+                            MessageDisplay md) {
         this.shell = shell;
         this.rf = rf;
         this.pf = pf;
         this.host = host;
-        this.errorHandler = errorHandler;
+        this.md = md;
+        this.MDS = "TraceSearch:" + host.getName();
 
         traceTypes = new HashMap<Integer, String>();
         traceTypes.put(0, "(all)");
@@ -533,6 +535,7 @@ public class TraceSearchPanel extends Composite {
             q.setMinMethodTime((Integer.parseInt(txtDuration.getText()) * 1000000000L));
         }
 
+        md.info(MDS, "Searching for traces ...");
         req.searchTraces(q).fire(new Receiver<TraceInfoSearchResultProxy>() {
             @Override
             public void onSuccess(TraceInfoSearchResultProxy response) {
@@ -545,12 +548,13 @@ public class TraceSearchPanel extends Composite {
                         loadMore(limit-results.size());
                     }
                 }
+                md.clear(MDS);
             }
 
             @Override
             public void onFailure(ServerFailure error) {
                 toggleSearchMode(false, false, "Error occured while searching: " + error.getMessage());
-                errorHandler.error("Trace search request failed", error);
+                md.error(MDS, "Trace search request failed", error);
             }
         });
     }
@@ -581,7 +585,7 @@ public class TraceSearchPanel extends Composite {
 
             @Override
             public void onFailure(ServerFailure error) {
-                errorHandler.error("Error loading TID map", error);
+                md.error(MDS, "Error loading TID map", error);
             }
         });
     }

@@ -44,7 +44,6 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.*;
-import com.jitlogic.zico.client.ErrorHandler;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
@@ -110,18 +109,21 @@ public class TraceRecordSearchView implements IsPopupWindow {
     private TraceCallTreePanel panel;
     private ZicoRequestFactory rf;
 
-    private com.jitlogic.zico.client.ErrorHandler errorHandler;
-
     private PopupWindow window;
 
+    private MessageDisplay md;
+    private final String MDS;
+
     @Inject
-    public TraceRecordSearchView(ZicoRequestFactory rf, ErrorHandler errorHandler,
+    public TraceRecordSearchView(ZicoRequestFactory rf, MessageDisplay md,
                                  @Assisted TraceCallTreePanel panel, @Assisted TraceInfoProxy trace) {
 
         this.rf = rf;
         this.trace = trace;
         this.panel = panel;
-        this.errorHandler = errorHandler;
+        this.md = md;
+
+        this.MDS = "TraceRecordSearch:" + trace.getHostName() + ":" + trace.getDataOffs();
 
         createResultsGrid();
 
@@ -334,6 +336,7 @@ public class TraceRecordSearchView implements IsPopupWindow {
 
         expr.setSearchExpr(txtSearchFilter.getText());
 
+        md.info(MDS, "Searching records ...");
         req.searchRecords(trace.getHostName(), trace.getDataOffs(), 0, rootPath, expr).fire(
                 new Receiver<TraceRecordSearchResultProxy>() {
                     @Override
@@ -348,10 +351,11 @@ public class TraceRecordSearchView implements IsPopupWindow {
 
                         );
                         txtSearchFilter.setFocus(true);
+                        md.clear(MDS);
                     }
                     @Override
                     public void onFailure(ServerFailure failure) {
-                        errorHandler.error("Error performing search request", failure);
+                        md.error(MDS, "Error performing search request", failure);
                     }
                 }
         );

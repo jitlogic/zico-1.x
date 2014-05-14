@@ -28,7 +28,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ClientUtil;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.shared.data.MethodRankInfoProxy;
@@ -41,18 +41,18 @@ public class MethodRankingPanel extends DockLayoutPanel {
 
     private ZicoRequestFactory rf;
     private TraceInfoProxy traceInfo;
-    private ErrorHandler errorHandler;
+    private MessageDisplay md;
 
     private DataGrid<MethodRankInfoProxy> rankGrid;
     private ListDataProvider<MethodRankInfoProxy> rankStore;
     private SingleSelectionModel<MethodRankInfoProxy> selectionModel;
 
     @Inject
-    public MethodRankingPanel(ZicoRequestFactory rf, ErrorHandler errorHandler, @Assisted TraceInfoProxy traceInfo) {
+    public MethodRankingPanel(ZicoRequestFactory rf, MessageDisplay md, @Assisted TraceInfoProxy traceInfo) {
         super(Style.Unit.PX);
         this.rf = rf;
         this.traceInfo = traceInfo;
-        this.errorHandler = errorHandler;
+        this.md = md;
 
         createRankingGrid();
         loadData("calls", "DESC");
@@ -169,18 +169,21 @@ public class MethodRankingPanel extends DockLayoutPanel {
         add(rankGrid);
     }
 
+    private static final String MDS = "MethodRankingPanel";
 
     private void loadData(String orderBy, String orderDir) {
+        md.info(MDS, "Loading data...");
         rf.traceDataService().traceMethodRank(traceInfo.getHostName(), traceInfo.getDataOffs(), orderBy, orderDir).fire(
                 new Receiver<List<MethodRankInfoProxy>>() {
                     @Override
                     public void onSuccess(List<MethodRankInfoProxy> ranking) {
                         rankStore.getList().clear();
                         rankStore.getList().addAll(ranking);
+                        md.clear(MDS);
                     }
                     @Override
                     public void onFailure(ServerFailure error) {
-                        errorHandler.error("Error loading method rank data", error);
+                        md.error(MDS, "Error loading method rank data", error);
                     }
                 }
         );

@@ -2,7 +2,6 @@ package com.jitlogic.zico.client.views;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
@@ -14,7 +13,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.views.hosts.HostListPanel;
@@ -44,20 +43,23 @@ public class Shell extends Composite {
     @UiField
     Hyperlink lnkTraceTemplates;
 
-    private ErrorHandler errorHandler;
+    @UiField(provided = true)
+    StatusBar statusBar;
 
     private ZicoRequestFactory rf;
 
     private PanelFactory panelFactory;
 
+    private final String SRC = "Shell";
+
     @Inject
     public Shell(final HostListPanel hostListPanel, ZicoRequestFactory rf,
-                 ErrorHandler errorHandler, WelcomeView welcomeView,
-                 PanelFactory panelFactory) {
+                 WelcomeView welcomeView,
+                 PanelFactory panelFactory, MessageDisplay md) {
         this.hostListPanel = hostListPanel;
         this.welcomeView = welcomeView;
-        this.errorHandler = errorHandler;
         this.panelFactory = panelFactory;
+        this.statusBar = (StatusBar)md;
         this.rf = rf;
 
         initWidget(ourUiBinder.createAndBindUi(this));
@@ -72,6 +74,7 @@ public class Shell extends Composite {
 
 
     private void checkAdminRole() {
+        statusBar.info(SRC, "Loading user profile ...");
         rf.userService().isAdminMode().fire(new Receiver<Boolean>() {
             @Override
             public void onSuccess(Boolean isAdmin) {
@@ -81,11 +84,11 @@ public class Shell extends Composite {
                     lnkBackupConfig.setVisible(false);
                     lnkTraceTemplates.setVisible(false);
                 }
+                statusBar.clear(SRC);
             }
             @Override
             public void onFailure(ServerFailure failure) {
-                //WelcomeView.this.errorHandler.error("Error performing server request", failure);
-                //TODO proper status bar here
+                statusBar.error(SRC, "Error performing server request", failure);
             }
         });
     }
@@ -107,7 +110,7 @@ public class Shell extends Composite {
 
             @Override
             public void onFailure(ServerFailure failure) {
-                errorHandler.error("Error backing up symbols and configuration.", failure);
+                statusBar.error(SRC, "Error backing up symbols and configuration.", failure);
             }
         });
     }

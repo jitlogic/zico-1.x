@@ -22,8 +22,9 @@ import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
 import com.google.inject.Provides;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.views.Shell;
+import com.jitlogic.zico.client.views.StatusBar;
 
 import javax.inject.Singleton;
 
@@ -31,9 +32,9 @@ public class ClientModule extends AbstractGinModule {
 
     @Override
     protected void configure() {
-        bind(ErrorHandler.class);
         bind(EventBus.class).to(SimpleEventBus.class);
         bind(Shell.class).in(Singleton.class);
+        bind(MessageDisplay.class).to(StatusBar.class).in(Singleton.class);
         install(new GinFactoryModuleBuilder().build(PanelFactory.class));
     }
 

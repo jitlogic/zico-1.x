@@ -33,7 +33,6 @@
             text-align: center;
             padding-top: 4px;
             padding-bottom: 4px;
-
         }
     </ui:style>
 
@@ -62,6 +61,11 @@
                 </div>
             </g:HTMLPanel>
         </g:north>
+        <g:south size="24">
+            <g:HTMLPanel>
+                <z:StatusBar ui:field="statusBar"/>
+            </g:HTMLPanel>
+        </g:south>
         <g:center>
             <g:SplitLayoutPanel>
                 <g:west size="256">

@@ -24,7 +24,7 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.IsPopupWindow;
 import com.jitlogic.zico.client.widgets.PopupWindow;
@@ -46,15 +46,16 @@ public class TraceTemplateView implements IsPopupWindow {
 
     private SystemServiceProxy editTemplateRequest;
     private TraceTemplateProxy editedTemplate;
-    private ErrorHandler errorHandler;
     private TraceTemplatePanel panel;
 
     private PopupWindow window;
 
-    public TraceTemplateView(ZicoRequestFactory rf, TraceTemplatePanel panel, TraceTemplateProxy tti, ErrorHandler errorHandler) {
+    private MessageDisplay md;
+
+    public TraceTemplateView(ZicoRequestFactory rf, TraceTemplatePanel panel, TraceTemplateProxy tti, MessageDisplay md) {
 
         this.panel = panel;
-        this.errorHandler = errorHandler;
+        this.md = md;
 
         editTemplateRequest = rf.systemService();
         editedTemplate = tti != null
@@ -75,21 +76,25 @@ public class TraceTemplateView implements IsPopupWindow {
         window.hide();
     }
 
+    private static final String MDS = "TraceTemplateView";
 
     private void save() {
         editedTemplate.setOrder(Integer.parseInt(txtOrder.getText()));
         editedTemplate.setCondition(txtCondition.getText());
         editedTemplate.setTemplate(txtTemplate.getText());
 
+        md.info(MDS, "Saving template ...");
+
         editTemplateRequest.saveTemplate(editedTemplate).fire(new Receiver<Integer>() {
             @Override
             public void onSuccess(Integer response) {
                 window.hide();
                 panel.refreshTemplates();
+                md.clear(MDS);
             }
             @Override
             public void onFailure(ServerFailure failure) {
-                errorHandler.error("Error saving trace template", failure);
+                md.error(MDS, "Error saving trace template", failure);
             }
         });
     }

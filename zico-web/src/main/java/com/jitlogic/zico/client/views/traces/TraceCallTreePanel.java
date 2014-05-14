@@ -46,7 +46,7 @@ import com.google.inject.assistedinject.Assisted;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ClientUtil;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
@@ -77,7 +77,6 @@ public class TraceCallTreePanel extends Composite {
     private TraceInfoProxy trace;
 
     private TraceRecordSearchView searchDialog;
-    private ErrorHandler errorHandler;
     private PanelFactory panelFactory;
 
     private DataGrid<TraceRecordProxy> grid;
@@ -103,13 +102,18 @@ public class TraceCallTreePanel extends Composite {
 
     private DockLayoutPanel panel;
 
+    private MessageDisplay md;
+    private final String MDS;
+
     @Inject
-    public TraceCallTreePanel(ZicoRequestFactory rf, PanelFactory panelFactory, ErrorHandler errorHandler,
+    public TraceCallTreePanel(ZicoRequestFactory rf, PanelFactory panelFactory, MessageDisplay md,
                               @Assisted TraceInfoProxy trace) {
         this.rf = rf;
+        this.md = md;
         this.panelFactory = panelFactory;
-        this.errorHandler = errorHandler;
         this.trace = trace;
+
+        this.MDS = "TraceCallTree:" + trace.getHostName() + ":" + trace.getDataOffs();
 
         panel = new DockLayoutPanel(Style.Unit.PX);
         initWidget(panel);
@@ -380,6 +384,8 @@ public class TraceCallTreePanel extends Composite {
         btnSearchNext.setEnabled(idx < searchResults.size()-1);
     }
 
+
+
     private void loadData(final boolean recursive, final Runnable action) {
 
         statusLabel.setText("Loading data. Please wait ...");
@@ -391,6 +397,9 @@ public class TraceCallTreePanel extends Composite {
         if (recursive) {
             fullyExpanded = true;
         }
+
+        md.info(MDS, "Loading data. Please wait ...");
+
         rf.traceDataService().listRecords(trace.getHostName(), trace.getDataOffs(), 0, null, recursive)
             .fire(new Receiver<List<TraceRecordProxy>>() {
                 @Override
@@ -403,11 +412,12 @@ public class TraceCallTreePanel extends Composite {
                     if (response.size() > 1) {
                         grid.getRowElement(0).scrollIntoView();
                     }
+                    md.clear(MDS);
                 }
                 @Override
                 public void onFailure(ServerFailure failure) {
                     statusLabel.setText("Error loading trace data: " + failure.getMessage());
-                    errorHandler.error("Error loading trace data", failure);
+                    md.error(MDS, "Error loading trace data", failure);
                 }
             });
     }
@@ -512,6 +522,7 @@ public class TraceCallTreePanel extends Composite {
 
 
     private void doExpand(final TraceRecordProxy rec) {
+        md.info(MDS, "Loading trace data...");
         rf.traceDataService().listRecords(trace.getHostName(), trace.getDataOffs(), 0, rec.getPath(), false).fire(
                 new Receiver<List<TraceRecordProxy>>() {
                     @Override
@@ -521,10 +532,11 @@ public class TraceCallTreePanel extends Composite {
                         for (int i = 0; i < newrecs.size(); i++) {
                             list.add(idx+i, newrecs.get(i));
                         }
+                        md.clear(MDS);
                     }
                     @Override
                     public void onFailure(ServerFailure failure) {
-                        errorHandler.error("Error loading trace data", failure);
+                        md.error(MDS, "Error loading trace data", failure);
                     }
                 }
         );

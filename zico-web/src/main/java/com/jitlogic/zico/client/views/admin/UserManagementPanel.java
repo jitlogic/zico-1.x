@@ -40,7 +40,7 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.ErrorHandler;
+import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
@@ -60,7 +60,6 @@ public class UserManagementPanel extends Composite {
 
     private ZicoRequestFactory rf;
     private PanelFactory panelFactory;
-    private ErrorHandler errorHandler;
 
     private ListDataProvider<UserProxy> userStore;
     private DataGrid<UserProxy> userGrid;
@@ -72,12 +71,14 @@ public class UserManagementPanel extends Composite {
 
     private DockLayoutPanel panel;
 
+    private MessageDisplay md;
+
     @Inject
-    public UserManagementPanel(ZicoRequestFactory requestFactory, PanelFactory panelFactory, ErrorHandler errorHandler) {
+    public UserManagementPanel(ZicoRequestFactory requestFactory, PanelFactory panelFactory, MessageDisplay md) {
 
         this.rf = requestFactory;
         this.panelFactory = panelFactory;
-        this.errorHandler = errorHandler;
+        this.md = md;
 
         panel = new DockLayoutPanel(Style.Unit.PX);
         initWidget(panel);
@@ -312,13 +313,13 @@ public class UserManagementPanel extends Composite {
     private void editUser() {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
-            new UserPrefsView(rf, user, this, hostNames, errorHandler).asPopupWindow().show();
+            new UserPrefsView(rf, user, this, hostNames, md).asPopupWindow().show();
         }
     }
 
 
     private void addUser() {
-        new UserPrefsView(rf, null, this, hostNames, errorHandler).asPopupWindow().show();
+        new UserPrefsView(rf, null, this, hostNames, md).asPopupWindow().show();
     }
 
 
@@ -361,6 +362,7 @@ public class UserManagementPanel extends Composite {
         }
     }
 
+    private static final String MDS = "UserManagementPanel";
 
     public void refreshUsers() {
         userStore.getList().clear();
@@ -371,7 +373,7 @@ public class UserManagementPanel extends Composite {
             }
             @Override
             public void onFailure(ServerFailure failure) {
-                errorHandler.error("Error loading user data", failure);
+                md.error(MDS, "Error loading user data", failure);
             }
         });
     }
@@ -389,7 +391,7 @@ public class UserManagementPanel extends Composite {
             }
             @Override
             public void onFailure(ServerFailure failure) {
-                errorHandler.error("Error loading user data", failure);
+                md.error(MDS, "Error loading user data", failure);
             }
         });
     }
