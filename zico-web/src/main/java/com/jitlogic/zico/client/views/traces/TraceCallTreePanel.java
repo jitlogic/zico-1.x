@@ -19,20 +19,20 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.Cell;
 import com.google.gwt.cell.client.ValueUpdater;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.EventTarget;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ContextMenuEvent;
-import com.google.gwt.event.dom.client.ContextMenuHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
@@ -65,6 +65,38 @@ import java.util.List;
 import java.util.Set;
 
 public class TraceCallTreePanel extends Composite {
+    interface TraceCallTreePanelUiBinder extends UiBinder<Widget, TraceCallTreePanel> { }
+    private static TraceCallTreePanelUiBinder ourUiBinder = GWT.create(TraceCallTreePanelUiBinder.class);
+
+    @UiField
+    DockLayoutPanel panel;
+
+    @UiField(provided = true)
+    Resources resources;
+
+    @UiField
+    ToolButton btnParentMethod;
+
+    @UiField
+    ToolButton btnSlowestMethod;
+
+    @UiField
+    ToolButton btnErrorMethod;
+
+    @UiField
+    ToolButton btnExpandAll;
+
+    @UiField
+    ToolButton btnSearch;
+
+    @UiField
+    ToolButton btnSearchPrev;
+
+    @UiField
+    ToolButton btnSearchNext;
+
+    @UiField(provided = true)
+    DataGrid<TraceRecordProxy> grid;
 
     private static final ProvidesKey<TraceRecordProxy> KEY_PROVIDER = new ProvidesKey<TraceRecordProxy>() {
         @Override
@@ -79,15 +111,11 @@ public class TraceCallTreePanel extends Composite {
     private TraceRecordSearchView searchDialog;
     private PanelFactory panelFactory;
 
-    private DataGrid<TraceRecordProxy> grid;
     private SingleSelectionModel<TraceRecordProxy> selection;
     private ListDataProvider<TraceRecordProxy> data;
     private TraceCallTableBuilder rowBuilder;
 
     private Set<String> expandedDetails = new HashSet<String>();
-
-    private ToolButton btnSearchPrev;
-    private ToolButton btnSearchNext;
 
     private PopupMenu contextMenu;
 
@@ -95,16 +123,13 @@ public class TraceCallTreePanel extends Composite {
 
     private List<TraceRecordProxy> searchResults = new ArrayList<TraceRecordProxy>();
     private int curentSearchResultIdx = -1;
-    private ToolButton btnExpandAll;
-
-    private DockLayoutPanel panel;
 
     private MessageDisplay md;
     private final String MDS;
 
     @Inject
-    public TraceCallTreePanel(ZicoRequestFactory rf, PanelFactory panelFactory, MessageDisplay md,
-                              @Assisted TraceInfoProxy trace) {
+    public TraceCallTreePanel(ZicoRequestFactory rf, PanelFactory panelFactory,
+                              MessageDisplay md, @Assisted TraceInfoProxy trace) {
         this.rf = rf;
         this.md = md;
         this.panelFactory = panelFactory;
@@ -112,98 +137,21 @@ public class TraceCallTreePanel extends Composite {
 
         this.MDS = "TraceCallTree:" + trace.getHostName() + ":" + trace.getDataOffs();
 
-        panel = new DockLayoutPanel(Style.Unit.PX);
+        this.resources = Resources.INSTANCE;
+
+        createCallTreeGrid();
+        ourUiBinder.createAndBindUi(this);
+
         initWidget(panel);
 
-        createToolbar();
-        createCallTreeGrid();
+        btnSearchPrev.setEnabled(false);
+        btnSearchNext.setEnabled(false);
+
         createContextMenu();
 
         loadData(false, null);
     }
 
-
-    private void createToolbar() {
-        HorizontalPanel toolBar = new HorizontalPanel();
-
-        ToolButton btnParentMethod = new ToolButton(Resources.INSTANCE.goUpIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        findParent();
-                    }
-                });
-        //btnParentMethod.setToolTip("Go back to parent method");
-        toolBar.add(btnParentMethod);
-
-        ToolButton btnSlowestMethod = new ToolButton(Resources.INSTANCE.goDownIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        findSlowestMethod();
-                    }
-                });
-        //btnSlowestMethod.setToolTip("Drill down: slowest method");
-        toolBar.add(btnSlowestMethod);
-
-        ToolButton btnErrorMethod = new ToolButton(Resources.INSTANCE.ligtningGo(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        findErrorMethod();
-                    }
-                });
-        //btnErrorMethod.setToolTip("Go to next error");
-        toolBar.add(btnErrorMethod);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        btnExpandAll = new ToolButton(Resources.INSTANCE.expandIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        loadData(true, null);
-                    }
-                });
-        //btnExpandAll.setToolTip("Expand all");
-        toolBar.add(btnExpandAll);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        ToolButton btnSearch = new ToolButton(Resources.INSTANCE.searchIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        doSearch();
-                    }
-                });
-        //btnSearch.setToolTip("Search");
-        toolBar.add(btnSearch);
-
-        btnSearchPrev = new ToolButton(Resources.INSTANCE.goPrevIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        goToResult(curentSearchResultIdx-1);
-                    }
-                });
-        //btnSearchPrev.setToolTip("Go to previous search result");
-        btnSearchPrev.setEnabled(false);
-        toolBar.add(btnSearchPrev);
-
-        btnSearchNext = new ToolButton(Resources.INSTANCE.goPrevIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        goToResult(curentSearchResultIdx+1);
-                    }
-                });
-        //btnSearchNext.setToolTip("Go to next search result");
-        btnSearchNext.setEnabled(false);
-        toolBar.add(btnSearchNext);
-
-        panel.addNorth(toolBar, 32);
-    }
 
     private final static String SMALL_CELL_CSS = Resources.INSTANCE.zicoCssResources().traceSmallCell();
 
@@ -290,10 +238,7 @@ public class TraceCallTreePanel extends Composite {
         }, ContextMenuEvent.getType());
 
         data = new ListDataProvider<TraceRecordProxy>();
-
         data.addDataDisplay(grid);
-
-        panel.add(grid);
     }
 
 
@@ -315,7 +260,8 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private void doSearch() {
+    @UiHandler("btnSearch")
+    void doSearch(ClickEvent e) {
         if (searchDialog == null) {
             searchDialog = panelFactory.traceRecordSearchDialog(this, trace);
         }
@@ -365,7 +311,6 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-
     private void loadData(final boolean recursive, final Runnable action) {
 
         if (recursive) {
@@ -399,7 +344,8 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private void findParent() {
+    @UiHandler("btnParentMethod")
+    void findParent(ClickEvent e) {
         TraceRecordProxy rec = selection.getSelectedObject();
 
         if (rec == null) {
@@ -425,13 +371,14 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private void findErrorMethod() {
+    @UiHandler("btnErrorMethod")
+    void findErrorMethod(ClickEvent e) {
 
         if (!fullyExpanded) {
             this.loadData(true, new Runnable() {
                 @Override
                 public void run() {
-                    findErrorMethod();
+                    findErrorMethod(null);
                 }
             });
             return;
@@ -454,7 +401,9 @@ public class TraceCallTreePanel extends Composite {
 
     }
 
-    private void findSlowestMethod() {
+
+    @UiHandler("btnSlowestMethod")
+    void findSlowestMethod(ClickEvent e) {
         TraceRecordProxy rec = selection.getSelectedObject();
         List<TraceRecordProxy> recList = data.getList();
         if (rec == null) {
@@ -494,6 +443,24 @@ public class TraceCallTreePanel extends Composite {
             }
         }
 
+    }
+
+
+    @UiHandler("btnExpandAll")
+    void expandAll(ClickEvent e) {
+        loadData(true, null);
+    }
+
+
+    @UiHandler("btnSearchPrev")
+    void goPrevResult(ClickEvent e) {
+        goToResult(curentSearchResultIdx-1);
+    }
+
+
+    @UiHandler("btnSearchNext")
+    void goNextResult(ClickEvent e) {
+        goToResult(curentSearchResultIdx+1);
     }
 
 

@@ -1,0 +1,45 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:gc='urn:import:com.google.gwt.user.cellview.client'
+             xmlns:z="urn:import:com.jitlogic.zico.client.widgets">
+    <ui:with field="resources" type="com.jitlogic.zico.client.resources.Resources"/>
+    <ui:style>
+        .toolbar {
+            display: flex;
+            padding: 3px;
+        }
+        .filter {
+            flex: 10;
+            margin-left: 4px;
+            margin-right: 4px;
+        }
+        .item {
+            flex: 0 1 auto;
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel unit="PX" ui:field="panel">
+        <g:north size="28">
+            <g:HTMLPanel styleName="{style.toolbar}">
+                <z:ToolButton upIcon="{resources.goUpIcon}" ui:field="btnParentMethod"
+                              addStyleNames="{style.item}"/>
+                <z:ToolButton upIcon="{resources.goDownIcon}" ui:field="btnSlowestMethod"
+                              addStyleNames="{style.item}"/>
+                <z:ToolButton upIcon="{resources.ligtningGo}" ui:field="btnErrorMethod"
+                              addStyleNames="{style.item}"/>
+                <z:ToolButton upIcon="{resources.expandIcon}" ui:field="btnExpandAll"
+                              addStyleNames="{style.item}"/>
+                <z:ToolButton upIcon="{resources.searchIcon}" ui:field="btnSearch"
+                              addStyleNames="{style.item}"/>
+                <z:ToolButton upIcon="{resources.goPrevIcon}" ui:field="btnSearchPrev"
+                              addStyleNames="{style.item}"/>
+                <z:ToolButton upIcon="{resources.goNextIcon}" ui:field="btnSearchNext"
+                              addStyleNames="{style.item}"/>
+            </g:HTMLPanel>
+        </g:north>
+        <g:center>
+            <gc:DataGrid ui:field="grid"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
