@@ -28,6 +28,9 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
@@ -62,19 +65,52 @@ import java.util.TreeMap;
 
 
 public class HostListPanel extends Composite {
+    interface HostListPanelUiBinder extends UiBinder<Widget, HostListPanel> { }
+    private static HostListPanelUiBinder ourUiBinder = GWT.create(HostListPanelUiBinder.class);
 
+    @UiField
+    DockLayoutPanel panel;
+
+    @UiField
+    HorizontalPanel toolbar;
+
+    @UiField(provided = true)
+    Resources resources;
+
+    @UiField
+    ToolButton btnRefresh;
+
+    @UiField
+    ToolButton btnAddHost;
+
+    @UiField
+    ToolButton btnRemoveHost;
+
+    @UiField
+    ToolButton btnEditHost;
+
+    @UiField
+    ToolButton btnDisableHost;
+
+    @UiField
+    ToolButton btnEnableHost;
+
+    @UiField
+    ToolButton btnListTraces;
+
+    @UiField(provided = true)
+    DataGrid<HostListObject> hostGrid;
 
     private Provider<Shell> shell;
     private PanelFactory panelFactory;
     private ZicoRequestFactory rf;
 
-    private DataGrid<HostListObject> hostGrid;
+
     private ListDataProvider<HostListObject> hostGridStore;
     private SingleSelectionModel<HostListObject> selectionModel;
 
     private Map<String,HostGroup> hostGroups = new TreeMap<String, HostGroup>();
 
-    private ToolButton btnRefresh, btnAddHost, btnRemoveHost, btnEditHost, btnListTraces, btnDisableHost, btnEnableHost;
     private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces, mnuDisableHost, mnuEnableHost;
 
     private boolean selectionDependentControlsEnabled = true;
@@ -82,9 +118,9 @@ public class HostListPanel extends Composite {
     private boolean adminMode = false;
     private PopupMenu contextMenu;
 
-    private DockLayoutPanel panel;
-
     private MessageDisplay messageDisplay;
+
+    private static final String SRC = "HostListPanel";
 
     @Inject
     public HostListPanel(Provider<Shell> shell, PanelFactory panelFactory,
@@ -94,16 +130,19 @@ public class HostListPanel extends Composite {
         this.panelFactory = panelFactory;
         this.rf = rf;
         this.messageDisplay = messageDisplay;
+        this.resources = Resources.INSTANCE;
 
-        panel = new DockLayoutPanel(Style.Unit.PX);
+        createHostGrid();
+
+        ourUiBinder.createAndBindUi(this);
 
         createContextMenu();
-        createToolbar();
-        createHostListPanel();
 
         enableSelectionDependentControls(null);
 
         initWidget(panel);
+
+        refresh(null);
     }
 
     public void setAdminMode(boolean adminMode) {
@@ -132,91 +171,6 @@ public class HostListPanel extends Composite {
 
         btnAddHost.setEnabled(adminMode);
         mnuAddHost.setEnabled(adminMode);
-    }
-
-    private void createToolbar() {
-        HorizontalPanel toolBar = new HorizontalPanel();
-        toolBar.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-
-        btnRefresh = new ToolButton(Resources.INSTANCE.refreshIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        refresh();
-                    }
-                });
-        // TODO btnRefresh.setToolTip("Refresh host list");
-        toolBar.add(btnRefresh);
-
-        // TODO toolBar.add(new SeparatorToolItem());
-
-        btnAddHost = new ToolButton(Resources.INSTANCE.addIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        addHost();
-                    }
-                });
-        // TODO btnAddHost.setToolTip("Add new host");
-        toolBar.add(btnAddHost);
-
-        btnRemoveHost = new ToolButton(Resources.INSTANCE.removeIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        removeHost();
-                    }
-                });
-        // TODO btnRemoveHost.setToolTip("Remove host");
-        toolBar.add(btnRemoveHost);
-
-        // TODO toolBar.add(new SeparatorToolItem());
-
-        btnEditHost = new ToolButton(Resources.INSTANCE.editIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        editHost();
-                    }
-                });
-        // TODO btnEditHost.setToolTip("Edit host");
-        toolBar.add(btnEditHost);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        btnDisableHost = new ToolButton(Resources.INSTANCE.disableIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        toggleHost(false);
-                    }
-                });
-        //btnDisableHost.setToolTip("Disable host");
-        toolBar.add(btnDisableHost);
-
-        btnEnableHost = new ToolButton(Resources.INSTANCE.enableIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        toggleHost(true);
-                    }
-                });
-        //btnEnableHost.setToolTip("Enable host");
-        toolBar.add(btnEnableHost);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        btnListTraces = new ToolButton(Resources.INSTANCE.listColumnsIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        listTraces();
-                    }
-                });
-        //btnListTraces.setToolTip("List traces");
-        toolBar.add(btnListTraces);
-
-        panel.addNorth(toolBar, 28);
     }
 
     private static final ProvidesKey<HostListObject> KEY_PROVIDER = new ProvidesKey<HostListObject>() {
@@ -283,7 +237,7 @@ public class HostListPanel extends Composite {
         }
     };
 
-    private void createHostListPanel() {
+    private void createHostGrid() {
 
         hostGrid = new DataGrid<HostListObject>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<HostListObject>(KEY_PROVIDER);
@@ -319,7 +273,7 @@ public class HostListPanel extends Composite {
                     selectionModel.setSelected(event.getValue(), true);
 
                     enableSelectionDependentControls(event.getValue());
-                    listTraces();
+                    listTraces(null);
                 }
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
@@ -355,10 +309,6 @@ public class HostListPanel extends Composite {
                 enableSelectionDependentControls(selectionModel.getSelectedObject());
             }
         });
-
-        refresh();
-
-        panel.add(hostGrid);
     }
 
 
@@ -397,44 +347,6 @@ public class HostListPanel extends Composite {
         }
     }
 
-    private static final String SRC = "HostListPanel";
-
-    public void refresh() {
-        hostGridStore.getList().clear();
-        messageDisplay.info(SRC, "Loading host list ...");
-        rf.hostService().findAll().fire(new Receiver<List<HostProxy>>() {
-            @Override
-            public void onSuccess(List<HostProxy> response) {
-                messageDisplay.clear(SRC);
-                rebuildHostGroups(response);
-                redrawHostList();
-            }
-            @Override
-            public void onFailure(ServerFailure error) {
-                messageDisplay.error(SRC, "Error loading host list.", error);
-            }
-        });
-    }
-
-
-    private void removeHost(final HostListObject hi) {
-        if (hi instanceof HostProxy) {
-            // TODO remove host - after implementing proper message (info) box
-//            ConfirmMessageBox cmb = new ConfirmMessageBox(
-//                    "Removing host", "Are you sure you want to remove host " + hi.getName() + "?");
-//            cmb.addHideHandler(new HideEvent.HideHandler() {
-//                @Override
-//                public void onHide(HideEvent event) {
-//                    Dialog d = (Dialog) event.getSource();
-//                    if ("Yes".equals(d.getHideButton().getText())) {
-//                        hostGridStore.getList().remove(hi);
-//                        rf.hostService().remove((HostProxy)hi).fire();
-//                    }
-//                }
-//            });
-//            cmb.show();
-        }
-    }
 
 
     private void createContextMenu() {
@@ -444,7 +356,7 @@ public class HostListPanel extends Composite {
         mnuRefresh = new MenuItem("Refresh", Resources.INSTANCE.refreshIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                refresh();
+                refresh(null);
             }
         });
         contextMenu.addItem(mnuRefresh);
@@ -454,7 +366,7 @@ public class HostListPanel extends Composite {
         mnuAddHost = new MenuItem("New host", Resources.INSTANCE.addIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                addHost();
+                addHost(null);
             }
         });
         contextMenu.addItem(mnuAddHost);
@@ -462,7 +374,7 @@ public class HostListPanel extends Composite {
         mnuRemoveHost = new MenuItem("Remove Host", Resources.INSTANCE.removeIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                removeHost();
+                removeHost(null);
             }
         });
         contextMenu.addItem(mnuRemoveHost);
@@ -470,7 +382,7 @@ public class HostListPanel extends Composite {
         mnuEditHost = new MenuItem("Edit host", Resources.INSTANCE.editIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                editHost();
+                editHost(null);
             }
         });
         contextMenu.addItem(mnuEditHost);
@@ -498,34 +410,18 @@ public class HostListPanel extends Composite {
         mnuListTraces = new MenuItem("List traces", Resources.INSTANCE.listColumnsIcon(), new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
-                listTraces();
+                listTraces(null);
             }
         });
         contextMenu.addItem(mnuListTraces);
     }
 
 
-    private void addHost() {
-        new HostEditView(rf, this, null, messageDisplay).getWindow().show();
-    }
-
-
-    private void removeHost() {
-        removeHost(selectionModel.getSelectedObject());
-    }
-
-
-    private void editHost() {
-        HostListObject hostInfo = selectionModel.getSelectedObject();
-        if (hostInfo instanceof HostProxy) {
-            new HostEditView(rf, this, (HostProxy)hostInfo, messageDisplay).getWindow().show();
-        }
-    }
-
 
     private void toggleHost(boolean enabled) {
         HostListObject info = selectionModel.getSelectedObject();
         if (info instanceof HostProxy) {
+            messageDisplay.info(SRC, "Disabling host");
             HostServiceProxy req = rf.hostService();
             HostProxy editedHost = req.edit((HostProxy)info);
             editedHost.setEnabled(enabled);
@@ -533,7 +429,8 @@ public class HostListPanel extends Composite {
             req.fire(new Receiver<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    refresh(); messageDisplay.clear(SRC);
+                    refresh(null);
+                    messageDisplay.clear(SRC);
                 }
                 @Override
                 public void onFailure(ServerFailure error) {
@@ -544,7 +441,77 @@ public class HostListPanel extends Composite {
     }
 
 
-    private void listTraces() {
+    @UiHandler("btnRefresh")
+    void refresh(ClickEvent e) {
+        hostGridStore.getList().clear();
+        messageDisplay.info(SRC, "Loading host list ...");
+        rf.hostService().findAll().fire(new Receiver<List<HostProxy>>() {
+            @Override
+            public void onSuccess(List<HostProxy> response) {
+                messageDisplay.clear(SRC);
+                rebuildHostGroups(response);
+                redrawHostList();
+            }
+            @Override
+            public void onFailure(ServerFailure error) {
+                messageDisplay.error(SRC, "Error loading host list.", error);
+            }
+        });
+    }
+
+
+    @UiHandler("btnAddHost")
+    void addHost(ClickEvent e) {
+        new HostEditView(rf, this, null, messageDisplay).getWindow().show();
+    }
+
+
+    @UiHandler("btnRemoveHost")
+    void removeHost(ClickEvent e) {
+        // TODO "Are you sure" message box
+        HostListObject hi = selectionModel.getSelectedObject();
+        if (hi instanceof HostProxy) {
+            // TODO remove host - after implementing proper message (info) box
+//            ConfirmMessageBox cmb = new ConfirmMessageBox(
+//                    "Removing host", "Are you sure you want to remove host " + hi.getName() + "?");
+//            cmb.addHideHandler(new HideEvent.HideHandler() {
+//                @Override
+//                public void onHide(HideEvent event) {
+//                    Dialog d = (Dialog) event.getSource();
+//                    if ("Yes".equals(d.getHideButton().getText())) {
+//                        hostGridStore.getList().remove(hi);
+//                        rf.hostService().remove((HostProxy)hi).fire();
+//                    }
+//                }
+//            });
+//            cmb.show();
+        }
+    }
+
+
+    @UiHandler("btnEditHost")
+    void editHost(ClickEvent e) {
+        HostListObject hostInfo = selectionModel.getSelectedObject();
+        if (hostInfo instanceof HostProxy) {
+            new HostEditView(rf, this, (HostProxy)hostInfo, messageDisplay).getWindow().show();
+        }
+    }
+
+
+    @UiHandler("btnDisableHost")
+    void disableHost(ClickEvent e) {
+        toggleHost(false);
+    }
+
+
+    @UiHandler("btnEnableHost")
+    void enableHost(ClickEvent e) {
+        toggleHost(true);
+    }
+
+
+    @UiHandler("btnListTraces")
+    void listTraces(ClickEvent e) {
         HostListObject hostInfo = selectionModel.getSelectedObject();
         GWT.log("Selected host: " + hostInfo);
 

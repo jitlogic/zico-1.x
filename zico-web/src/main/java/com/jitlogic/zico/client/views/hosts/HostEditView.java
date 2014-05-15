@@ -145,7 +145,7 @@ public class HostEditView {
             public void onSuccess(Void aVoid) {
                 window.hide();
                 messageDisplay.clear(SRC);
-                panel.refresh();
+                panel.refresh(null);
             }
             @Override
             public void onFailure(ServerFailure error) {

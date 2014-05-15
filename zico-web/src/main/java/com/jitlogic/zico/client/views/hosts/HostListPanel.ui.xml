@@ -1,0 +1,27 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:gc='urn:import:com.google.gwt.user.cellview.client'
+             xmlns:z="urn:import:com.jitlogic.zico.client.widgets">
+    <ui:with field="resources" type="com.jitlogic.zico.client.resources.Resources"/>
+    <ui:style>
+        .toolbar {
+            padding: 3px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel unit="PX" ui:field="panel">
+        <g:north size="32">
+            <g:HorizontalPanel styleName="{style.toolbar}" ui:field="toolbar">
+                <z:ToolButton upIcon="{resources.refreshIcon}" ui:field="btnRefresh"/>
+                <z:ToolButton upIcon="{resources.addIcon}" ui:field="btnAddHost"/>
+                <z:ToolButton upIcon="{resources.removeIcon}" ui:field="btnRemoveHost"/>
+                <z:ToolButton upIcon="{resources.editIcon}" ui:field="btnEditHost"/>
+                <z:ToolButton upIcon="{resources.disableIcon}" ui:field="btnDisableHost"/>
+                <z:ToolButton upIcon="{resources.enableIcon}" ui:field="btnEnableHost"/>
+                <z:ToolButton upIcon="{resources.listColumnsIcon}" ui:field="btnListTraces"/>
+            </g:HorizontalPanel>
+        </g:north>
+        <g:center>
+            <gc:DataGrid ui:field="hostGrid"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

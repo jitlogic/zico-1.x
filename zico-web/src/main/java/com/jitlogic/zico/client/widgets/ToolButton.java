@@ -2,15 +2,20 @@ package com.jitlogic.zico.client.widgets;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
+import com.google.gwt.uibinder.client.UiConstructor;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.ui.Widget;
 
-public class ToolButton extends Widget {
+public class ToolButton extends Widget implements HasClickHandlers {
 
     private Element imgElement;
 
@@ -39,7 +44,7 @@ public class ToolButton extends Widget {
     private Scheduler.ScheduledCommand command;
 
 
-
+    @UiConstructor
     public ToolButton(ImageResource upIcon) {
         this(upIcon, null);
     }
@@ -110,6 +115,13 @@ public class ToolButton extends Widget {
             getElement().addClassName(css);
         }
     }
+
+
+    @Override
+    public HandlerRegistration addClickHandler(ClickHandler handler) {
+        return addHandler(handler, ClickEvent.getType());
+    }
+
 
     public void onBrowserEvent(Event event) {
         switch (DOM.eventGetType(event)) {
