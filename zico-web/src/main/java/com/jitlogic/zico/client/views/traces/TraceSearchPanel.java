@@ -19,6 +19,7 @@ package com.jitlogic.zico.client.views.traces;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
@@ -26,6 +27,9 @@ import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
@@ -64,7 +68,49 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+
 public class TraceSearchPanel extends Composite {
+    interface TraceSearchPanelUiBinder extends UiBinder<Widget, TraceSearchPanel> { }
+    private static TraceSearchPanelUiBinder ourUiBinder = GWT.create(TraceSearchPanelUiBinder.class);
+
+    @UiField
+    DockLayoutPanel panel;
+
+    @UiField(provided = true)
+    Resources resources;
+
+    @UiField
+    ToolButton btnDeepSearch;
+
+    @UiField
+    ToolButton btnErrors;
+
+    @UiField
+    ToolButton btnReverse;
+
+    @UiField
+    ListBox lstTraceType;
+
+    @UiField
+    TextBox txtDuration;
+
+    @UiField
+    ToolButton btnEnableEql;
+
+    @UiField
+    TextBox txtFilter;
+
+    @UiField
+    TextBox txtSinceDate;
+
+    @UiField
+    ToolButton btnRunSearch;
+
+    @UiField
+    ToolButton btnClearFilters;
+
+    @UiField(provided = true)
+    DataGrid<TraceInfoProxy> grid;
 
     public final static String RE_TIMESTAMP = "\\d{4}-\\d{2}-\\d{2}\\s*(\\d{2}:\\d{2}:\\d{2}(\\.\\d{1-3})?)?";
 
@@ -75,7 +121,6 @@ public class TraceSearchPanel extends Composite {
 
     private HostProxy host;
 
-    private DataGrid<TraceInfoProxy> grid;
     private ListDataProvider<TraceInfoProxy> data;
     private SingleSelectionModel<TraceInfoProxy> selection;
     private TraceSearchTableBuilder rowBuilder;
@@ -86,31 +131,20 @@ public class TraceSearchPanel extends Composite {
     private int seqnum = 0;
 
     // Search toolbar controls (in order of occurence on panel toolbar)
-    private ToolButton btnDeepSearch;
-    private ToolButton btnErrors;
-    private ToolButton btnReverse;
-    private ListBox lstTraceType;
-    private String strTraceType;
-    private TextBox txtDuration;
-    private ToolButton btnEnableEql;
-    private TextBox txtFilter;
-    private TextBox txtSinceDate;
-    private ToolButton btnRunSearch;
-    private ToolButton btnClearFilters;
 
     private PopupMenu contextMenu;
     private PopupMenu traceTypeMenu;
     private boolean moreResults;
 
-    private DockLayoutPanel panel;
+    private String strTraceType;
 
     private MessageDisplay md;
     private final String MDS;
 
+
     @Inject
     public TraceSearchPanel(Provider<Shell> shell, ZicoRequestFactory rf,
-                            PanelFactory pf, @Assisted HostProxy host,
-                            MessageDisplay md) {
+                            PanelFactory pf, @Assisted HostProxy host, MessageDisplay md) {
         this.shell = shell;
         this.rf = rf;
         this.pf = pf;
@@ -118,152 +152,62 @@ public class TraceSearchPanel extends Composite {
         this.md = md;
         this.MDS = "TraceSearch:" + host.getName();
 
+        this.resources = Resources.INSTANCE;
+
         traceTypes = new HashMap<Integer, String>();
         traceTypes.put(0, "(all)");
 
-        panel = new DockLayoutPanel(Style.Unit.PX);
-
-        createToolbar();
-        //createStatusBar();
         createTraceGrid();
+
+        ourUiBinder.createAndBindUi(this);
+
         createContextMenu();
 
         initWidget(panel);
 
         loadTraceTypes();
+        btnReverse.setToggled(true);
         refresh();
     }
 
-    private void createToolbar() {
-        HorizontalPanel toolBar = new HorizontalPanel();
 
-        btnDeepSearch = new ToolButton(Resources.INSTANCE.methodTreeIcon());
-        btnDeepSearch.setToggleMode(true);
-        //btnDeepSearch.setToolTip("Search whole call trees.");
-        toolBar.add(btnDeepSearch);
+    @UiHandler("lstTraceType")
+    void onTraceTypeChange(ChangeEvent e) {
+        strTraceType = lstTraceType.getItemText(lstTraceType.getSelectedIndex());
+        refresh();
+    }
 
-        btnErrors = new ToolButton(Resources.INSTANCE.errorMarkIcon());
-        btnErrors.setToggleMode(true);
-        //btnErrors.setToolTip("Show only erros.");
-        toolBar.add(btnErrors);
+    @UiHandler({"txtDuration", "txtFilter", "txtSinceDate"})
+    void onTapEnter(KeyDownEvent e) {
+        if (e.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            refresh();
+        }
+    }
 
-        btnReverse = new ToolButton(Resources.INSTANCE.sort());
-        btnErrors.setToggleMode(true);
-        //btnReverse.setToolTip("Reverse order");
-        btnReverse.setToggled(true);
-        toolBar.add(btnReverse);
+    @UiHandler("btnRunSearch")
+    void onSearchClick(ClickEvent e) {
+        refresh();
+    }
 
-        lstTraceType = new ListBox(false);
-        toolBar.add(lstTraceType);
-
-        lstTraceType.addChangeHandler(new ChangeHandler() {
-            @Override
-            public void onChange(ChangeEvent event) {
-                strTraceType = lstTraceType.getItemText(lstTraceType.getSelectedIndex());
-                refresh();
-            }
-        });
-
-        //lstTraceType.setToolTip("Filter by trace type");
-        //btnTraceType.setMenu(new Menu());  TODO configure menu here
-
-        //SeparatorToolItem separator = new SeparatorToolItem();
-
-        txtDuration = new TextBox();
-        txtDuration.setWidth("80px");
-        toolBar.add(txtDuration);
-        //txtDuration.setToolTip("Minimum trace execution time (in seconds)");
-
-
-        txtDuration.addKeyDownHandler(new KeyDownHandler() {
-            @Override
-            public void onKeyDown(KeyDownEvent event) {
-                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    refresh();
-                }
-            }
-        });
-
-
-        btnEnableEql = new ToolButton(Resources.INSTANCE.eqlIcon());
-        btnEnableEql.setToggleMode(true);
-        //btnEnableEql.setToolTip("EQL query (instead of full-text query)");
-        toolBar.add(btnEnableEql);
-
-
-        txtFilter = new TextBox();
-        txtFilter.setWidth("250px");
-
-//        ToolTipConfig ttcFilter = new ToolTipConfig("Text search:" +
-//                "<li><b>sometext</b> - full-text search</li>"
-//                + "<li><b>~regex</b> - regular expression search</li>"
-//                + "<li>Regular expression queries if <b>QL</b> is enabled.</li>");
-
-        toolBar.add(txtFilter);
-
-        txtFilter.addKeyDownHandler(new KeyDownHandler() {
-            @Override
-            public void onKeyDown(KeyDownEvent event) {
-                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    refresh();
-                }
-            }
-        });
-
-        txtSinceDate = new TextBox();
-        txtSinceDate.setWidth("130px");
+    @UiHandler("btnClearFilters")
+    void onClearClick(ClickEvent e) {
+        txtFilter.setText("");
+        txtDuration.setText("");
+        btnErrors.setToggled(false);
+        strTraceType = null;
+        refresh();
+    }
 
 //        ToolTipConfig ttcDateTime = new ToolTipConfig("Allowed timestamp formats:" +
 //                "<li><b>YYYY-MM-DD</b> - date only</li>" +
 //                "<li><b>YYYY-MM-DD hh:mm:ss</b> - date and time</li>" +
 //                "<li><b>YYYY-MM-DD hh:mm:ss.SSS</b> - millisecond resolution</li>");
 
-        txtSinceDate.addKeyDownHandler(new KeyDownHandler() {
-            @Override
-            public void onKeyDown(KeyDownEvent event) {
-                if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-                    refresh();
-                }
-            }
-        });
-
-        toolBar.add(txtSinceDate);
-
-        btnRunSearch = new ToolButton(Resources.INSTANCE.searchIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        refresh();
-                    }
-                });
-        //btnRunSearch.setToolTip("Search.");
-        toolBar.add(btnRunSearch);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        btnClearFilters = new ToolButton(Resources.INSTANCE.clearIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        txtFilter.setText("");
-                        txtDuration.setText("");
-                        btnErrors.setToggled(false);
-                        strTraceType = null;
-                        refresh();
-                    }
-                });
-        //btnClearFilters.setToolTip("Clear all filters and refresh");
-        toolBar.add(btnClearFilters);
-
-        panel.addNorth(toolBar, 32);
-    }
 
     private void createTraceGrid() {
         grid = new DataGrid<TraceInfoProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selection = new SingleSelectionModel<TraceInfoProxy>(KEY_PROVIDER);
         grid.setSelectionModel(selection);
-
-        // TODO detail expander cell here
 
         Column<TraceInfoProxy, TraceInfoProxy> colExpander
                 = new IdentityColumn<TraceInfoProxy>(DETAIL_EXPANDER_CELL);
@@ -344,15 +288,12 @@ public class TraceSearchPanel extends Composite {
                 event.preventDefault();
             }
         }, DoubleClickEvent.getType());
-
         grid.addDomHandler(new ContextMenuHandler() {
             @Override
             public void onContextMenu(ContextMenuEvent event) {
                 event.preventDefault();
             }
         }, ContextMenuEvent.getType());
-
-        panel.add(grid);
     }
 
     private void createContextMenu() {
@@ -566,7 +507,6 @@ public class TraceSearchPanel extends Composite {
     };
 
     private final static String SMALL_CELL_CSS = Resources.INSTANCE.zicoCssResources().traceSmallCell();
-
     private static final String EXPANDER_EXPAND = AbstractImagePrototype.create(Resources.INSTANCE.expanderExpand()).getHTML();
     private static final String EXPANDER_COLLAPSE = AbstractImagePrototype.create(Resources.INSTANCE.expanderCollapse()).getHTML();
 
