@@ -41,7 +41,6 @@ public class ToolButton extends Widget implements HasClickHandlers {
 
     private boolean enabled = true;
     private ImageResource upIcon, downIcon;
-    private Scheduler.ScheduledCommand command;
 
 
     @UiConstructor
@@ -50,16 +49,10 @@ public class ToolButton extends Widget implements HasClickHandlers {
     }
 
 
-    public ToolButton(ImageResource upIcon, Scheduler.ScheduledCommand command) {
-        this(upIcon, null, command);
-    }
-
-
-    public ToolButton(ImageResource upIcon, ImageResource downIcon, Scheduler.ScheduledCommand command) {
+    public ToolButton(ImageResource upIcon, ImageResource downIcon) {
 
         this.upIcon = upIcon;
         this.downIcon = downIcon;
-        this.command = command;
 
         sinkEvents(Event.ONCLICK | Event.MOUSEEVENTS | Event.FOCUSEVENTS | Event.KEYEVENTS);
 
@@ -123,12 +116,10 @@ public class ToolButton extends Widget implements HasClickHandlers {
     }
 
 
+    @Override
     public void onBrowserEvent(Event event) {
         switch (DOM.eventGetType(event)) {
             case Event.ONCLICK:
-                if (enabled && command != null) {
-                    command.execute();
-                }
                 if (toggleMode && enabled) {
                     setToggled(!isToggled());
                 }

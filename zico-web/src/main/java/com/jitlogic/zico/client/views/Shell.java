@@ -100,7 +100,7 @@ public class Shell extends Composite {
     }
 
 
-    @UiHandler("lnkManageUsers")
+    @UiHandler("lnkBackupConfig")
     void openUserManagementPanel(ClickEvent e) {
         rf.systemService().backupConfig().fire(new Receiver<Void>() {
             @Override

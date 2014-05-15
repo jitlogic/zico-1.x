@@ -89,7 +89,7 @@ public class TraceTemplateView implements IsPopupWindow {
             @Override
             public void onSuccess(Integer response) {
                 window.hide();
-                panel.refreshTemplates();
+                panel.refreshTemplates(null);
                 md.clear(MDS);
             }
             @Override

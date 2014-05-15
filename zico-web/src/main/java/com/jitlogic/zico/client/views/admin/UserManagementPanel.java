@@ -17,23 +17,23 @@ package com.jitlogic.zico.client.views.admin;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ContextMenuEvent;
-import com.google.gwt.event.dom.client.ContextMenuHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.IdentityColumn;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -57,21 +57,44 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserManagementPanel extends Composite {
+    interface UserManagementPanelUiBinder extends UiBinder<Widget, UserManagementPanel> { }
+    private static UserManagementPanelUiBinder ourUiBinder = GWT.create(UserManagementPanelUiBinder.class);
+
+    @UiField
+    DockLayoutPanel panel;
+
+    @UiField
+    ToolButton btnRefresh;
+
+    @UiField
+    ToolButton btnAdd;
+
+    @UiField
+    ToolButton btnEdit;
+
+    @UiField
+    ToolButton btnRemove;
+
+    @UiField
+    ToolButton btnPassword;
+
+    @UiField(provided = true)
+    DataGrid<UserProxy> userGrid;
 
     private ZicoRequestFactory rf;
     private PanelFactory panelFactory;
 
     private ListDataProvider<UserProxy> userStore;
-    private DataGrid<UserProxy> userGrid;
     private SingleSelectionModel<UserProxy> selectionModel;
 
     private PopupMenu contextMenu;
 
     private List<String> hostNames = new ArrayList<String>();
 
-    private DockLayoutPanel panel;
 
     private MessageDisplay md;
+
+    private static final String MDS = "UserManagementPanel";
 
     @Inject
     public UserManagementPanel(ZicoRequestFactory requestFactory, PanelFactory panelFactory, MessageDisplay md) {
@@ -80,65 +103,14 @@ public class UserManagementPanel extends Composite {
         this.panelFactory = panelFactory;
         this.md = md;
 
-        panel = new DockLayoutPanel(Style.Unit.PX);
+        createUserGrid();
+        ourUiBinder.createAndBindUi(this);
+
         initWidget(panel);
 
         loadHosts();
-        createToolBar();
-        createUserGrid();
         createContextMenu();
-        refreshUsers();
-    }
-
-
-    private void createToolBar() {
-        HorizontalPanel toolBar = new HorizontalPanel();
-
-        ToolButton btnRefresh = new ToolButton(Resources.INSTANCE.refreshIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        refreshUsers();
-                    }
-                });
-        //btnRefresh.setToolTip("Refresh user list");
-        toolBar.add(btnRefresh);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        ToolButton btnAdd = new ToolButton(Resources.INSTANCE.addIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        addUser();
-                    }
-                });
-        //btnAdd.setToolTip("Add user");
-        toolBar.add(btnAdd);
-
-        ToolButton btnRemove = new ToolButton(Resources.INSTANCE.removeIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        removeUser();
-                    }
-                });
-        //btnRemove.setToolTip("Remove user");
-        toolBar.add(btnRemove);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        ToolButton btnPassword = new ToolButton(Resources.INSTANCE.keyIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        changePassword();
-                    }
-                });
-        //btnPassword.setToolTip("Change user password");
-        toolBar.add(btnPassword);
-
-        panel.addNorth(toolBar, 32);
+        refreshUsers(null);
     }
 
 
@@ -223,7 +195,7 @@ public class UserManagementPanel extends Composite {
                 if ((BrowserEvents.KEYDOWN.equals(eventType) && nev.getKeyCode() == KeyCodes.KEY_ENTER)
                         || BrowserEvents.DBLCLICK.equals(nev.getType())) {
                     selectionModel.setSelected(event.getValue(), true);
-                    editUser();
+                    editUser(null);
                 }
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
@@ -244,15 +216,12 @@ public class UserManagementPanel extends Composite {
                 event.preventDefault();
             }
         }, DoubleClickEvent.getType());
-
         userGrid.addDomHandler(new ContextMenuHandler() {
             @Override
             public void onContextMenu(ContextMenuEvent event) {
                 event.preventDefault();
             }
         }, ContextMenuEvent.getType());
-
-        panel.add(userGrid);
     }
 
 
@@ -263,7 +232,7 @@ public class UserManagementPanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        refreshUsers();
+                        refreshUsers(null);
                     }
                 });
         contextMenu.addItem(mnuRefresh);
@@ -274,7 +243,7 @@ public class UserManagementPanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        addUser();
+                        addUser(null);
                     }
                 });
         contextMenu.addItem(mnuAddUser);
@@ -283,7 +252,7 @@ public class UserManagementPanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        removeUser();
+                        removeUser(null);
                     }
                 });
         contextMenu.addItem(mnuRemoveUser);
@@ -292,7 +261,7 @@ public class UserManagementPanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        editUser();
+                        editUser(null);
                     }
                 });
         contextMenu.addItem(mnuEditUser);
@@ -303,14 +272,15 @@ public class UserManagementPanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        changePassword();
+                        changePassword(null);
                     }
                 });
         contextMenu.addItem(mnuChangePassword);
     }
 
 
-    private void editUser() {
+    @UiHandler("btnEdit")
+    void editUser(ClickEvent e) {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
             new UserPrefsView(rf, user, this, hostNames, md).asPopupWindow().show();
@@ -318,12 +288,14 @@ public class UserManagementPanel extends Composite {
     }
 
 
-    private void addUser() {
+    @UiHandler("btnAdd")
+    void addUser(ClickEvent e) {
         new UserPrefsView(rf, null, this, hostNames, md).asPopupWindow().show();
     }
 
 
-    private void removeUser() {
+    @UiHandler("btnRemove")
+    void removeUser(ClickEvent e) {
         final UserProxy user = selectionModel.getSelectedObject();
         // TODO remove user
 //        if (user != null) {
@@ -354,7 +326,8 @@ public class UserManagementPanel extends Composite {
     }
 
 
-    private void changePassword() {
+    @UiHandler("btnPassword")
+    void changePassword(ClickEvent e) {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
             PasswordChangeView dialog = panelFactory.passwordChangeView(user.getUserName());
@@ -362,9 +335,8 @@ public class UserManagementPanel extends Composite {
         }
     }
 
-    private static final String MDS = "UserManagementPanel";
-
-    public void refreshUsers() {
+    @UiHandler("btnRefresh")
+    void refreshUsers(ClickEvent e) {
         userStore.getList().clear();
         rf.userService().findAll().fire(new Receiver<List<UserProxy>>() {
             @Override

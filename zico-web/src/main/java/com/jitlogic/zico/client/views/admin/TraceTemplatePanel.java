@@ -17,23 +17,24 @@ package com.jitlogic.zico.client.views.admin;
 
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.Cell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.ContextMenuEvent;
-import com.google.gwt.event.dom.client.ContextMenuHandler;
-import com.google.gwt.event.dom.client.DoubleClickEvent;
-import com.google.gwt.event.dom.client.DoubleClickHandler;
-import com.google.gwt.event.dom.client.KeyCodes;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.IdentityColumn;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
@@ -49,6 +50,7 @@ import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.TraceTemplateProxy;
+import com.jitlogic.zico.shared.data.UserProxy;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -56,18 +58,37 @@ import java.util.List;
 
 
 public class TraceTemplatePanel extends Composite {
+    interface TraceTemplatePanelUiBinder extends UiBinder<Widget, TraceTemplatePanel> { }
+    private static TraceTemplatePanelUiBinder ourUiBinder = GWT.create(TraceTemplatePanelUiBinder.class);
+
+    @UiField
+    DockLayoutPanel panel;
+
+    @UiField
+    ToolButton btnRefresh;
+
+    @UiField
+    ToolButton btnAdd;
+
+    @UiField
+    ToolButton btnEdit;
+
+    @UiField
+    ToolButton btnRemove;
+
+    @UiField(provided = true)
+    DataGrid<TraceTemplateProxy> templateGrid;
+
 
     private ListDataProvider<TraceTemplateProxy> templateStore;
-    private DataGrid<TraceTemplateProxy> templateGrid;
     private SingleSelectionModel<TraceTemplateProxy> selectionModel;
 
     private ZicoRequestFactory rf;
 
     private PopupMenu contextMenu;
 
-    private DockLayoutPanel panel;
-
     private MessageDisplay messageDisplay;
+
 
     @Inject
     public TraceTemplatePanel(ZicoRequestFactory rf, MessageDisplay messageDisplay) {
@@ -75,15 +96,15 @@ public class TraceTemplatePanel extends Composite {
         this.messageDisplay = messageDisplay;
         this.rf = rf;
 
-        panel = new DockLayoutPanel(Style.Unit.PX);
+        createTemplateListGrid();
+        ourUiBinder.createAndBindUi(this);
         initWidget(panel);
 
-        createToolbar();
         createContextMenu();
-        createTemplateListGrid();
 
-        refreshTemplates();
+        refreshTemplates(null);
     }
+
 
     private final static ProvidesKey<TraceTemplateProxy> KEY_PROVIDER = new ProvidesKey<TraceTemplateProxy>() {
         @Override
@@ -92,6 +113,7 @@ public class TraceTemplatePanel extends Composite {
         }
     };
 
+
     private final static Cell<TraceTemplateProxy> ORDER_CELL = new AbstractCell<TraceTemplateProxy>() {
         @Override
         public void render(Context context, TraceTemplateProxy value, SafeHtmlBuilder sb) {
@@ -99,12 +121,14 @@ public class TraceTemplatePanel extends Composite {
         }
     };
 
+
     private final static Cell<TraceTemplateProxy> CONDITION_CELL = new AbstractCell<TraceTemplateProxy>() {
         @Override
         public void render(Context context, TraceTemplateProxy value, SafeHtmlBuilder sb) {
             sb.append(SafeHtmlUtils.fromString(""+value.getCondition()));
         }
     };
+
 
     private final static Cell<TraceTemplateProxy> TEMPLATE_CELL = new AbstractCell<TraceTemplateProxy>() {
         @Override
@@ -142,7 +166,7 @@ public class TraceTemplatePanel extends Composite {
                 if ((BrowserEvents.KEYDOWN.equals(eventType) && nev.getKeyCode() == KeyCodes.KEY_ENTER)
                         || BrowserEvents.DBLCLICK.equals(nev.getType())) {
                     selectionModel.setSelected(event.getValue(), true);
-                    editTemplate();
+                    editTemplate(null);
                 }
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
@@ -170,63 +194,6 @@ public class TraceTemplatePanel extends Composite {
                 event.preventDefault();
             }
         }, ContextMenuEvent.getType());
-
-        panel.add(templateGrid);
-    }
-
-
-    private void createToolbar() {
-        HorizontalPanel toolBar = new HorizontalPanel();
-
-        ToolButton btnRefresh = new ToolButton(Resources.INSTANCE.refreshIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        refreshTemplates();
-                    }
-                });
-        //btnRefresh.setToolTip("Refresh list");
-
-        toolBar.add(btnRefresh);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        ToolButton btnNew = new ToolButton(Resources.INSTANCE.addIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        addTemplate();
-                    }
-                });
-        //btnNew.setToolTip("Add new template");
-
-        toolBar.add(btnNew);
-
-        ToolButton btnRemove = new ToolButton(Resources.INSTANCE.removeIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        removeTemplate();
-                    }
-                });
-        //btnRemove.setToolTip("Remove template");
-
-        toolBar.add(btnRemove);
-
-        //toolBar.add(new SeparatorToolItem());
-
-        ToolButton btnEdit = new ToolButton(Resources.INSTANCE.editIcon(),
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        editTemplate();
-                    }
-                });
-        //btnEdit.setToolTip("Modify template");
-
-        toolBar.add(btnEdit);
-
-        panel.addNorth(toolBar, 32);
     }
 
 
@@ -237,7 +204,7 @@ public class TraceTemplatePanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        refreshTemplates();
+                        refreshTemplates(null);
                     }
                 });
         contextMenu.addItem(mnuRefresh);
@@ -248,7 +215,7 @@ public class TraceTemplatePanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        addTemplate();
+                        addTemplate(null);
                     }
                 });
         contextMenu.addItem(mnuCreateTemplate);
@@ -257,7 +224,7 @@ public class TraceTemplatePanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        removeTemplate();
+                        removeTemplate(null);
                     }
                 });
         contextMenu.addItem(mnuRemoveTemplate);
@@ -268,14 +235,15 @@ public class TraceTemplatePanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        editTemplate();
+                        editTemplate(null);
                     }
                 });
         contextMenu.addItem(mnuEditTemplate);
     }
 
 
-    private void editTemplate() {
+    @UiHandler("btnEdit")
+    void editTemplate(ClickEvent e) {
         TraceTemplateProxy tti = selectionModel.getSelectedObject();
         if (tti != null) {
             new TraceTemplateView(rf, this, tti, messageDisplay).asPopupWindow().show();
@@ -283,19 +251,20 @@ public class TraceTemplatePanel extends Composite {
     }
 
 
-    private void addTemplate() {
+    @UiHandler("btnAdd")
+    void addTemplate(ClickEvent e) {
         new TraceTemplateView(rf, this, null, messageDisplay).asPopupWindow().show();
     }
 
-
-    private void removeTemplate() {
+    @UiHandler("btnRemove")
+    void removeTemplate(ClickEvent e) {
         TraceTemplateProxy template = selectionModel.getSelectedObject();
         if (template != null) {
             rf.systemService().removeTemplate(template.getId()).fire(
                     new Receiver<Void>() {
                         @Override
                         public void onSuccess(Void response) {
-                            refreshTemplates();
+                            refreshTemplates(null);
                         }
                     }
             );
@@ -304,7 +273,9 @@ public class TraceTemplatePanel extends Composite {
 
     private final static String SRC = "TraceTemplatePanel";
 
-    public void refreshTemplates() {
+
+    @UiHandler("btnRefresh")
+    public void refreshTemplates(ClickEvent e) {
         messageDisplay.info(SRC, "Loading trace display templates");
         rf.systemService().listTemplates().fire(new Receiver<List<TraceTemplateProxy>>() {
             @Override

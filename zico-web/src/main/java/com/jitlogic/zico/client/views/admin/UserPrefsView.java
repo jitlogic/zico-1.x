@@ -135,7 +135,7 @@ public class UserPrefsView implements IsPopupWindow {
             @Override
             public void onSuccess(Void response) {
                 window.hide();
-                panel.refreshUsers();
+                panel.refreshUsers(null);
             }
             @Override
             public void onFailure(ServerFailure failure) {
