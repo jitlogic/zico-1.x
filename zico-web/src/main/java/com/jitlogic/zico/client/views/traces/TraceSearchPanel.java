@@ -98,10 +98,6 @@ public class TraceSearchPanel extends Composite {
     private ToolButton btnRunSearch;
     private ToolButton btnClearFilters;
 
-    private HorizontalPanel statusBar;
-    private Label statusLabel;
-    private Hyperlink lnkCancelSearch, lnkMore50Results, lnkMore250Results;
-
     private PopupMenu contextMenu;
     private PopupMenu traceTypeMenu;
     private boolean moreResults;
@@ -128,7 +124,7 @@ public class TraceSearchPanel extends Composite {
         panel = new DockLayoutPanel(Style.Unit.PX);
 
         createToolbar();
-        createStatusBar();
+        //createStatusBar();
         createTraceGrid();
         createContextMenu();
 
@@ -359,46 +355,6 @@ public class TraceSearchPanel extends Composite {
         panel.add(grid);
     }
 
-    private void createStatusBar() {
-        statusBar = new HorizontalPanel();
-        statusLabel = new Label("Ready.");
-
-        lnkCancelSearch = new Hyperlink("Cancel search", "");
-        lnkCancelSearch.addHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                toggleSearchMode(false, moreResults, "Search canceled.");
-            }
-        }, ClickEvent.getType());
-
-        lnkMore50Results = new Hyperlink("[50 more results]", "");
-        lnkMore50Results.addHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                loadMore(50);
-            }
-        }, ClickEvent.getType());
-
-        lnkMore250Results = new Hyperlink("[250 more results]", "");
-        lnkMore250Results.addHandler(new ClickHandler() {
-            @Override
-            public void onClick(ClickEvent event) {
-                loadMore(250);
-            }
-        }, ClickEvent.getType());
-
-        statusBar.add(statusLabel);
-
-        HorizontalPanel hp = new HorizontalPanel();
-        hp.getElement().addClassName(Resources.INSTANCE.zicoCssResources().searchStatusBar());
-        statusBar.getElement().addClassName(Resources.INSTANCE.zicoCssResources().searchStatusBarInt());
-        hp.setWidth("100%");
-        HorizontalPanel spacer = new HorizontalPanel(); spacer.setWidth("100px"); hp.add(spacer);
-        hp.add(statusBar);
-
-        panel.addSouth(hp, 16);
-    }
-
     private void createContextMenu() {
         contextMenu = new PopupMenu();
 
@@ -434,7 +390,7 @@ public class TraceSearchPanel extends Composite {
     }
 
 
-    private void toggleSearchMode(boolean inSearch, boolean moreResults, String message) {
+    private void intoSearchMode(boolean inSearch, final boolean moreResults, String message) {
         seqnum++;
         btnDeepSearch.setEnabled(!inSearch);
         btnErrors.setEnabled(!inSearch);
@@ -445,22 +401,26 @@ public class TraceSearchPanel extends Composite {
         btnRunSearch.setEnabled(!inSearch);
         btnClearFilters.setEnabled(!inSearch);
 
-        statusLabel.setText(message);
-
         if (inSearch) {
-            statusBar.add(lnkCancelSearch);
+            md.info(MDS, message, "Cancel",
+                    new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            intoSearchMode(false, moreResults, "Search canceled.");
+                        }
+                    }
+            );
+        } else if (moreResults) {
+            md.info(MDS, message, "More",
+                    new Scheduler.ScheduledCommand() {
+                        @Override
+                        public void execute() {
+                            loadMore(100);
+                        }
+                    });
         } else {
-            statusBar.remove(lnkCancelSearch);
+            md.info(MDS, message);
         }
-
-        if (moreResults) {
-            statusBar.add(lnkMore50Results);
-            statusBar.add(lnkMore250Results);
-        } else {
-            statusBar.remove(lnkMore250Results);
-            statusBar.remove(lnkMore50Results);
-        }
-
     }
 
 
@@ -499,7 +459,7 @@ public class TraceSearchPanel extends Composite {
     }
 
     private void loadMore(final int limit) {
-        toggleSearchMode(true, false, "Searching ...");
+        intoSearchMode(true, false, "Searching ...");
         TraceDataServiceProxy req = rf.traceDataService();
         TraceInfoSearchQueryProxy q = req.create(TraceInfoSearchQueryProxy.class);
         q.setLimit(limit);
@@ -543,7 +503,7 @@ public class TraceSearchPanel extends Composite {
                     List<TraceInfoProxy> results = response.getResults();
                     data.getList().addAll(results);
                     moreResults = 0 != (response.getFlags() & TraceInfoSearchResultProxy.MORE_RESULTS);
-                    toggleSearchMode(false, moreResults, "Found " + data.getList().size() + " results.");
+                    intoSearchMode(false, moreResults, "Found " + data.getList().size() + " results.");
                     if (moreResults && results.size() < limit) {
                         loadMore(limit-results.size());
                     }
@@ -553,7 +513,7 @@ public class TraceSearchPanel extends Composite {
 
             @Override
             public void onFailure(ServerFailure error) {
-                toggleSearchMode(false, false, "Error occured while searching: " + error.getMessage());
+                intoSearchMode(false, false, "Error occured while searching: " + error.getMessage());
                 md.error(MDS, "Trace search request failed", error);
             }
         });
@@ -580,9 +540,7 @@ public class TraceSearchPanel extends Composite {
                 for (SymbolProxy e : response) {
                     lstTraceType.addItem(e.getName());
                 }
-
             }
-
             @Override
             public void onFailure(ServerFailure error) {
                 md.error(MDS, "Error loading TID map", error);

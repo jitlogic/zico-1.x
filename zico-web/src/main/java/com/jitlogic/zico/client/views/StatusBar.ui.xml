@@ -1,6 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <ui:style type="com.jitlogic.zico.client.views.StatusBar.StatusBarStyle">
+    <ui:style>
         .bar {
             display: flex;
             border-top: 1px solid #ccc;
@@ -28,15 +28,16 @@
             padding-right: 8px;
             cursor: pointer;
         }
-        .hidden {
-            display: none;
+        .cmd-link {
+            color: blue;
+            cursor: pointer;
         }
     </ui:style>
     <g:HTMLPanel>
         <div class="{style.bar}">
             <div class="{style.text}" ui:field="lblText"/>
             <div class="{style.cmd}">
-                <g:Image ui:field="imgCancel"/>
+                <g:Hyperlink styleName="{style.cmd-link}" ui:field="lnkCommand"/>
             </div>
         </div>
     </g:HTMLPanel>

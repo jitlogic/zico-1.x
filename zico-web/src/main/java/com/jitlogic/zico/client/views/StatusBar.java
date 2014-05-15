@@ -19,15 +19,13 @@ package com.jitlogic.zico.client.views;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.DivElement;
-import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.Element;
+import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
-import com.jitlogic.zico.client.resources.Resources;
 
 import javax.inject.Inject;
 import java.util.HashMap;
@@ -43,34 +41,26 @@ public class StatusBar extends Composite implements MessageDisplay {
         ERROR
     };
 
-    interface StatusBarStyle extends CssResource {
-        String hidden();
-        String text();
-        String cmd();
-        String bar();
-    }
-
-    @UiField
-    StatusBarStyle style;
-
     @UiField
     DivElement lblText;
 
-    @UiField(provided = true)
-    Image imgCancel;
+    @UiField
+    Hyperlink lnkCommand;
 
     private static class StatusMessage {
         private String source;
         private MessageType type;
         private String text;
-        private Scheduler.ScheduledCommand cmdCancel;
+        private String cmdText;
+        private Scheduler.ScheduledCommand command;
 
         public StatusMessage(String source, MessageType type, String text,
-                             Scheduler.ScheduledCommand cmdCancel) {
+                             String cmdText, Scheduler.ScheduledCommand command) {
             this.source = source;
             this.type = type;
             this.text = text;
-            this.cmdCancel = cmdCancel;
+            this.cmdText = cmdText;
+            this.command = command;
         }
     }
 
@@ -79,7 +69,6 @@ public class StatusBar extends Composite implements MessageDisplay {
 
     @Inject
     public StatusBar() {
-        imgCancel = new Image(Resources.INSTANCE.cancel());
         initWidget(ourUiBinder.createAndBindUi(this));
         redisplay();
     }
@@ -89,32 +78,51 @@ public class StatusBar extends Composite implements MessageDisplay {
         if (current == null && messages.size() > 0) {
             current = messages.values().iterator().next();
         }
-
-        String text = current != null ? current.text : "Ready.";
-
-        lblText.setInnerText(text);
-
-        imgCancel.setVisible(current != null && current.cmdCancel != null);
+        if (current != null) {
+            lblText.setInnerText(current.text);
+            if (current.command != null) {
+                lnkCommand.setText("[" + current.cmdText + "]");
+                lnkCommand.setVisible(true);
+            }
+        } else {
+            lblText.setInnerText("Ready.");
+            lnkCommand.setVisible(false);
+        }
     }
+
 
     @Override
     public void info(String source, String msg) {
         message(source, MessageType.INFO, msg);
     }
 
+
+    @Override
+    public void info(String source, String msg, String cmdText, Scheduler.ScheduledCommand cmd) {
+        message(source, MessageType.INFO, msg, cmdText, cmd);
+    }
+
+
     @Override
     public void error(String source, String msg) {
         message(source, MessageType.ERROR, msg);
     }
+
 
     @Override
     public void error(String source, String msg, ServerFailure e) {
         message(source, MessageType.ERROR, msg + " " + e.getMessage());
     }
 
-    @Override
+
     public void message(String source, MessageType type, String msg) {
-        StatusMessage m = new StatusMessage(source, type, msg, null);
+        message(source, type, msg, null, null);
+    }
+
+
+    public void message(String source, MessageType type, String msg,
+                        String cmdText, Scheduler.ScheduledCommand cmdCommand) {
+        StatusMessage m = new StatusMessage(source, type, msg, cmdText, cmdCommand);
         messages.put(source, m);
         current = m;
         redisplay();
@@ -128,6 +136,14 @@ public class StatusBar extends Composite implements MessageDisplay {
             current = null;
         }
         redisplay();
+    }
+
+
+    @UiHandler("lnkCommand")
+    void onCmdClick(ClickEvent e) {
+        if (current != null && current.command != null) {
+            current.command.execute();
+        }
     }
 
 }

@@ -16,20 +16,18 @@
 
 package com.jitlogic.zico.client;
 
+import com.google.gwt.core.client.Scheduler;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.views.StatusBar;
 
-/**
- * Created by rlewczuk on 14.05.14.
- */
 public interface MessageDisplay {
     void info(String source, String msg);
+
+    void info(String source, String msg, String cmdText, Scheduler.ScheduledCommand cmd);
 
     void error(String source, String msg);
 
     void error(String source, String msg, ServerFailure e);
-
-    void message(String source, StatusBar.MessageType type, String msg);
 
     void clear(String source);
 }
