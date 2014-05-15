@@ -89,9 +89,6 @@ public class TraceCallTreePanel extends Composite {
     private ToolButton btnSearchPrev;
     private ToolButton btnSearchNext;
 
-    private HorizontalPanel statusBar;
-    private Label statusLabel;
-
     private PopupMenu contextMenu;
 
     private boolean fullyExpanded;
@@ -119,7 +116,6 @@ public class TraceCallTreePanel extends Composite {
         initWidget(panel);
 
         createToolbar();
-        createStatusBar();
         createCallTreeGrid();
         createContextMenu();
 
@@ -301,22 +297,6 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private void createStatusBar() {
-        statusBar = new HorizontalPanel();
-        statusLabel = new Label("Loading ...");
-        statusBar.add(statusLabel);
-
-        HorizontalPanel hp = new HorizontalPanel();
-        hp.getElement().addClassName(Resources.INSTANCE.zicoCssResources().searchStatusBar());
-        statusBar.getElement().addClassName(Resources.INSTANCE.zicoCssResources().searchStatusBarInt());
-        hp.setWidth("100%");
-        HorizontalPanel spacer = new HorizontalPanel(); spacer.setWidth("100px"); hp.add(spacer);
-        hp.add(statusBar);
-
-        panel.addSouth(hp, 16);
-    }
-
-
     private void createContextMenu() {
         contextMenu = new PopupMenu();
 
@@ -388,8 +368,6 @@ public class TraceCallTreePanel extends Composite {
 
     private void loadData(final boolean recursive, final Runnable action) {
 
-        statusLabel.setText("Loading data. Please wait ...");
-
         if (recursive) {
             btnExpandAll.setEnabled(false);
         }
@@ -408,7 +386,6 @@ public class TraceCallTreePanel extends Composite {
                     if (action != null) {
                         action.run();
                     }
-                    statusLabel.setText("Loaded " + response.size() + " records.");
                     if (response.size() > 1) {
                         grid.getRowElement(0).scrollIntoView();
                     }
@@ -416,7 +393,6 @@ public class TraceCallTreePanel extends Composite {
                 }
                 @Override
                 public void onFailure(ServerFailure failure) {
-                    statusLabel.setText("Error loading trace data: " + failure.getMessage());
                     md.error(MDS, "Error loading trace data", failure);
                 }
             });
