@@ -1,7 +1,8 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:gc='urn:import:com.google.gwt.user.cellview.client'>
-    <g:VerticalPanel>
+    <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
+    <g:VerticalPanel styleName="{wres.formCss.form}">
         <g:HorizontalPanel>
             <g:CheckBox ui:field="chkEql">EQL</g:CheckBox>
             <g:TextBox ui:field="txtSearchFilter"/>

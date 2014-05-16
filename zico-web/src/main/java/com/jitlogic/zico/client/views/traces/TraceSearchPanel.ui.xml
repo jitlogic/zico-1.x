@@ -3,6 +3,7 @@
              xmlns:gc='urn:import:com.google.gwt.user.cellview.client'
              xmlns:z="urn:import:com.jitlogic.zico.client.widgets">
     <ui:with field="resources" type="com.jitlogic.zico.client.resources.Resources"/>
+    <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
     <ui:style>
         .toolbar {
             display: flex;
@@ -22,7 +23,7 @@
 
     <g:DockLayoutPanel unit="PX" ui:field="panel">
         <g:north size="28">
-            <g:HTMLPanel styleName="{style.toolbar}">
+            <g:HTMLPanel addStyleNames="{style.toolbar} {wres.formCss.form}">
                 <z:ToolButton upIcon="{resources.methodTreeIcon}" toggleMode="true"
                               addStyleNames="{style.item}" ui:field="btnDeepSearch"/>
                 <z:ToolButton upIcon="{resources.errorMarkIcon}" toggleMode="true"

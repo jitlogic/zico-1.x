@@ -28,6 +28,7 @@ import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.widgets.PopupWindow;
+import com.jitlogic.zico.client.widgets.WidgetResources;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
 
@@ -55,6 +56,9 @@ public class HostEditView {
     @UiField
     TextBox txtMaxSize;
 
+    @UiField(provided = true)
+    WidgetResources wres;
+
     private String SRC = "HostEdit";
 
     private static final long KB = 1024;
@@ -68,9 +72,11 @@ public class HostEditView {
     private PopupWindow window;
     private MessageDisplay messageDisplay;
 
+
     @Inject
     public HostEditView(ZicoRequestFactory rf, HostListPanel panel, HostProxy info, MessageDisplay messageDisplay) {
         super();
+        wres = WidgetResources.INSTANCE;
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         this.panel = panel;
         this.messageDisplay = messageDisplay;

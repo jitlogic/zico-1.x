@@ -18,12 +18,20 @@ package com.jitlogic.zico.client.widgets;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
+import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 
 public interface WidgetResources extends ClientBundle {
 
     public static final WidgetResources INSTANCE = GWT.create(WidgetResources.class);
 
+    public static interface FormCss extends CssResource {
+        String form();
+    }
+
     @Source("window-close.png")
     ImageResource windowClose();
+
+    @Source("WidgetResourcesFormCss.css")
+    FormCss formCss();
 }

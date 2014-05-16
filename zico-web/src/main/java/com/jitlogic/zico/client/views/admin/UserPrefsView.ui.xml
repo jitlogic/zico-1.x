@@ -1,6 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <g:HTMLPanel>
+    <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
+    <g:HTMLPanel styleName="{wres.formCss.form}">
         <table>
             <tr>
                 <td>Username:</td>

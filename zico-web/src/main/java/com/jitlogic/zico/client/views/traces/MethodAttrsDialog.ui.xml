@@ -2,6 +2,8 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:gc='urn:import:com.google.gwt.user.cellview.client'>
 
+    <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
+
     <ui:style>
         .attrname {
             padding-top:  4px;
@@ -15,7 +17,7 @@
         }
     </ui:style>
 
-    <g:DockLayoutPanel unit="PX" ui:field="container">
+    <g:DockLayoutPanel unit="PX" ui:field="container" styleName="{wres.formCss.form}">
         <g:west size="200">
             <gc:DataGrid ui:field="attrGrid"/>
         </g:west>

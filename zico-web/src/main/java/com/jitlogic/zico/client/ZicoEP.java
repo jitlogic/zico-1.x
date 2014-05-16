@@ -25,12 +25,14 @@ import com.google.gwt.user.client.ui.RootPanel;
 import com.jitlogic.zico.client.inject.ClientGinjector;
 import com.jitlogic.zico.client.resources.ZicoDataGridResources;
 import com.jitlogic.zico.client.views.Shell;
+import com.jitlogic.zico.client.widgets.WidgetResources;
 
 
 public class ZicoEP implements EntryPoint {
 
     static {
         ZicoDataGridResources.INSTANCE.dataGridStyle().ensureInjected();
+        WidgetResources.INSTANCE.formCss().ensureInjected();
     }
 
     private Shell shell;
