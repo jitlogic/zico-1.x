@@ -4,6 +4,10 @@
              xmlns:zh="urn:import:com.jitlogic.zico.client.views.hosts">
 
     <ui:style>
+        .interior {
+            margin-left:  2px;
+            margin-right: 2px;
+        }
         .toolbar {
             display: flex;
             border-bottom: 1px solid #ccc;
@@ -67,7 +71,7 @@
             </g:HTMLPanel>
         </g:south>
         <g:center>
-            <g:SplitLayoutPanel>
+            <g:SplitLayoutPanel addStyleNames="{style.interior}">
                 <g:west size="256">
                     <zh:HostListPanel ui:field="hostListPanel"/>
                 </g:west>

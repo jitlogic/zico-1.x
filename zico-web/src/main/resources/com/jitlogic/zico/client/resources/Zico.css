@@ -2,18 +2,19 @@
 
 .methodDetailCell, .methodAttributeKey, .methodAttributeVal, .methodErrorClassName,
 .methodErrorMessage, .methodErrorStack, .traceSmallCell {
-    font-family: tahoma,arial,verdana,sans-serif !important;
-    font-size: 11px !important;
-    -moz-user-select: none !important;
-    -webkit-user-select: none !important;
-    -khtml-user-select: none !important;
-    user-select: none !important;
-    -ms-user-select: none !important;
+    font-family: tahoma,arial,verdana,sans-serif;
+    font-size: 11px;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    user-select: none;
+    -ms-user-select: none;
+
 }
 
 .methodDetailCell {
-    white-space: nowrap !important;
-    outline-style: none !important;
+    white-space: nowrap;
+    outline-style: none;
 }
 
 .methodAttributeKey {
@@ -42,15 +43,3 @@
     margin-top: 3px;
 }
 
-.searchStatusBar {
-    background-color: #eeeeee !important;
-}
-
-.searchStatusBarInt {
-    font-family: tahoma,arial,verdana,sans-serif !important;
-    font-size: 14px !important;
-}
-
-.whitePanel {
-    background-color: #ffffff !important;
-}
