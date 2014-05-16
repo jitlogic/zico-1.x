@@ -6,17 +6,16 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.Hyperlink;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.views.hosts.HostListPanel;
+import com.jitlogic.zico.client.widgets.CloseableTab;
 
 public class Shell extends Composite {
     interface ShellUiBinder extends UiBinder<Widget, Shell> { }
@@ -67,8 +66,8 @@ public class Shell extends Composite {
     }
 
 
-    public void addView(Widget widget, String title) {
-        tabPanel.add(widget, title);
+    public void addView(Widget widget, String caption) {
+        tabPanel.add(widget, new CloseableTab(tabPanel, widget, caption));
         tabPanel.selectTab(widget);
     }
 

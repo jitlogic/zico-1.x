@@ -1,0 +1,28 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:with field="res" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
+    <ui:style>
+        .tab {
+            display: flex;
+        }
+        .caption {
+            flex: 0 1 auto;
+        }
+        .icon {
+            flex: 0 1 auto;
+            margin-left: 4px;
+            cursor: pointer;
+            opacity: 0.7;
+        }
+        .icon:hover {
+            opacity: 1;
+        }
+    </ui:style>
+    <g:HTMLPanel>
+        <div class="{style.tab}">
+            <g:Label ui:field="lblCaption" styleName="{style.caption}">...</g:Label>
+            <g:Image ui:field="imgClose" styleName="{style.icon}" resource="{res.windowClose}"/>
+        </div>
+    </g:HTMLPanel>
+</ui:UiBinder>
+
