@@ -283,14 +283,14 @@ public class UserManagementPanel extends Composite {
     void editUser(ClickEvent e) {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
-            new UserPrefsView(rf, user, this, hostNames, md).asPopupWindow().show();
+            new UserEditDialog(rf, user, this, hostNames, md).asPopupWindow().show();
         }
     }
 
 
     @UiHandler("btnAdd")
     void addUser(ClickEvent e) {
-        new UserPrefsView(rf, null, this, hostNames, md).asPopupWindow().show();
+        new UserEditDialog(rf, null, this, hostNames, md).asPopupWindow().show();
     }
 
 
@@ -330,7 +330,7 @@ public class UserManagementPanel extends Composite {
     void changePassword(ClickEvent e) {
         UserProxy user = selectionModel.getSelectedObject();
         if (user != null) {
-            PasswordChangeView dialog = panelFactory.passwordChangeView(user.getUserName());
+            PasswordChangeDialog dialog = panelFactory.passwordChangeView(user.getUserName());
             dialog.asPopupWindow().show();
         }
     }

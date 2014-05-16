@@ -31,8 +31,8 @@ import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.shared.data.TraceTemplateProxy;
 import com.jitlogic.zico.shared.services.SystemServiceProxy;
 
-public class TraceTemplateView implements IsPopupWindow {
-    interface TraceTemplateViewUiBinder extends UiBinder<Widget, TraceTemplateView> { }
+public class TraceTemplateEditDialog implements IsPopupWindow {
+    interface TraceTemplateViewUiBinder extends UiBinder<Widget, TraceTemplateEditDialog> { }
     private static TraceTemplateViewUiBinder ourUiBinder = GWT.create(TraceTemplateViewUiBinder.class);
 
     @UiField
@@ -52,7 +52,7 @@ public class TraceTemplateView implements IsPopupWindow {
 
     private MessageDisplay md;
 
-    public TraceTemplateView(ZicoRequestFactory rf, TraceTemplatePanel panel, TraceTemplateProxy tti, MessageDisplay md) {
+    public TraceTemplateEditDialog(ZicoRequestFactory rf, TraceTemplatePanel panel, TraceTemplateProxy tti, MessageDisplay md) {
 
         this.panel = panel;
         this.md = md;

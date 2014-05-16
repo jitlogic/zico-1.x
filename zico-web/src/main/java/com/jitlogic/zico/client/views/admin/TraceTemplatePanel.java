@@ -33,7 +33,6 @@ import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.IdentityColumn;
 import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
-import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
@@ -50,7 +49,6 @@ import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.TraceTemplateProxy;
-import com.jitlogic.zico.shared.data.UserProxy;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -246,14 +244,14 @@ public class TraceTemplatePanel extends Composite {
     void editTemplate(ClickEvent e) {
         TraceTemplateProxy tti = selectionModel.getSelectedObject();
         if (tti != null) {
-            new TraceTemplateView(rf, this, tti, messageDisplay).asPopupWindow().show();
+            new TraceTemplateEditDialog(rf, this, tti, messageDisplay).asPopupWindow().show();
         }
     }
 
 
     @UiHandler("btnAdd")
     void addTemplate(ClickEvent e) {
-        new TraceTemplateView(rf, this, null, messageDisplay).asPopupWindow().show();
+        new TraceTemplateEditDialog(rf, this, null, messageDisplay).asPopupWindow().show();
     }
 
     @UiHandler("btnRemove")

@@ -33,9 +33,9 @@ import com.jitlogic.zico.client.widgets.PopupWindow;
 
 import javax.inject.Inject;
 
-public class PasswordChangeView implements IsPopupWindow {
+public class PasswordChangeDialog implements IsPopupWindow {
 
-    interface PasswordChangeViewUiBinder extends UiBinder<Widget, PasswordChangeView> { }
+    interface PasswordChangeViewUiBinder extends UiBinder<Widget, PasswordChangeDialog> { }
 
     private static PasswordChangeViewUiBinder ourUiBinder = GWT.create(PasswordChangeViewUiBinder.class);
 
@@ -54,7 +54,7 @@ public class PasswordChangeView implements IsPopupWindow {
     private PopupWindow window;
 
     @Inject
-    public PasswordChangeView(ZicoRequestFactory rf, @Assisted("userName") String username) {
+    public PasswordChangeDialog(ZicoRequestFactory rf, @Assisted("userName") String username) {
 
         this.rf = rf;
         this.username = username;

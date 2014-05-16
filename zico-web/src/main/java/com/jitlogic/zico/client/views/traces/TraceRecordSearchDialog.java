@@ -61,8 +61,8 @@ import javax.inject.Inject;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TraceRecordSearchView implements IsPopupWindow {
-    interface TraceRecordSearchViewUiBinder extends UiBinder<Widget, TraceRecordSearchView> { }
+public class TraceRecordSearchDialog implements IsPopupWindow {
+    interface TraceRecordSearchViewUiBinder extends UiBinder<Widget, TraceRecordSearchDialog> { }
     private static TraceRecordSearchViewUiBinder ourUiBinder = GWT.create(TraceRecordSearchViewUiBinder.class);
 
     @UiField
@@ -115,8 +115,8 @@ public class TraceRecordSearchView implements IsPopupWindow {
     private final String MDS;
 
     @Inject
-    public TraceRecordSearchView(ZicoRequestFactory rf, MessageDisplay md,
-                                 @Assisted TraceCallTreePanel panel, @Assisted TraceInfoProxy trace) {
+    public TraceRecordSearchDialog(ZicoRequestFactory rf, MessageDisplay md,
+                                   @Assisted TraceCallTreePanel panel, @Assisted TraceInfoProxy trace) {
 
         this.rf = rf;
         this.trace = trace;

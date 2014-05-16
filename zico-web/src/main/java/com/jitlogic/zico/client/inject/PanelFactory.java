@@ -17,7 +17,7 @@ package com.jitlogic.zico.client.inject;
 
 
 import com.google.inject.assistedinject.Assisted;
-import com.jitlogic.zico.client.views.admin.PasswordChangeView;
+import com.jitlogic.zico.client.views.admin.PasswordChangeDialog;
 import com.jitlogic.zico.client.views.traces.*;
 import com.jitlogic.zico.client.views.admin.TraceTemplatePanel;
 import com.jitlogic.zico.client.views.admin.UserManagementPanel;
@@ -32,13 +32,13 @@ public interface PanelFactory {
 
     public TraceTemplatePanel traceTemplatePanel();
 
-    public TraceRecordSearchView traceRecordSearchDialog(TraceCallTreePanel panel, TraceInfoProxy trace);
+    public TraceRecordSearchDialog traceRecordSearchDialog(TraceCallTreePanel panel, TraceInfoProxy trace);
 
     public MethodAttrsDialog methodAttrsDialog(@Assisted("hostName") String hostName, Long dataOffs, String path, @Assisted("minTime") Long minTime);
 
     public MethodRankingPanel methodRankingPanel(TraceInfoProxy traceInfo);
 
-    public PasswordChangeView passwordChangeView(@Assisted("userName") String userName);
+    public PasswordChangeDialog passwordChangeView(@Assisted("userName") String userName);
 
     public UserManagementPanel userManagementPanel();
 }

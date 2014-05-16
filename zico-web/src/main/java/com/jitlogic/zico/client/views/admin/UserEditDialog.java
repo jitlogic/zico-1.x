@@ -34,8 +34,8 @@ import com.jitlogic.zico.shared.services.UserServiceProxy;
 
 import java.util.*;
 
-public class UserPrefsView implements IsPopupWindow {
-    interface UserPrefsViewUiBinder extends UiBinder<Widget, UserPrefsView> { }
+public class UserEditDialog implements IsPopupWindow {
+    interface UserPrefsViewUiBinder extends UiBinder<Widget, UserEditDialog> { }
     private static UserPrefsViewUiBinder ourUiBinder = GWT.create(UserPrefsViewUiBinder.class);
 
     @UiField
@@ -63,8 +63,8 @@ public class UserPrefsView implements IsPopupWindow {
 
     private MessageDisplay md;
 
-    public UserPrefsView(ZicoRequestFactory rf, UserProxy user, UserManagementPanel panel,
-                         List<String> availableHosts, MessageDisplay md) {
+    public UserEditDialog(ZicoRequestFactory rf, UserProxy user, UserManagementPanel panel,
+                          List<String> availableHosts, MessageDisplay md) {
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         editUserRequest = rf.userService();
         this.editedUser = user != null ? editUserRequest.edit(user) : editUserRequest.create(UserProxy.class);

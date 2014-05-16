@@ -462,7 +462,7 @@ public class HostListPanel extends Composite {
 
     @UiHandler("btnAddHost")
     void addHost(ClickEvent e) {
-        new HostEditView(rf, this, null, messageDisplay).getWindow().show();
+        new HostEditDialog(rf, this, null, messageDisplay).getWindow().show();
     }
 
 
@@ -493,7 +493,7 @@ public class HostListPanel extends Composite {
     void editHost(ClickEvent e) {
         HostListObject hostInfo = selectionModel.getSelectedObject();
         if (hostInfo instanceof HostProxy) {
-            new HostEditView(rf, this, (HostProxy)hostInfo, messageDisplay).getWindow().show();
+            new HostEditDialog(rf, this, (HostProxy)hostInfo, messageDisplay).getWindow().show();
         }
     }
 

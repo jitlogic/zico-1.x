@@ -108,7 +108,7 @@ public class TraceCallTreePanel extends Composite {
     private ZicoRequestFactory rf;
     private TraceInfoProxy trace;
 
-    private TraceRecordSearchView searchDialog;
+    private TraceRecordSearchDialog searchDialog;
     private PanelFactory panelFactory;
 
     private SingleSelectionModel<TraceRecordProxy> selection;

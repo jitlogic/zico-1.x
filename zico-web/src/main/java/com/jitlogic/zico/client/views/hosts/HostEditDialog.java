@@ -34,8 +34,8 @@ import com.jitlogic.zico.shared.services.HostServiceProxy;
 
 import javax.inject.Inject;
 
-public class HostEditView {
-    interface HostEditViewUiBinder extends UiBinder<Widget, HostEditView> { }
+public class HostEditDialog {
+    interface HostEditViewUiBinder extends UiBinder<Widget, HostEditDialog> { }
     private static HostEditViewUiBinder ourUiBinder = GWT.create(HostEditViewUiBinder.class);
 
     @UiField
@@ -74,7 +74,7 @@ public class HostEditView {
 
 
     @Inject
-    public HostEditView(ZicoRequestFactory rf, HostListPanel panel, HostProxy info, MessageDisplay messageDisplay) {
+    public HostEditDialog(ZicoRequestFactory rf, HostListPanel panel, HostProxy info, MessageDisplay messageDisplay) {
         super();
         wres = WidgetResources.INSTANCE;
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
