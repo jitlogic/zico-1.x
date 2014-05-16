@@ -27,6 +27,9 @@ public interface WidgetResources extends ClientBundle {
 
     public static interface FormCss extends CssResource {
         String form();
+        String fill();
+        String item();
+        String line();
     }
 
     @Source("window-close.png")

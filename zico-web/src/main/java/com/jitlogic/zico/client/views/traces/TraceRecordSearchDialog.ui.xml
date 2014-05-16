@@ -2,29 +2,38 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:gc='urn:import:com.google.gwt.user.cellview.client'>
     <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
-    <g:VerticalPanel styleName="{wres.formCss.form}">
-        <g:HorizontalPanel>
-            <g:CheckBox ui:field="chkEql">EQL</g:CheckBox>
-            <g:TextBox ui:field="txtSearchFilter"/>
-            <g:Button ui:field="btnSearch">Search</g:Button>
-            <g:Button ui:field="btnGoTo">GoTo</g:Button>
-        </g:HorizontalPanel>
-        <g:HorizontalPanel>
-            <g:CheckBox ui:field="chkClass">Class names</g:CheckBox>
-            <g:CheckBox ui:field="chkMethod">Method names</g:CheckBox>
-            <g:CheckBox ui:field="chkAttribs">Attributes</g:CheckBox>
-            <g:CheckBox ui:field="chkExceptionText">Exception text</g:CheckBox>
-        </g:HorizontalPanel>
-        <g:HorizontalPanel>
-            <g:CheckBox ui:field="chkErrorsOnly">Only Errors and Exceptions</g:CheckBox>
-            <g:CheckBox ui:field="chkMethodsWithAttrs">Only methods with attributes</g:CheckBox>
-            <g:CheckBox ui:field="chkIgnoreCase">Ignore case</g:CheckBox>
-        </g:HorizontalPanel>
-        <g:Label ui:field="lblSumStats"/>
-        <g:DockLayoutPanel>
-            <g:center>
-                <gc:DataGrid ui:field="resultsGrid"/>
-            </g:center>
-        </g:DockLayoutPanel>
-    </g:VerticalPanel>
+    <ui:style>
+        .form {
+            padding: 4px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel unit="PX" addStyleNames="{wres.formCss.form} {style.form}">
+        <g:north size="100">
+            <g:HTMLPanel>
+                <div class="{wres.formCss.line}">
+                    <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkEql">EQL</g:CheckBox>
+                    <g:TextBox  addStyleNames="{wres.formCss.fill}" ui:field="txtSearchFilter"/>
+                    <g:Button   addStyleNames="{wres.formCss.item}" ui:field="btnSearch">Search</g:Button>
+                    <g:Button   addStyleNames="{wres.formCss.item}" ui:field="btnGoTo">GoTo</g:Button>
+                </div>
+                <div class="{wres.formCss.line}">
+                    <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkClass">Class names</g:CheckBox>
+                    <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkMethod">Method names</g:CheckBox>
+                    <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkAttribs">Attributes</g:CheckBox>
+                    <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkExceptionText">Exception text</g:CheckBox>
+                </div>
+                <div class="{wres.formCss.line}">
+                    <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkErrorsOnly">Only Errors and Exceptions</g:CheckBox>
+                    <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkMethodsWithAttrs">Only methods with attributes</g:CheckBox>
+                    <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkIgnoreCase">Ignore case</g:CheckBox>
+                </div>
+                <div class="{wres.formCss.line}">
+                    <g:Label addStyleNames="{wres.formCss.fill}" ui:field="lblSumStats">Type something and press 'Search'.</g:Label>
+                </div>
+            </g:HTMLPanel>
+        </g:north>
+        <g:center>
+            <gc:DataGrid ui:field="resultsGrid"/>
+        </g:center>
+    </g:DockLayoutPanel>
 </ui:UiBinder>

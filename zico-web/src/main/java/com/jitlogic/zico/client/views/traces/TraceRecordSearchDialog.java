@@ -325,6 +325,8 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
 
         expr.setType(chkEql.getValue() ? TraceRecordSearchQuery.EQL_QUERY : TraceRecordSearchQuery.TXT_QUERY);
 
+        GWT.log("Search Type=" + expr.getType());
+
         expr.setFlags(
                 (chkErrorsOnly.getValue() ? TraceRecordSearchQuery.ERRORS_ONLY : 0)
                         | (chkMethodsWithAttrs.getValue() ? TraceRecordSearchQuery.METHODS_WITH_ATTRS : 0)
@@ -334,7 +336,9 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
                         | (chkExceptionText.getValue() ? TraceRecordSearchQuery.SEARCH_EX_MSG : 0)
                         | (chkIgnoreCase.getValue() ? TraceRecordSearchQuery.IGNORE_CASE : 0));
 
-        expr.setSearchExpr(txtSearchFilter.getText());
+        expr.setSearchExpr(txtSearchFilter.getText().length() > 0 ? txtSearchFilter.getText() : null);
+
+        GWT.log("Search flags=" + expr.getFlags());
 
         md.info(MDS, "Searching records ...");
         req.searchRecords(trace.getHostName(), trace.getDataOffs(), 0, rootPath, expr).fire(

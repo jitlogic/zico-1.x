@@ -23,3 +23,18 @@
 .form input {
     cursor: text;
 }
+
+.line {
+    display: flex;
+    padding: 2px;
+}
+.fill {
+    flex: 10;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+.item {
+    flex: 0 1 auto;
+    margin-left: 2px;
+    margin-right: 2px;
+}
