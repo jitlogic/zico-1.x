@@ -37,16 +37,19 @@
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
             <version>${jetty.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
             <version>${jetty.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-security</artifactId>
             <version>${jetty.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.jitlogic.zorka</groupId>
@@ -148,7 +151,7 @@
                             <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <includeGroupIds>org.mortbay.jetty,javax.servlet</includeGroupIds>
+                            <includeGroupIds>org.eclipse.jetty,javax.servlet</includeGroupIds>
                             <excludeArtifactIds>jsp-api,jstl</excludeArtifactIds>
                             <excludes>META-INF/ECLIPSEF.*</excludes>
                             <outputDirectory>

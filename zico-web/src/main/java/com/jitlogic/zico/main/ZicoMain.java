@@ -17,7 +17,12 @@ package com.jitlogic.zico.main;
 
 
 
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.LoginService;
+import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import java.io.File;
@@ -46,6 +51,7 @@ public class ZicoMain {
         configure();
 
         initServer();
+        initSecurity();
 
         server.start();
         server.join();
@@ -64,6 +70,29 @@ public class ZicoMain {
         webapp.setTempDirectory(new File(homeDir, "tmp"));
 
         server.setHandler(webapp);
+    }
+
+    private void initSecurity() {
+        Constraint constraint = new Constraint();
+        constraint.setName(Constraint.__FORM_AUTH);
+        constraint.setRoles(new String[]{"VIEWER","ADMIN"});
+        constraint.setAuthenticate(true);
+
+        ConstraintMapping mapping = new ConstraintMapping();
+        mapping.setConstraint(constraint);
+        mapping.setPathSpec("/*");
+
+        FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/login-fail.html", false);
+
+        LoginService service = new ZicoLoginService();
+
+
+        ConstraintSecurityHandler handler = new ConstraintSecurityHandler();
+        handler.addConstraintMapping(mapping);
+        handler.setLoginService(service);
+        handler.setAuthenticator(authenticator);
+
+        webapp.setSecurityHandler(handler);
     }
 
     private void configure() throws IOException {

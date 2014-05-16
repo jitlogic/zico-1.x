@@ -66,7 +66,7 @@ public class UserManager extends Locator<User, String> {
         this.userContext = userContext;
 
         try {
-            Class<?> clazz = Class.forName("com.jitlogic.zico.main.ZicoUserRealm");
+            Class<?> clazz = Class.forName("com.jitlogic.zico.main.ZicoLoginService");
             Method getInstance = clazz.getDeclaredMethod("getInstance");
             userRealm = getInstance.invoke(clazz);
             mUpdate = clazz.getDeclaredMethod("update", String.class, String.class, Boolean.class);
