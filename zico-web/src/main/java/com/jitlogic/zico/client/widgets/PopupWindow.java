@@ -59,7 +59,7 @@ public class PopupWindow extends PopupPanel {
 
         //removeStyleName("gwt-PopupPanel");
 
-        sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEMOVE | Event.ONMOUSEUP | Event.ONMOUSEOUT);
+        sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEMOVE | Event.ONMOUSEUP | Event.ONMOUSEOUT | Event.ONMOUSEOVER);
 
         add(panel);
     }
@@ -86,16 +86,27 @@ public class PopupWindow extends PopupPanel {
                 dy = event.getClientY() - getPopupTop();
                 if (dy < 24) {
                     isMoving = true;
+                    DOM.setCapture(getElement());
                 }
-                break;
+                return;
             case Event.ONMOUSEMOVE:
                 if (isMoving) {
                     setPopupPosition(event.getClientX() - dx, event.getClientY() - dy);
+                    return;
                 }
                 break;
             case Event.ONMOUSEUP:
+                if (isMoving) {
+                    DOM.releaseCapture(getElement());
+                    isMoving = false;
+                }
+                return;
             case Event.ONMOUSEOUT:
-                isMoving = false;
+            case Event.ONMOUSEOVER:
+                if (isMoving) {
+                    return;
+                }
+                break;
         }
         super.onBrowserEvent(event);
     }
