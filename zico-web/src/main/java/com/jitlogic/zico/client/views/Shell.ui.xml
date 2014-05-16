@@ -29,6 +29,10 @@
             color: #666;
             cursor: pointer;
         }
+        .toolitem a {
+            color: #666;
+            text-decoration: none;
+        }
         .toolitem:hover {
             background: #eee;
         }
@@ -60,7 +64,7 @@
                         <g:Hyperlink ui:field="lnkChangePassword">Change password</g:Hyperlink>
                     </div>
                     <div class="{style.toolitem}">
-                        <g:Hyperlink ui:field="lnkLogOut">Log out</g:Hyperlink>
+                        <a href="logout">Log out</a>
                     </div>
                 </div>
             </g:HTMLPanel>

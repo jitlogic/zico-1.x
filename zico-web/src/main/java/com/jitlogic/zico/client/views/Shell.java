@@ -126,10 +126,5 @@ public class Shell extends Composite {
         panelFactory.passwordChangeView("").asPopupWindow().show();
     }
 
-
-    @UiHandler("lnkLogOut")
-    void logOut(ClickEvent e) {
-        Window.alert("Not implemented yet.");
-    }
 }
 
