@@ -89,13 +89,13 @@ public interface Resources extends ClientBundle {
     @Source("../images/method-rank.png")
     ImageResource methodRankIcon();
 
-    @Source("../images/treePlus.gif")
+    @Source("../images/treePlus.png")
     ImageResource treeMinusIcon();
 
     @Source("../images/treeMinusSlim.png")
     ImageResource treeMinusSlimIcon();
 
-    @Source("../images/treeMinus.gif")
+    @Source("../images/treeMinus.png")
     ImageResource treePlusIcon();
 
     @Source("../images/treePlusSlim.png")
