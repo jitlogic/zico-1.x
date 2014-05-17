@@ -63,7 +63,14 @@ public class TraceTemplateEditDialog implements IsPopupWindow {
                 : editTemplateRequest.create(TraceTemplateProxy.class);
 
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
+        window.resizeAndCenter(540, 115);
         window.setCaption(tti != null ? "Editing template" : "New template");
+
+        if (tti != null) {
+            txtOrder.setText(""+tti.getOrder());
+            txtCondition.setText(tti.getCondition());
+            txtTemplate.setText(tti.getTemplate());
+        }
     }
 
     @UiHandler("btnOk")

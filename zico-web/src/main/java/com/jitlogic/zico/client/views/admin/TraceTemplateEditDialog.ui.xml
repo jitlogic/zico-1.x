@@ -5,15 +5,15 @@
         <table>
             <tr>
                 <td>Order:</td>
-                <td><g:TextBox ui:field="txtOrder"/></td>
+                <td><g:TextBox ui:field="txtOrder" width="75"/></td>
             </tr>
             <tr>
                 <td>Condition:</td>
-                <td><g:TextBox ui:field="txtCondition"/></td>
+                <td><g:TextBox ui:field="txtCondition" width="450"/></td>
             </tr>
             <tr>
                 <td>Template:</td>
-                <td><g:TextBox ui:field="txtTemplate"/></td>
+                <td><g:TextBox ui:field="txtTemplate" width="450"/></td>
             </tr>
             <tr>
                 <td><g:Button ui:field="btnOk">OK</g:Button></td>

@@ -20,7 +20,7 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <g:ScrollPanel>
+                    <g:ScrollPanel height="200px">
                         <g:VerticalPanel ui:field="hostList"/>
                     </g:ScrollPanel>
                 </td>

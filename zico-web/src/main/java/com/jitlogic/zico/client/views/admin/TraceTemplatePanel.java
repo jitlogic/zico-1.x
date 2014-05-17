@@ -82,13 +82,14 @@ public class TraceTemplatePanel extends Composite {
 
     private PopupMenu contextMenu;
 
-    private MessageDisplay messageDisplay;
+    private MessageDisplay md;
 
+    private final static String MDS = "TraceTemplatePanel";
 
     @Inject
-    public TraceTemplatePanel(ZicoRequestFactory rf, MessageDisplay messageDisplay) {
+    public TraceTemplatePanel(ZicoRequestFactory rf, MessageDisplay md) {
 
-        this.messageDisplay = messageDisplay;
+        this.md = md;
         this.rf = rf;
 
         createTemplateListGrid();
@@ -241,14 +242,14 @@ public class TraceTemplatePanel extends Composite {
     void editTemplate(ClickEvent e) {
         TraceTemplateProxy tti = selectionModel.getSelectedObject();
         if (tti != null) {
-            new TraceTemplateEditDialog(rf, this, tti, messageDisplay).asPopupWindow().show();
+            new TraceTemplateEditDialog(rf, this, tti, md).asPopupWindow().show();
         }
     }
 
 
     @UiHandler("btnAdd")
     void addTemplate(ClickEvent e) {
-        new TraceTemplateEditDialog(rf, this, null, messageDisplay).asPopupWindow().show();
+        new TraceTemplateEditDialog(rf, this, null, md).asPopupWindow().show();
     }
 
     @UiHandler("btnRemove")
@@ -266,12 +267,10 @@ public class TraceTemplatePanel extends Composite {
         }
     }
 
-    private final static String SRC = "TraceTemplatePanel";
-
 
     @UiHandler("btnRefresh")
     public void refreshTemplates(ClickEvent e) {
-        messageDisplay.info(SRC, "Loading trace display templates");
+        md.info(MDS, "Loading trace display templates");
         rf.systemService().listTemplates().fire(new Receiver<List<TraceTemplateProxy>>() {
             @Override
             public void onSuccess(List<TraceTemplateProxy> response) {
@@ -283,11 +282,12 @@ public class TraceTemplatePanel extends Composite {
                 });
                 templateStore.getList().clear();
                 templateStore.getList().addAll(response);
+                md.clear(MDS);
             }
 
             @Override
             public void onFailure(ServerFailure e) {
-                messageDisplay.error(SRC, "Error loading trace templates: ", e);
+                md.error(MDS, "Error loading trace templates: ", e);
             }
         });
     }
