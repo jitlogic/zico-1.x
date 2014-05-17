@@ -46,7 +46,7 @@
                         <configuration>
                             <includes>
                                 <include>com.jitlogic.zorka:zorka-common</include>
-                                <include>com.jitlogic.zorka:zico-core</include>
+                                <include>com.jitlogic.zico:zico-core</include>
                                 <include>org.ow2.asm:asm</include>
                                 <include>org.fressian:fressian</include>
                                 <include>org.mapdb:mapdb</include>
