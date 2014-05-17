@@ -92,7 +92,7 @@
 }
 
 .dataGridEvenRow:hover {
-    background: #eee;
+    background: #eef;
 }
 
 .dataGridEvenRowCell {
@@ -105,7 +105,7 @@
 }
 
 .dataGridOddRow:hover {
-    background: #eee;
+    background: #eef;
 }
 
 .dataGridOddRowCell {
@@ -113,7 +113,7 @@
 }
 
 .dataGridHoveredRow {
-    background: #eee;
+    background: #eef;
 }
 
 .dataGridHoveredRowCell {
@@ -129,14 +129,14 @@
 }
 
 .dataGridSelectedRow {
-     background: #ccc;
+     background: #cce;
      color: black;
      height: auto;
      overflow: auto;
 }
 
 .dataGridSelectedRow:hover {
-    background: #ccc;
+    background: #cce;
     color: black;
 }
 

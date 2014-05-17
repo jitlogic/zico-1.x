@@ -20,6 +20,10 @@
     border: 1px solid #777;
 }
 
+.form button:hover, .form select:hover {
+    background: #eef;
+}
+
 .form input {
     cursor: text;
 }

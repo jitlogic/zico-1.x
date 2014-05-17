@@ -41,13 +41,10 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
-import com.jitlogic.zico.client.widgets.ResizableHeader;
+import com.jitlogic.zico.client.widgets.*;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
-import com.jitlogic.zico.client.widgets.MenuItem;
-import com.jitlogic.zico.client.widgets.PopupMenu;
-import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.data.UserProxy;
 
@@ -164,7 +161,7 @@ public class UserManagementPanel extends Composite {
 
 
     private void createUserGrid() {
-        userGrid = new DataGrid<UserProxy>(1024 * 1024, KEY_PROVIDER);
+        userGrid = new DataGrid<UserProxy>(1024 * 1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<UserProxy>(KEY_PROVIDER);
         userGrid.setSelectionModel(selectionModel);
 

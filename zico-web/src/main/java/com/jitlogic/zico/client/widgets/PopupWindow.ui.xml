@@ -18,7 +18,7 @@
             cursor: default;
             border-top-left-radius: 4px;
             border-top-right-radius: 4px;
-            background: #eee;
+            background: #dde;
             display: flex;
             align-items: center;
 

@@ -34,7 +34,7 @@
             text-decoration: none;
         }
         .toolitem:hover {
-            background: #eee;
+            background: #eef;
         }
         .toolfill {
             flex: 10;
