@@ -1,51 +1,124 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Zorka Intranet Collector Login</title>
+    <title>Zorka Intranet Collector</title>
     <style type="text/css">
-        #login-table {
-            margin-top: 250px;
+        html, body, form {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-box {
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            padding: 32px;
+            width: 512px;
+            align-self: center;
+            font-family: Tahoma, Arial, Verdana, sans-serif;
+            color: #777;
+        }
+
+        .login-box h1 {
+            color: #555;
+            margin-top: 0;
+        }
+
+        .login-box .line {
+            display: flex;
             margin-left: auto;
             margin-right: auto;
-            margin-bottom: auto;
+            margin-bottom: 8px;
+            justify-content: center;
         }
 
-        #login-title {
-            color: darkblue;
-            font-family: Georgia, Arial, Times;
+        .login-box input {
+            border: 1px solid #999;
+            border-radius: 2px;
         }
 
-        .login-label {
-            font-family: Georgia, Arial, Times;
+        .login-box input[type="submit"] {
+            background: white;
+            margin-top: 16px;
+            padding: 4px 64px 4px 64px;
+            border: 1px solid #999;
+            border-radius: 4px;
         }
 
-        #login-buttons {
-            padding-top: 20px !important;
+        .container input[type="submit"]:hover {
+            background: #eee;
+            cursor: hand;
+        }
+
+        .browser-comment {
+            font-size: 12px;
+            margin-top: 32px;
+            align-self: center;
+            color: #999;
+        }
+
+        .browser-comment > div {
+            text-align: center;
+        }
+        .browser-comment a {
+            text-decoration: none;
+            color: #555;
+            font-weight: bold;
+        }
+        .browser-comment a:hover {
+            background: #eee;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 <form method="POST" action="j_security_check">
-    <table border="0" cellspacing="2" cellpadding="1" id="login-table">
-        <tr>
-            <td colspan="2" align="center">
-                <h1 id="login-title">Zorka Intranet Collector Login</h1>
-            </td>
-        </tr>
-        <tr>
-            <td class="login-label">Username:</td>
-            <td><input size="25" value="" name="j_username" maxlength="25" type="text"></td>
-        </tr>
-        <tr>
-            <td class="login-label">Password:</td>
-            <td><input size="25" value="" name="j_password" maxlength="25" type="password"></td>
-        </tr>
-        <tr>
-            <td id="login-buttons" colspan="2" align="center">
+    <div class="container">
+        <div class="login-box">
+            <div class="line">
+                <h1>Zorka Intranet Collector</h1>
+            </div>
+            <div class="line">
+                <table>
+                    <tbody>
+                    <tr>
+                        <td>Username:</td>
+                        <td><input size="25" value="" name="j_username" maxlength="25" type="text"></td>
+                    </tr>
+                    <tr>
+                        <td>Password:</td>
+                        <td><input size="25" value="" name="j_password" maxlength="25" type="password"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="line">
                 <input name="submit" type="submit" value="Login">
-            </td>
-        </tr>
-    </table>
+            </div>
+            <div class="browser-comment">
+                <div>This application requires modern HTML5 browser. Old version of Internet Explorer won't do.</div>
+                <div>If you see mess on this screen, consider using
+                    <a href="https://www.google.com/intl/en/chrome/browser/">Chrome</a>,
+                    <a href="http://www.mozilla.org/en-US/firefox/new/"> Firefox</a> or
+                    <a href="http://www.opera.com/computer">Opera.</a></div>
+            </div>
+
+        </div>
+    </div>
 </form>
 </body>
 </html>
