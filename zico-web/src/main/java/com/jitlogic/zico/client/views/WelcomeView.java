@@ -31,45 +31,12 @@ public class WelcomeView extends Composite {
     interface WelcomeViewUiBinder extends UiBinder<HTMLPanel, WelcomeView> { }
     private static WelcomeViewUiBinder ourUiBinder = GWT.create(WelcomeViewUiBinder.class);
 
-    @UiField
-    VerticalPanel infoPanel;
-
-    private ZicoRequestFactory rf;
-
-    private Timer timer;
-
     @Inject
-    public WelcomeView(ZicoRequestFactory rf) {
-        this.rf = rf;
+    public WelcomeView() {
 
         initWidget(ourUiBinder.createAndBindUi(this));
 
-        timer = new Timer() {
-            @Override
-            public void run() {
-                loadData();
-            }
-        };
-        timer.scheduleRepeating(10000);
     }
 
-
-    private void loadData() {
-        rf.systemService().systemInfo().fire(new Receiver<List<String>>() {
-            @Override
-            public void onSuccess(List<String> response) {
-                infoPanel.clear();
-                for (String s : response) {
-                    infoPanel.add(new Label(s));
-                }
-            }
-
-            @Override
-            public void onFailure(ServerFailure e) {
-                infoPanel.clear();
-                infoPanel.add(new Label("Error: " + e.getMessage()));
-            }
-        });
-    }
 
 }
