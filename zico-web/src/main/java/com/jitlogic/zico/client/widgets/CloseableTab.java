@@ -46,6 +46,7 @@ public class CloseableTab extends Composite {
         this.panel = panel;
         res = WidgetResources.INSTANCE;
         initWidget(ourUiBinder.createAndBindUi(this));
+        imgClose.getElement().setAttribute("draggable", "false");
         lblCaption.setText(caption);
     }
 

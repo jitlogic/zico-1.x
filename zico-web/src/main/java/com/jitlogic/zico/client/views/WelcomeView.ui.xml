@@ -21,7 +21,7 @@
     <g:HTMLPanel styleName="{style.panel}">
         <div>
             <div>
-                <img src="ZORKA_LOGO.png"/>
+                <img draggable="false" src="ZORKA_LOGO.png"/>
             </div>
             <div class="{style.footer}">
                 Double click on a host on left pane to open trace list.

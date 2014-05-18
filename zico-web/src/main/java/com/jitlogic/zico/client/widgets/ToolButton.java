@@ -69,6 +69,7 @@ public class ToolButton extends Widget implements HasClickHandlers {
         div.appendChild(imgElement);
 
         div.addClassName(RESOURCES.css().btn());
+        imgElement.setAttribute("draggable", "false");
 
         setElement(div);
     }
