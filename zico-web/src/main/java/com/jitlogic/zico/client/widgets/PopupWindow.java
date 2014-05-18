@@ -47,6 +47,10 @@ public class PopupWindow extends PopupPanel {
     boolean isMoving;
     int dx, dy;
 
+    public PopupWindow() {
+        this(null);
+    }
+
     public PopupWindow(Widget content) {
         this(content, WidgetResources.INSTANCE);
     }
@@ -55,9 +59,9 @@ public class PopupWindow extends PopupPanel {
         super(false);
         this.res = res;
         panel = uiBinder.createAndBindUi(this);
-        panel.add(content);
-
-        //removeStyleName("gwt-PopupPanel");
+        if (content != null) {
+            panel.add(content);
+        }
 
         sinkEvents(Event.ONMOUSEDOWN | Event.ONMOUSEMOVE | Event.ONMOUSEUP | Event.ONMOUSEOUT | Event.ONMOUSEOVER);
 
@@ -71,6 +75,10 @@ public class PopupWindow extends PopupPanel {
 
     public void setCaption(String caption) {
         lblCaption.setText(caption);
+    }
+
+    public void addContent(Widget content) {
+        panel.add(content);
     }
 
     @UiHandler("imgClose")

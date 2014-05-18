@@ -46,14 +46,11 @@ import com.google.web.bindery.requestfactory.shared.Receiver;
 import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.views.Shell;
-import com.jitlogic.zico.client.widgets.ResizableHeader;
+import com.jitlogic.zico.client.widgets.*;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
-import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.MenuItem;
-import com.jitlogic.zico.client.widgets.PopupMenu;
-import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.services.HostServiceProxy;
@@ -469,22 +466,18 @@ public class HostListPanel extends Composite {
     @UiHandler("btnRemoveHost")
     void removeHost(ClickEvent e) {
         // TODO "Are you sure" message box
-        HostListObject hi = selectionModel.getSelectedObject();
+        final HostListObject hi = selectionModel.getSelectedObject();
         if (hi instanceof HostProxy) {
-            // TODO remove host - after implementing proper message (info) box
-//            ConfirmMessageBox cmb = new ConfirmMessageBox(
-//                    "Removing host", "Are you sure you want to remove host " + hi.getName() + "?");
-//            cmb.addHideHandler(new HideEvent.HideHandler() {
-//                @Override
-//                public void onHide(HideEvent event) {
-//                    Dialog d = (Dialog) event.getSource();
-//                    if ("Yes".equals(d.getHideButton().getText())) {
-//                        hostGridStore.getList().remove(hi);
-//                        rf.hostService().remove((HostProxy)hi).fire();
-//                    }
-//                }
-//            });
-//            cmb.show();
+
+            ConfirmDialog dialog = new ConfirmDialog("Removing host", "Remove host " + hi.getName() + " ?")
+                    .withBtn("Yes", new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            hostGridStore.getList().remove(hi);
+                            rf.hostService().remove((HostProxy)hi).fire();
+                        }})
+                    .withBtn("No");
+            dialog.show();
         }
     }
 

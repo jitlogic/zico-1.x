@@ -294,32 +294,17 @@ public class UserManagementPanel extends Composite {
     @UiHandler("btnRemove")
     void removeUser(ClickEvent e) {
         final UserProxy user = selectionModel.getSelectedObject();
-        // TODO remove user
-//        if (user != null) {
-//            ConfirmMessageBox cmb = new ConfirmMessageBox(
-//                    "Removing host", "Are you sure you want to remove " + user.getUserName() + " ?");
-//            cmb.addHideHandler(new HideEvent.HideHandler() {
-//                @Override
-//                public void onHide(HideEvent event) {
-//                    Dialog d = (Dialog) event.getSource();
-//                    if ("Yes".equals(d.getHideButton().getText())) {
-//                        userStore.getList().remove(user);
-//                        rf.userService().remove(user).fire(
-//                                new Receiver<Void>() {
-//                                    @Override
-//                                    public void onSuccess(Void response) {
-//                                        refreshUsers();
-//                                    }
-//                                    public void onFailure(ServerFailure failure) {
-//                                        errorHandler.error("Error removing user " + user.getUserName(), failure);
-//                                    }
-//                                }
-//                        );
-//                    }
-//                }
-//            });
-//            cmb.show();
-//        }
+        if (user != null) {
+            ConfirmDialog dialog = new ConfirmDialog("Removing user", "Remove user " + user.getUserName() + " ?")
+                    .withBtn("Yes", new ClickHandler() {
+                        @Override
+                        public void onClick(ClickEvent event) {
+                            userStore.getList().remove(user);
+                            rf.userService().remove(user).fire();
+                        }})
+                    .withBtn("No");
+            dialog.show();
+        }
     }
 
 

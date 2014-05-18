@@ -30,6 +30,8 @@ public interface WidgetResources extends ClientBundle {
         String fill();
         String item();
         String line();
+        String msgbox();
+        String btnline();
     }
 
     @Source("window-close.png")

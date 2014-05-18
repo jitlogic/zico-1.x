@@ -252,18 +252,26 @@ public class TraceTemplatePanel extends Composite {
         new TraceTemplateEditDialog(rf, this, null, md).asPopupWindow().show();
     }
 
+
     @UiHandler("btnRemove")
     void removeTemplate(ClickEvent e) {
-        TraceTemplateProxy template = selectionModel.getSelectedObject();
+        final TraceTemplateProxy template = selectionModel.getSelectedObject();
         if (template != null) {
-            rf.systemService().removeTemplate(template.getId()).fire(
-                    new Receiver<Void>() {
+            ConfirmDialog dialog = new ConfirmDialog("Removing template", "Remove template ?")
+                    .withBtn("Yes", new ClickHandler() {
                         @Override
-                        public void onSuccess(Void response) {
-                            refreshTemplates(null);
+                        public void onClick(ClickEvent event) {
+                            rf.systemService().removeTemplate(template.getId()).fire(
+                                    new Receiver<Void>() {
+                                        @Override
+                                        public void onSuccess(Void response) {
+                                            refreshTemplates(null);
+                                        }
+                                    });
+
                         }
-                    }
-            );
+                    }).withBtn("No");
+            dialog.show();
         }
     }
 

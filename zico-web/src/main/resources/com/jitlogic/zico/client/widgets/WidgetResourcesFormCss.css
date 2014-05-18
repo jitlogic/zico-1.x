@@ -42,3 +42,18 @@
     margin-left: 2px;
     margin-right: 2px;
 }
+
+.btnline {
+    display: flex;
+    padding: 6px;
+    justify-content: space-around;
+}
+
+.btnline button {
+    min-width: 64px;
+}
+
+.msgbox {
+    padding-top: 24px;
+    text-align: center;
+}
