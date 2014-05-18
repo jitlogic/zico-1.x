@@ -98,7 +98,7 @@ public class UserEditDialog implements IsPopupWindow {
             hostList.add(hp);
         }
 
-        window.resizeAndCenter(250, 340);
+        window.resizeAndCenter(250, 350);
     }
 
     @UiHandler("btnOk")

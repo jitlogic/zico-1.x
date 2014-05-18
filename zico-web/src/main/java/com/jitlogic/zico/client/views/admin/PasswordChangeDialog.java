@@ -22,6 +22,7 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.assistedinject.Assisted;
@@ -40,13 +41,13 @@ public class PasswordChangeDialog implements IsPopupWindow {
     private static PasswordChangeViewUiBinder ourUiBinder = GWT.create(PasswordChangeViewUiBinder.class);
 
     @UiField
-    TextBox txtOldPassword;
+    PasswordTextBox txtOldPassword;
 
     @UiField
-    TextBox txtNewPassword;
+    PasswordTextBox txtNewPassword;
 
     @UiField
-    TextBox txtRepPassword;
+    PasswordTextBox txtRepPassword;
 
     private ZicoRequestFactory rf;
     private String username;
@@ -61,7 +62,7 @@ public class PasswordChangeDialog implements IsPopupWindow {
 
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         window.setCaption("Change password");
-        window.resizeAndCenter(300, 115);
+        window.resizeAndCenter(300, 125);
     }
 
     @UiHandler("btnOk")
