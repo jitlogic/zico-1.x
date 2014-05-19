@@ -1,0 +1,44 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .bar {
+            display: flex;
+            border-top: 1px solid #ccc;
+            align-items: center;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+        .text {
+            flex: 10;
+            text-align: center;
+            padding-left: 8px;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+        .cmd {
+            flex: 0 1 auto;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-left: 8px;
+            padding-right: 8px;
+            cursor: pointer;
+        }
+        .cmd-link {
+            color: blue;
+            cursor: pointer;
+        }
+    </ui:style>
+    <g:HTMLPanel>
+        <div class="{style.bar}">
+            <div class="{style.text}" ui:field="lblText"/>
+            <div class="{style.cmd}">
+                <g:Hyperlink styleName="{style.cmd-link}" ui:field="lnkCommand"/>
+            </div>
+        </div>
+    </g:HTMLPanel>
+</ui:UiBinder>

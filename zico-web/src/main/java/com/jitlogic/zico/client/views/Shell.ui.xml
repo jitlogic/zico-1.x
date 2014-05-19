@@ -1,0 +1,93 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:z="urn:import:com.jitlogic.zico.client.views"
+             xmlns:zh="urn:import:com.jitlogic.zico.client.views.hosts">
+
+    <ui:style>
+        .interior {
+            margin-left:  2px;
+            margin-right: 2px;
+        }
+        .toolbar {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+            align-items: center;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+        .toolitem {
+            flex: 0 1 auto;
+            padding-top: 4px;
+            padding-bottom: 4px;
+            padding-left: 8px;
+            padding-right: 8px;
+            color: #666;
+            cursor: pointer;
+        }
+        .toolitem a {
+            color: #666;
+            text-decoration: none;
+        }
+        .toolitem:hover {
+            background: #eef;
+        }
+        .toolfill {
+            flex: 10;
+            text-align: center;
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel unit="PX">
+        <g:north size="24">
+            <g:HTMLPanel>
+                <div class="{style.toolbar}">
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkManageUsers">Manage Users</g:Hyperlink>
+                    </div>
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkBackupConfig">Backup Config</g:Hyperlink>
+                    </div>
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkTraceTemplates">Trace Display Templates</g:Hyperlink>
+                    </div>
+                    <div class="{style.toolfill}">
+                        <g:Label>ZICO 1.0.3</g:Label>
+                    </div>
+                    <div class="{style.toolitem}">
+                        <g:Hyperlink ui:field="lnkChangePassword">Change password</g:Hyperlink>
+                    </div>
+                    <div class="{style.toolitem}">
+                        <a href="logout">Log out</a>
+                    </div>
+                </div>
+            </g:HTMLPanel>
+        </g:north>
+        <g:south size="24">
+            <g:HTMLPanel>
+                <z:StatusBar ui:field="statusBar"/>
+            </g:HTMLPanel>
+        </g:south>
+        <g:center>
+            <g:SplitLayoutPanel addStyleNames="{style.interior}">
+                <g:west size="256">
+                    <zh:HostListPanel ui:field="hostListPanel"/>
+                </g:west>
+                <g:center>
+                    <g:TabLayoutPanel barHeight="26" ui:field="tabPanel">
+                        <g:tab>
+                            <g:header>Welcome</g:header>
+                            <z:WelcomeView ui:field="welcomeView"/>
+                        </g:tab>
+                    </g:TabLayoutPanel>
+                </g:center>
+            </g:SplitLayoutPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

@@ -1,0 +1,151 @@
+
+@def selCellColor #bbbbbb;
+
+
+@def selectionBorderWidth 2px;
+.dataGridWidget {
+
+}
+
+.dataGridFirstColumn {
+
+}
+
+.dataGridLastColumn {
+
+}
+
+.dataGridFooter {
+    border-top: 2px solid #6f7277;
+    padding: 3px 15px;
+    text-align: left;
+    color: #4b4a4a;
+    text-shadow: #ddf 1px 1px 0;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.dataGridHeader {
+     font-family: tahoma,arial,verdana,sans-serif;
+     font-size: 11px;
+     font-weight: normal;
+     color: black;
+     text-align: center;
+     text-shadow: none;
+     border: 1px solid #ccc;
+     margin-left: -1px;
+     border-radius: 0;
+}
+
+
+.dataGridCell {
+     font-family: tahoma,arial,verdana,sans-serif;
+     font-size: 11px;
+     padding: 2px 13px;
+     overflow: hidden;
+     white-space: nowrap;
+     vertical-align: top;
+     -moz-user-select: none;
+     -webkit-user-select: none;
+     -khtml-user-select: none;
+     user-select: none;
+     -ms-user-select: none;
+}
+
+.dataGridFirstColumnFooter {
+
+}
+
+.dataGridFirstColumnHeader {
+     border-bottom: 1px solid #C0C0C0;
+}
+
+
+.dataGridLastColumnFooter {
+
+}
+
+.dataGridLastColumnHeader {
+     border-bottom: 1px solid #C0C0C0;
+}
+
+.dataGridSortableHeader {
+    cursor: pointer;
+    cursor: hand;
+}
+
+.dataGridSortableHeader:hover {
+    color: #6c6b6b;
+}
+
+.dataGridSortedHeaderAscending {
+
+}
+
+.dataGridSortedHeaderDescending {
+
+}
+
+.dataGridEvenRow {
+     background: #ffffff;
+     cursor: default;
+}
+
+.dataGridEvenRow:hover {
+    background: #eef;
+}
+
+.dataGridEvenRowCell {
+     border: none;
+}
+
+.dataGridOddRow {
+     background: #ffffff;
+     cursor: default;
+}
+
+.dataGridOddRow:hover {
+    background: #eef;
+}
+
+.dataGridOddRowCell {
+     border: none;
+}
+
+.dataGridHoveredRow {
+    background: #eef;
+}
+
+.dataGridHoveredRowCell {
+     border: none;
+}
+
+.dataGridKeyboardSelectedRow {
+    background: #ffc;
+}
+
+.dataGridKeyboardSelectedRowCell {
+     border: none;
+}
+
+.dataGridSelectedRow {
+     background: #cce;
+     color: black;
+     height: auto;
+     overflow: auto;
+}
+
+.dataGridSelectedRow:hover {
+    background: #cce;
+    color: black;
+}
+
+.dataGridSelectedRowCell {
+     border: none;
+}
+
+.dataGridKeyboardSelectedCell {
+    border: none;
+}
+
+

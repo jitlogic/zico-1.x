@@ -1,0 +1,40 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
+    <g:DockLayoutPanel unit="PX" styleName="{wres.formCss.form}">
+        <g:center>
+            <g:HTMLPanel>
+                <table>
+                    <tr>
+                        <td>Username:</td>
+                        <td><g:TextBox ui:field="txtUsername"/></td>
+                    </tr>
+                    <tr>
+                        <td>Real name:</td>
+                        <td><g:TextBox ui:field="txtRealName"/></td>
+                    </tr>
+                    <tr>
+                        <td>Admin role:</td>
+                        <td><g:CheckBox ui:field="chkIsAdmin"/></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">Hosts allowed:</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <g:ScrollPanel height="200px">
+                                <g:VerticalPanel ui:field="hostList"/>
+                            </g:ScrollPanel>
+                        </td>
+                    </tr>
+                </table>
+            </g:HTMLPanel>
+        </g:center>
+        <g:south size="42">
+            <g:FlowPanel styleName="{wres.formCss.btnline}">
+                <g:Button ui:field="btnOk">OK</g:Button>
+                <g:Button ui:field="btnCancel">Cancel</g:Button>
+            </g:FlowPanel>
+        </g:south>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

@@ -1,0 +1,59 @@
+
+.form {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default;
+}
+
+.form button, .form select, .form input {
+    border: 1px solid #ccc;
+    background: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.form button:hover, .form select:hover, .form input:hover {
+    border: 1px solid #777;
+}
+
+.form button:hover, .form select:hover {
+    background: #eef;
+}
+
+.form input {
+    cursor: text;
+}
+
+.line {
+    display: flex;
+    padding: 2px;
+}
+.fill {
+    flex: 10;
+    margin-left: 4px;
+    margin-right: 4px;
+}
+.item {
+    flex: 0 1 auto;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.btnline {
+    display: flex;
+    padding: 6px;
+    justify-content: space-around;
+}
+
+.btnline button {
+    min-width: 64px;
+}
+
+.msgbox {
+    padding-top: 24px;
+    text-align: center;
+}

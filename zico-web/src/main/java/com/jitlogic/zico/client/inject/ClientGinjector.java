@@ -18,11 +18,11 @@ package com.jitlogic.zico.client.inject;
 
 import com.google.gwt.inject.client.GinModules;
 import com.google.gwt.inject.client.Ginjector;
-import com.jitlogic.zico.client.ZicoShell;
+import com.jitlogic.zico.client.views.Shell;
 
 @GinModules(ClientModule.class)
 public interface ClientGinjector extends Ginjector {
 
-    ZicoShell getShell();
+    Shell getShell();
 
 }

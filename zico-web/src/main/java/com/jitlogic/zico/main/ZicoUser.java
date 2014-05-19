@@ -15,10 +15,11 @@
  */
 package com.jitlogic.zico.main;
 
-import org.mortbay.jetty.security.Credential;
-import java.security.Principal;
+import org.eclipse.jetty.util.security.Credential;
 
-public class ZicoUser implements Principal {
+import java.io.Serializable;
+
+public class ZicoUser implements Serializable {
 
     private String username;
     private Credential credential;
@@ -30,7 +31,6 @@ public class ZicoUser implements Principal {
         this.admin = admin;
     }
 
-    @Override
     public String getName() {
         return username;
     }
@@ -50,4 +50,5 @@ public class ZicoUser implements Principal {
     public synchronized boolean authenticate(Object pass) {
         return credential.check(pass);
     }
+
 }

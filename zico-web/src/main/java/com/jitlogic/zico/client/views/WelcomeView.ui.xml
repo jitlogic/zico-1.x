@@ -1,0 +1,32 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:style>
+        .panel {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+        }
+        .footer {
+            padding-top: 40px;
+            color: #777;
+            text-align: center;
+        }
+    </ui:style>
+    <g:HTMLPanel styleName="{style.panel}">
+        <div>
+            <div>
+                <img draggable="false" src="ZORKA_LOGO.png"/>
+            </div>
+            <div class="{style.footer}">
+                Double click on a host on left pane to open trace list.
+            </div>
+        </div>
+
+    </g:HTMLPanel>
+</ui:UiBinder>

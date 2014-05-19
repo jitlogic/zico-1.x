@@ -23,20 +23,24 @@ import javax.servlet.http.HttpServletRequest;
 @Singleton
 public class UserHttpContext implements UserContext {
 
+    private boolean anonymousMode;
     private Provider<HttpServletRequest> req;
 
     @Inject
-    public UserHttpContext(Provider<HttpServletRequest> req) {
+    public UserHttpContext(Provider<HttpServletRequest> req, ZicoConfig config) {
+        this.anonymousMode = config.boolCfg("zico.anonymous", false);
         this.req = req;
     }
 
     @Override
     public String getUser() {
+        if (anonymousMode) { return "anonymous"; };
         return req.get().getRemoteUser();
     }
 
     @Override
     public boolean isInRole(String role) {
+        if (anonymousMode) { return true; }
         HttpServletRequest r = req.get();
         return r != null ?  r.isUserInRole(role) : true;
     }

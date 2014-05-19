@@ -21,9 +21,9 @@ public class ZicoHelpCommand implements ZicoCommand {
     @Override
     public void run(String[] args) throws Exception {
         System.err.println("Available commands:\n"
-            + "    help     - print this help"
-            + "    check <home> <host1> [<host2> ...] - check and reindex host data stores"
-            + "    serve    - run ZICO server");
+            + "    help     - print this help\n"
+            + "    check <home> [<host1> [<host2> ...]] - check and reindex host data stores\n"
+            );
     }
 
 }

@@ -1,0 +1,35 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:gc='urn:import:com.google.gwt.user.cellview.client'>
+
+    <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
+
+    <ui:style>
+        .attrname {
+            padding-top:  4px;
+            padding-left: 6px;
+        }
+        .attrval {
+            resize: none;
+            left: 5px;
+            width: 995px;
+            height: 717px;
+        }
+    </ui:style>
+
+    <g:DockLayoutPanel unit="PX" ui:field="container" styleName="{wres.formCss.form}">
+        <g:west size="200">
+            <gc:DataGrid ui:field="attrGrid"/>
+        </g:west>
+        <g:center>
+            <g:DockLayoutPanel unit="PX">
+                <g:north size="24">
+                    <g:Label ui:field="lblAttrName" styleName="{style.attrname}">Selected Attribute:</g:Label>
+                </g:north>
+                <g:center>
+                    <g:TextArea ui:field="txtAttrVal" styleName="{style.attrval}" readOnly="true">Please wait...</g:TextArea>
+                </g:center>
+            </g:DockLayoutPanel>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

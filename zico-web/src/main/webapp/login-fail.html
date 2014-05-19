@@ -3,35 +3,70 @@
 <head>
     <title>Login failed.</title>
     <style type="text/css">
-        #login-table {
-            margin-top: 250px;
+        html, body, form {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            cursor: default;
+        }
+        .container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .login-box {
+            border: 1px solid #ccc;
+            border-radius: 16px;
+            padding: 32px;
+            width: 512px;
+            align-self: center;
+            font-family: Tahoma, Arial, Verdana, sans-serif;
+            color: #777;
+        }
+        .login-box .line {
+            display: flex;
             margin-left: auto;
             margin-right: auto;
-            margin-bottom: auto;
+            margin-bottom: 8px;
+            justify-content: center;
         }
-
-        #login-fail {
+        .login-box h1 {
             color: red;
-            font-family: Georgia, Arial, Times;
+            margin-top: 0;
         }
-
-        .login-label {
-            font-family: Georgia, Arial, Times;
+        .login-box a {
+            text-decoration: none;
+            color: #555;
+            cursor: pointer;
+            padding: 4px;
+            border: 1px solid #eee;
+            border-radius: 3px;
+        }
+        .login-box a:hover {
+            border: 1px solid #ccc;
+            background: #eee;
         }
     </style>
 </head>
 <body>
-<table border="0" cellspacing="2" cellpadding="1" id="login-table">
-    <tr>
-        <td align="center">
-            <h1 id="login-fail">Login failed.</h1>
-        </td>
-    </tr>
-    <tr>
-        <td align="center">
-            <a href="login.html" class="login-label">Click here to try again.</a>
-        </td>
-    </tr>
-</table>
+<div class="container">
+    <div class="login-box">
+        <div class="line">
+            <h1>Login failed</h1>
+        </div>
+        <div class="line">
+            <a href="login.html">Click here to try again</a>
+        </div>
+    </div>
+</div>
 </body>
 </html>

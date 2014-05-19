@@ -1,0 +1,40 @@
+
+.btn {
+    border: 1px solid transparent;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background-color: #e0e4ff;
+    border: 1px solid #a690ee;
+    border-radius: 2px;
+}
+
+.down {
+    background-color: #e0e4ff;
+    border: 1px solid #a690ee;
+    border-radius: 2px;
+}
+
+.disabled {
+    color: gray;
+    background-color: white;
+    cursor: default;
+}
+
+.disabled:hover {
+    background-color: white;
+    border: 1px solid transparent;
+}
+
+.disabled img {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: gray;
+    filter: grayscale(100%);
+    opacity: 0.4;
+}
+

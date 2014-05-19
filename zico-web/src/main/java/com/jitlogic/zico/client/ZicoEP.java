@@ -19,13 +19,24 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.RootLayoutPanel;
+
 import com.jitlogic.zico.client.inject.ClientGinjector;
+import com.jitlogic.zico.client.resources.Resources;
+import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
+import com.jitlogic.zico.client.views.Shell;
+import com.jitlogic.zico.client.widgets.WidgetResources;
 
 
 public class ZicoEP implements EntryPoint {
 
-    private ZicoShell shell;
+    static {
+        ZicoDataGridResources.INSTANCE.dataGridStyle().ensureInjected();
+        WidgetResources.INSTANCE.formCss().ensureInjected();
+        Resources.INSTANCE.zicoCssResources().ensureInjected();
+    }
+
+    private Shell shell;
     private ClientGinjector injector = GWT.create(ClientGinjector.class);
 
     public void onModuleLoad() {
@@ -36,7 +47,7 @@ public class ZicoEP implements EntryPoint {
                 Window.enableScrolling(false);
                 shell = injector.getShell();
 
-                RootPanel.get().add(shell);
+                RootLayoutPanel.get().add(shell);
                 onReady();
             }
         });
