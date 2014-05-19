@@ -149,7 +149,7 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
 
     @UiHandler("btnGoTo")
     void clickGoTo(ClickEvent e) {
-        doSearch();
+        doGoTo();
     }
 
     private static final ProvidesKey<TraceRecordProxy> KEY_PROVIDER = new ProvidesKey<TraceRecordProxy>() {

@@ -58,7 +58,7 @@
                         <g:Hyperlink ui:field="lnkTraceTemplates">Trace Display Templates</g:Hyperlink>
                     </div>
                     <div class="{style.toolfill}">
-                        <g:Label>ZICO 1.0.3-SNAPSHOT</g:Label>
+                        <g:Label>ZICO 1.0.3</g:Label>
                     </div>
                     <div class="{style.toolitem}">
                         <g:Hyperlink ui:field="lnkChangePassword">Change password</g:Hyperlink>
