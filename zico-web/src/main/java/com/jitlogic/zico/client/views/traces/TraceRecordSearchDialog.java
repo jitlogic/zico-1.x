@@ -129,7 +129,7 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
 
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         window.setCaption("Search for methods");
-        window.resizeAndCenter(1200, 700);
+        window.resizeAndCenter(900, 600);
 
         txtSearchFilter.addKeyDownHandler(new KeyDownHandler() {
             @Override

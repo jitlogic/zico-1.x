@@ -31,6 +31,7 @@ import com.jitlogic.zico.client.ClientUtil;
 import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
+import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
 import com.jitlogic.zico.shared.data.MethodRankInfoProxy;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
 
@@ -69,7 +70,7 @@ public class MethodRankingPanel extends DockLayoutPanel {
 
     private void createRankingGrid() {
 
-        rankGrid = new DataGrid<MethodRankInfoProxy>(1024*1024, KEY_PROVIDER);
+        rankGrid = new DataGrid<MethodRankInfoProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selectionModel = new SingleSelectionModel<MethodRankInfoProxy>(KEY_PROVIDER);
         rankGrid.setSelectionModel(selectionModel);
 

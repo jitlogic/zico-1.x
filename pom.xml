@@ -37,6 +37,7 @@
         <logback.version>1.1.2</logback.version>
         <mapdb.version>1.0.1</mapdb.version>
         <parboiled.version>1.1.6</parboiled.version>
+        <servlet.version>2.4</servlet.version>
         <slf4j.version>1.7.7</slf4j.version>
         <zoola.version>0.1.0</zoola.version>
     </properties>

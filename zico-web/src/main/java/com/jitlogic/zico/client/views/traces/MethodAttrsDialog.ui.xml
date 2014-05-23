@@ -12,8 +12,8 @@
         .attrval {
             resize: none;
             left: 5px;
-            width: 995px;
-            height: 717px;
+            width: 695px;
+            height: 567px;
         }
     </ui:style>
 

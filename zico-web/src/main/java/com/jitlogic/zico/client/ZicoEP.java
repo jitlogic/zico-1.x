@@ -40,23 +40,13 @@ public class ZicoEP implements EntryPoint {
     private ClientGinjector injector = GWT.create(ClientGinjector.class);
 
     public void onModuleLoad() {
-
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
             @Override
             public void execute() {
                 Window.enableScrolling(false);
                 shell = injector.getShell();
-
                 RootLayoutPanel.get().add(shell);
-                onReady();
             }
         });
     }
-
-
-    private native void onReady() /*-{
-        if (typeof $wnd.GxtReady != 'undefined') {
-            $wnd.GxtReady();
-        }
-    }-*/;
 }

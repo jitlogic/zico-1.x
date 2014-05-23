@@ -87,7 +87,7 @@ public class MethodAttrsDialog implements IsPopupWindow {
         window = new PopupWindow(uiBinder.createAndBindUi(this));
 
         window.setCaption("Trace Details");
-        window.resizeAndCenter(1200, 750);
+        window.resizeAndCenter(900, 600);
 
         loadTraceDetail(hostName, dataOffs, path, minTime);
     }
