@@ -13,31 +13,43 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.core.model;
+package com.jitlogic.zico.shared.data;
 
 
-import com.jitlogic.zorka.common.util.ZorkaUtil;
-
-import java.util.Date;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class TraceInfoSearchQuery {
 
+    public static final int ORDER_DESC  = 0x0001;
+    public static final int DEEP_SEARCH = 0x0002;
+    public static final int ERRORS_ONLY = 0x0004;
+    public static final int EQL_QUERY   = 0x0008;
+
+    @JsonProperty
     private int seq;
 
+    @JsonProperty
     private String hostName;
 
+    @JsonProperty
     private int flags;
 
+    @JsonProperty
     private long offset;
 
+    @JsonProperty
     private int limit;
 
+    @JsonProperty
     private String traceName;
 
+    @JsonProperty
     private long minMethodTime;
 
+    @JsonProperty
     private String searchExpr;
 
+    @JsonProperty
     private long sinceDate;
 
 
@@ -134,24 +146,4 @@ public class TraceInfoSearchQuery {
         this.sinceDate = sinceDate;
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof TraceInfoSearchQuery
-                && ZorkaUtil.objEquals(((TraceInfoSearchQuery) obj).hostName, hostName)
-                && ((TraceInfoSearchQuery) obj).offset == offset
-                && ((TraceInfoSearchQuery) obj).minMethodTime == minMethodTime;
-    }
-
-
-    @Override
-    public int hashCode() {
-        return 31 * hostName.hashCode() + 17 * (int) offset + 19 * (int) minMethodTime;
-    }
-
-
-    @Override
-    public String toString() {
-        return "TraceSearchQuery(" + hostName.hashCode() + "," + offset + "," + minMethodTime + ")";
-    }
 }

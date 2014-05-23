@@ -39,13 +39,13 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
+import com.jitlogic.zico.client.api.TraceTemplateService;
 import com.jitlogic.zico.client.widgets.*;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
-import com.jitlogic.zico.shared.data.TraceTemplateProxy;
+import com.jitlogic.zico.shared.data.TraceTemplateInfo;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -72,13 +72,13 @@ public class TraceTemplatePanel extends Composite {
     ToolButton btnRemove;
 
     @UiField(provided = true)
-    DataGrid<TraceTemplateProxy> templateGrid;
+    DataGrid<TraceTemplateInfo> templateGrid;
 
 
-    private ListDataProvider<TraceTemplateProxy> templateStore;
-    private SingleSelectionModel<TraceTemplateProxy> selectionModel;
+    private ListDataProvider<TraceTemplateInfo> templateStore;
+    private SingleSelectionModel<TraceTemplateInfo> selectionModel;
 
-    private ZicoRequestFactory rf;
+    private TraceTemplateService templateService;
 
     private PopupMenu contextMenu;
 
@@ -87,10 +87,10 @@ public class TraceTemplatePanel extends Composite {
     private final static String MDS = "TraceTemplatePanel";
 
     @Inject
-    public TraceTemplatePanel(ZicoRequestFactory rf, MessageDisplay md) {
+    public TraceTemplatePanel(TraceTemplateService templateService, MessageDisplay md) {
 
+        this.templateService = templateService;
         this.md = md;
-        this.rf = rf;
 
         createTemplateListGrid();
         ourUiBinder.createAndBindUi(this);
@@ -102,61 +102,61 @@ public class TraceTemplatePanel extends Composite {
     }
 
 
-    private final static ProvidesKey<TraceTemplateProxy> KEY_PROVIDER = new ProvidesKey<TraceTemplateProxy>() {
+    private final static ProvidesKey<TraceTemplateInfo> KEY_PROVIDER = new ProvidesKey<TraceTemplateInfo>() {
         @Override
-        public Object getKey(TraceTemplateProxy item) {
+        public Object getKey(TraceTemplateInfo item) {
             return item.getId();
         }
     };
 
 
-    private final static Cell<TraceTemplateProxy> ORDER_CELL = new AbstractCell<TraceTemplateProxy>() {
+    private final static Cell<TraceTemplateInfo> ORDER_CELL = new AbstractCell<TraceTemplateInfo>() {
         @Override
-        public void render(Context context, TraceTemplateProxy value, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceTemplateInfo value, SafeHtmlBuilder sb) {
             sb.append(SafeHtmlUtils.fromString(""+value.getOrder()));
         }
     };
 
 
-    private final static Cell<TraceTemplateProxy> CONDITION_CELL = new AbstractCell<TraceTemplateProxy>() {
+    private final static Cell<TraceTemplateInfo> CONDITION_CELL = new AbstractCell<TraceTemplateInfo>() {
         @Override
-        public void render(Context context, TraceTemplateProxy value, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceTemplateInfo value, SafeHtmlBuilder sb) {
             sb.append(SafeHtmlUtils.fromString(""+value.getCondition()));
         }
     };
 
 
-    private final static Cell<TraceTemplateProxy> TEMPLATE_CELL = new AbstractCell<TraceTemplateProxy>() {
+    private final static Cell<TraceTemplateInfo> TEMPLATE_CELL = new AbstractCell<TraceTemplateInfo>() {
         @Override
-        public void render(Context context, TraceTemplateProxy value, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceTemplateInfo value, SafeHtmlBuilder sb) {
             sb.append(SafeHtmlUtils.fromString(""+value.getTemplate()));
         }
     };
 
 
     private void createTemplateListGrid() {
-        templateGrid = new DataGrid<TraceTemplateProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
-        selectionModel = new SingleSelectionModel<TraceTemplateProxy>(KEY_PROVIDER);
+        templateGrid = new DataGrid<TraceTemplateInfo>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
+        selectionModel = new SingleSelectionModel<TraceTemplateInfo>(KEY_PROVIDER);
         templateGrid.setSelectionModel(selectionModel);
 
-        Column<TraceTemplateProxy,TraceTemplateProxy> colOrder = new IdentityColumn<TraceTemplateProxy>(ORDER_CELL);
-        templateGrid.addColumn(colOrder, new ResizableHeader<TraceTemplateProxy>("Order", templateGrid, colOrder));
+        Column<TraceTemplateInfo,TraceTemplateInfo> colOrder = new IdentityColumn<TraceTemplateInfo>(ORDER_CELL);
+        templateGrid.addColumn(colOrder, new ResizableHeader<TraceTemplateInfo>("Order", templateGrid, colOrder));
         templateGrid.setColumnWidth(colOrder, 80, Style.Unit.PX);
 
-        Column<TraceTemplateProxy,TraceTemplateProxy> colCondition = new IdentityColumn<TraceTemplateProxy>(CONDITION_CELL);
-        templateGrid.addColumn(colCondition, new ResizableHeader<TraceTemplateProxy>("Condition", templateGrid, colCondition));
+        Column<TraceTemplateInfo,TraceTemplateInfo> colCondition = new IdentityColumn<TraceTemplateInfo>(CONDITION_CELL);
+        templateGrid.addColumn(colCondition, new ResizableHeader<TraceTemplateInfo>("Condition", templateGrid, colCondition));
         templateGrid.setColumnWidth(colCondition, 250, Style.Unit.PX);
 
-        Column<TraceTemplateProxy,TraceTemplateProxy> colTemplate = new IdentityColumn<TraceTemplateProxy>(TEMPLATE_CELL);
+        Column<TraceTemplateInfo,TraceTemplateInfo> colTemplate = new IdentityColumn<TraceTemplateInfo>(TEMPLATE_CELL);
         templateGrid.addColumn(colTemplate, "Description Template");
         templateGrid.setColumnWidth(colTemplate, 100, Style.Unit.PCT);
 
-        templateStore = new ListDataProvider<TraceTemplateProxy>(KEY_PROVIDER);
+        templateStore = new ListDataProvider<TraceTemplateInfo>(KEY_PROVIDER);
         templateStore.addDataDisplay(templateGrid);
 
-        templateGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceTemplateProxy>() {
+        templateGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceTemplateInfo>() {
             @Override
-            public void onCellPreview(CellPreviewEvent<TraceTemplateProxy> event) {
+            public void onCellPreview(CellPreviewEvent<TraceTemplateInfo> event) {
                 NativeEvent nev = event.getNativeEvent();
                 String eventType = nev.getType();
                 if ((BrowserEvents.KEYDOWN.equals(eventType) && nev.getKeyCode() == KeyCodes.KEY_ENTER)
@@ -239,36 +239,41 @@ public class TraceTemplatePanel extends Composite {
 
 
     @UiHandler("btnEdit")
-    void editTemplate(ClickEvent e) {
-        TraceTemplateProxy tti = selectionModel.getSelectedObject();
+    void editTemplate(ClickEvent _) {
+        TraceTemplateInfo tti = selectionModel.getSelectedObject();
         if (tti != null) {
-            new TraceTemplateEditDialog(rf, this, tti, md).asPopupWindow().show();
+            new TraceTemplateEditDialog(templateService, this, tti, md).asPopupWindow().show();
         }
     }
 
 
     @UiHandler("btnAdd")
-    void addTemplate(ClickEvent e) {
-        new TraceTemplateEditDialog(rf, this, null, md).asPopupWindow().show();
+    void addTemplate(ClickEvent _) {
+        new TraceTemplateEditDialog(templateService, this, null, md).asPopupWindow().show();
     }
 
 
     @UiHandler("btnRemove")
-    void removeTemplate(ClickEvent e) {
-        final TraceTemplateProxy template = selectionModel.getSelectedObject();
+    void removeTemplate(ClickEvent _) {
+        final TraceTemplateInfo template = selectionModel.getSelectedObject();
         if (template != null) {
             ConfirmDialog dialog = new ConfirmDialog("Removing template", "Remove template ?")
                     .withBtn("Yes", new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
-                            rf.systemService().removeTemplate(template.getId()).fire(
-                                    new Receiver<Void>() {
-                                        @Override
-                                        public void onSuccess(Void response) {
-                                            refreshTemplates(null);
-                                        }
-                                    });
+                            md.info(MDS, "Removing template...");
+                            templateService.delete(template.getId(), new MethodCallback<Void>() {
+                                @Override
+                                public void onFailure(Method method, Throwable e) {
+                                    md.error(MDS, "Error removing template", e);
+                                }
 
+                                @Override
+                                public void onSuccess(Method method, Void response) {
+                                    md.clear(MDS);
+                                    refreshTemplates(null);
+                                }
+                            });
                         }
                     }).withBtn("No");
             dialog.show();
@@ -277,25 +282,26 @@ public class TraceTemplatePanel extends Composite {
 
 
     @UiHandler("btnRefresh")
-    public void refreshTemplates(ClickEvent e) {
+    public void refreshTemplates(ClickEvent _) {
         md.info(MDS, "Loading trace display templates");
-        rf.systemService().listTemplates().fire(new Receiver<List<TraceTemplateProxy>>() {
+        templateService.list(new MethodCallback<List<TraceTemplateInfo>>() {
             @Override
-            public void onSuccess(List<TraceTemplateProxy> response) {
-                Collections.sort(response, new Comparator<TraceTemplateProxy>() {
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error loading trace templates: ", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, List<TraceTemplateInfo> response) {
+                Collections.sort(response, new Comparator<TraceTemplateInfo>() {
                     @Override
-                    public int compare(TraceTemplateProxy o1, TraceTemplateProxy o2) {
+                    public int compare(TraceTemplateInfo o1, TraceTemplateInfo o2) {
                         return o1.getOrder() - o2.getOrder();
                     }
                 });
                 templateStore.getList().clear();
                 templateStore.getList().addAll(response);
                 md.clear(MDS);
-            }
 
-            @Override
-            public void onFailure(ServerFailure e) {
-                md.error(MDS, "Error loading trace templates: ", e);
             }
         });
     }

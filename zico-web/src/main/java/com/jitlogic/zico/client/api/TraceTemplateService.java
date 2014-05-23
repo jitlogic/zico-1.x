@@ -13,26 +13,32 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.shared.data;
 
-import com.google.web.bindery.requestfactory.shared.ProxyFor;
-import com.google.web.bindery.requestfactory.shared.ValueProxy;
+package com.jitlogic.zico.client.api;
 
+import com.jitlogic.zico.shared.data.TraceTemplateInfo;
+import org.fusesource.restygwt.client.MethodCallback;
+
+import javax.ws.rs.*;
 import java.util.List;
 
-@ProxyFor(TraceRecordSearchResult.class)
-public interface TraceRecordSearchResultProxy extends ValueProxy {
-    List<TraceRecordProxy> getResult();
+public interface TraceTemplateService {
 
-    double getSumPct();
+    @GET
+    @Path("templates")
+    void list(MethodCallback<List<TraceTemplateInfo>> cb);
 
-    double getRecurPct();
 
-    long getSumTime();
+    @PUT
+    @Path("users/{tid}")
+    void update(@PathParam("tid") int tid, TraceTemplateInfo ti, MethodCallback<Void> cb);
 
-    long getRecurTime();
 
-    long getMinTime();
+    @POST
+    @Path("templates")
+    void create(TraceTemplateInfo ti, MethodCallback<Void> cb);
 
-    long getMaxTime();
+
+    @DELETE @Path("templates/{tid}")
+    void delete(@PathParam("tid") int tid, MethodCallback<Void> cb);
 }

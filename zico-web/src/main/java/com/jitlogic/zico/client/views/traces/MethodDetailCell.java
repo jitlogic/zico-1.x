@@ -20,11 +20,11 @@ import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.shared.data.KeyValueProxy;
-import com.jitlogic.zico.shared.data.SymbolicExceptionProxy;
-import com.jitlogic.zico.shared.data.TraceRecordProxy;
+import com.jitlogic.zico.shared.data.KeyValuePair;
+import com.jitlogic.zico.shared.data.SymbolicExceptionInfo;
+import com.jitlogic.zico.shared.data.TraceRecordInfo;
 
-public class MethodDetailCell extends AbstractCell<TraceRecordProxy> {
+public class MethodDetailCell extends AbstractCell<TraceRecordInfo> {
 
     private String methodAttributeKey = Resources.INSTANCE.zicoCssResources().methodAttributeKey();
     private String methodAttributeVal = Resources.INSTANCE.zicoCssResources().methodAttributeVal();
@@ -33,10 +33,10 @@ public class MethodDetailCell extends AbstractCell<TraceRecordProxy> {
     private String methodErrorStack = Resources.INSTANCE.zicoCssResources().methodErrorStack();
 
     @Override
-    public void render(Context context, TraceRecordProxy tr, SafeHtmlBuilder sb) {
+    public void render(Context context, TraceRecordInfo tr, SafeHtmlBuilder sb) {
         if (tr.getAttributes() != null) {
             sb.appendHtmlConstant("<table border=\"0\" cellspacing=\"2\"><tbody>");
-            for (KeyValueProxy e : tr.getAttributes()) {
+            for (KeyValuePair e : tr.getAttributes()) {
                 sb.appendHtmlConstant("<tr><td align=\"right\" class=\"" + methodAttributeKey + "\"><b>");
                 sb.append(SafeHtmlUtils.fromString(e.getKey()));
                 sb.appendHtmlConstant("</b></td><td><div class=\"" + methodAttributeVal + "\">");
@@ -46,7 +46,7 @@ public class MethodDetailCell extends AbstractCell<TraceRecordProxy> {
             sb.appendHtmlConstant("</tbody></table>");
         }
         if (tr.getExceptionInfo() != null) {
-            SymbolicExceptionProxy e = tr.getExceptionInfo();
+            SymbolicExceptionInfo e = tr.getExceptionInfo();
             sb.appendHtmlConstant("<div class=\"" + methodErrorClassName + "\">");
             sb.append(SafeHtmlUtils.fromString("Caught: " + e.getExClass()));
             sb.appendHtmlConstant("</div>");

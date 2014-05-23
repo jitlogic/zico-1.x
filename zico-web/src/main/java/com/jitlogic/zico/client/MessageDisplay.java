@@ -29,5 +29,7 @@ public interface MessageDisplay {
 
     void error(String source, String msg, ServerFailure e);
 
+    void error(String source, String msg, Throwable e);
+
     void clear(String source);
 }

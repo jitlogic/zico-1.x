@@ -23,8 +23,15 @@ import com.google.inject.Provides;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.jitlogic.zico.client.MessageDisplay;
+import com.jitlogic.zico.client.api.HostService;
+import com.jitlogic.zico.client.api.SystemService;
+import com.jitlogic.zico.client.api.TraceDataService;
+import com.jitlogic.zico.client.api.TraceTemplateService;
 import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.views.StatusBar;
+import com.jitlogic.zico.core.services.UserService;
+import org.fusesource.restygwt.client.Resource;
+import org.fusesource.restygwt.client.RestServiceProxy;
 
 import javax.inject.Singleton;
 
@@ -38,11 +45,38 @@ public class ClientModule extends AbstractGinModule {
         install(new GinFactoryModuleBuilder().build(PanelFactory.class));
     }
 
-    @Provides
-    @Singleton
-    ZicoRequestFactory provideRequestFactory(EventBus bus) {
-        ZicoRequestFactory factory = GWT.create(ZicoRequestFactory.class);
-        factory.initialize(bus);
-        return factory;
+    @Provides @Singleton
+    HostService provideHostService() {
+        HostService hostService = GWT.create(HostService.class);
+        ((RestServiceProxy)hostService).setResource(new Resource(GWT.getHostPageBaseURL() + "data"));
+        return hostService;
+    }
+
+    @Provides @Singleton
+    SystemService provideSystemService() {
+        SystemService systemService = GWT.create(SystemService.class);
+        ((RestServiceProxy)systemService).setResource(new Resource(GWT.getHostPageBaseURL() + "data"));
+        return systemService;
+    }
+
+    @Provides @Singleton
+    UserService provideUserService() {
+        UserService userService = GWT.create(UserService.class);
+        ((RestServiceProxy)userService).setResource(new Resource(GWT.getHostPageBaseURL() + "data"));
+        return userService;
+    }
+
+    @Provides @Singleton
+    TraceTemplateService provideTraceTemplateService() {
+        TraceTemplateService templateService = GWT.create(TraceTemplateService.class);
+        ((RestServiceProxy)templateService).setResource(new Resource(GWT.getHostPageBaseURL() + "data"));
+        return templateService;
+    }
+
+    @Provides @Singleton
+    TraceDataService provideTraceDataService() {
+        TraceDataService traceDataService = GWT.create(TraceDataService.class);
+        ((RestServiceProxy)traceDataService).setResource(new Resource(GWT.getHostPageBaseURL() + "data"));
+        return traceDataService;
     }
 }

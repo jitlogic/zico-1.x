@@ -13,24 +13,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.core.model;
+package com.jitlogic.zico.shared.data;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
 
 public class TraceRecordSearchResult {
 
+    @JsonProperty
     List<TraceRecordInfo> result;
 
+    @JsonProperty
     double sumPct;
 
+    @JsonProperty
     double recurPct;
 
+    @JsonProperty
     long sumTime;
 
+    @JsonProperty
     long recurTime;
 
+    @JsonProperty
     long minTime;
 
+    @JsonProperty
     long maxTime;
 
     public List<TraceRecordInfo> getResult() {

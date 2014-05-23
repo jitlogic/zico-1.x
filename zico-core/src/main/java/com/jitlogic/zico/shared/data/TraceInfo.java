@@ -13,47 +13,67 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.core.model;
+package com.jitlogic.zico.shared.data;
 
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
 
 public class TraceInfo {
 
+    @JsonProperty
     String hostName;
 
+    @JsonProperty
     long dataOffs;
 
+    @JsonProperty
     int traceId;
 
+    @JsonProperty
     String traceType;
 
+    @JsonProperty
     int dataLen;
 
+    @JsonProperty
     long clock;
 
+    @JsonProperty
     int methodFlags;
 
+    @JsonProperty
     int traceFlags;
 
+    @JsonProperty
     int status;
 
+    @JsonProperty
     int classId;
 
+    @JsonProperty
     int methodId;
 
+    @JsonProperty
     int signatureId;
 
+    @JsonProperty
     long calls;
 
+    @JsonProperty
     long errors;
 
+    @JsonProperty
     long records;
 
+    @JsonProperty
     long executionTime;
 
+    @JsonProperty
     String description;
 
+    @JsonProperty
     List<KeyValuePair> attributes;
 
     SymbolicExceptionInfo exceptionInfo;

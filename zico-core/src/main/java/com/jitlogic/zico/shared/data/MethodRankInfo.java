@@ -13,27 +13,38 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.core.model;
+package com.jitlogic.zico.shared.data;
 
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class MethodRankInfo {
 
+    @JsonProperty
     long calls;
 
+    @JsonProperty
     long errors;
 
+    @JsonProperty
     long time;
 
+    @JsonProperty
     long bareTime;
 
+    @JsonProperty
     long minTime;
 
+    @JsonProperty
     long maxTime;
 
+    @JsonProperty
     long minBareTime;
 
+    @JsonProperty
     long maxBareTime;
 
+    @JsonProperty
     String method;
 
 

@@ -16,10 +16,10 @@
 package com.jitlogic.zico.core;
 
 
-import com.jitlogic.zico.core.model.MethodRankInfo;
+import com.jitlogic.zico.shared.data.MethodRankInfo;
 import com.jitlogic.zico.core.model.TraceInfoRecord;
-import com.jitlogic.zico.core.model.TraceRecordSearchQuery;
-import com.jitlogic.zico.core.model.TraceRecordSearchResult;
+import com.jitlogic.zico.shared.data.TraceRecordSearchQuery;
+import com.jitlogic.zico.shared.data.TraceRecordSearchResult;
 import com.jitlogic.zico.core.rds.RDSCleanupListener;
 import com.jitlogic.zico.core.rds.RDSStore;
 import com.jitlogic.zico.core.search.TraceRecordMatcher;

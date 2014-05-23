@@ -13,26 +13,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.jitlogic.zico.shared.data;
 
-import com.google.web.bindery.requestfactory.shared.ProxyFor;
-import com.google.web.bindery.requestfactory.shared.ValueProxy;
+import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.List;
+public class SymbolInfo {
 
-@ProxyFor(TraceRecordSearchResult.class)
-public interface TraceRecordSearchResultProxy extends ValueProxy {
-    List<TraceRecordProxy> getResult();
+    @JsonProperty
+    int id;
 
-    double getSumPct();
+    @JsonProperty
+    String name;
 
-    double getRecurPct();
+    public SymbolInfo() {
+        // TODO get rid of default constructor
+    }
 
-    long getSumTime();
+    public SymbolInfo(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 
-    long getRecurTime();
+    public int getId() {
+        return id;
+    }
 
-    long getMinTime();
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    long getMaxTime();
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 }

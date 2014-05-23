@@ -13,20 +13,24 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.core.model;
+package com.jitlogic.zico.shared.data;
 
-import com.jitlogic.zorka.common.util.ZorkaUtil;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 import java.util.List;
 
 public class SymbolicExceptionInfo {
 
+    @JsonProperty
     String exClass;
 
+    @JsonProperty
     String message;
 
+    @JsonProperty
     List<String> stackTrace;
 
+    @JsonProperty
     SymbolicExceptionInfo cause;
 
 
@@ -69,23 +73,4 @@ public class SymbolicExceptionInfo {
         this.cause = cause;
     }
 
-
-    @Override
-    public int hashCode() {
-        return exClass.hashCode() + (message != null ? message.hashCode() : 0);
-    }
-
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof SymbolicExceptionInfo
-            && ZorkaUtil.objEquals(((SymbolicExceptionInfo)obj).exClass, exClass)
-            && ZorkaUtil.objEquals(((SymbolicExceptionInfo)obj).message, message)
-            && ZorkaUtil.objEquals(((SymbolicExceptionInfo)obj).stackTrace, stackTrace);
-    }
-
-    @Override
-    public String toString() {
-        return exClass + ": " + message;
-    }
 }

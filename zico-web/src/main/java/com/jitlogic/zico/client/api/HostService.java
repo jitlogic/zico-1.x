@@ -13,26 +13,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.shared.data;
 
-import com.google.web.bindery.requestfactory.shared.ProxyFor;
-import com.google.web.bindery.requestfactory.shared.ValueProxy;
+package com.jitlogic.zico.client.api;
 
+import com.jitlogic.zico.shared.data.HostInfo;
+import org.fusesource.restygwt.client.MethodCallback;
+import org.fusesource.restygwt.client.RestService;
+
+import javax.ws.rs.*;
 import java.util.List;
 
-@ProxyFor(TraceRecordSearchResult.class)
-public interface TraceRecordSearchResultProxy extends ValueProxy {
-    List<TraceRecordProxy> getResult();
+public interface HostService extends RestService {
 
-    double getSumPct();
+    @GET @Path("hosts")
+    void list(MethodCallback<List<HostInfo>> cb);
 
-    double getRecurPct();
+    @PUT @Path("hosts/{hostname}")
+    void update(@PathParam("hostname")String hostname, HostInfo hi, MethodCallback<Void> cb);
 
-    long getSumTime();
+    @POST @Path("hosts")
+    void create(HostInfo hi, MethodCallback<Void> cb);
 
-    long getRecurTime();
-
-    long getMinTime();
-
-    long getMaxTime();
+    @DELETE @Path("hosts/{hostname}")
+    void delete(@PathParam("hostname")String hostname, MethodCallback<Void> cb);
 }

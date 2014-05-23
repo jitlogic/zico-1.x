@@ -16,13 +16,13 @@
 package com.jitlogic.zico.core;
 
 import com.jitlogic.zico.core.eql.Parser;
-import com.jitlogic.zico.core.model.KeyValuePair;
-import com.jitlogic.zico.core.model.SymbolicExceptionInfo;
-import com.jitlogic.zico.core.model.TraceInfo;
+import com.jitlogic.zico.shared.data.KeyValuePair;
+import com.jitlogic.zico.shared.data.SymbolicExceptionInfo;
+import com.jitlogic.zico.shared.data.TraceInfo;
 import com.jitlogic.zico.core.model.TraceInfoRecord;
-import com.jitlogic.zico.core.model.TraceInfoSearchQuery;
-import com.jitlogic.zico.core.model.TraceInfoSearchResult;
-import com.jitlogic.zico.core.model.TraceRecordSearchQuery;
+import com.jitlogic.zico.shared.data.TraceInfoSearchQuery;
+import com.jitlogic.zico.shared.data.TraceInfoSearchResult;
+import com.jitlogic.zico.shared.data.TraceRecordSearchQuery;
 import com.jitlogic.zico.core.rds.RAGZInputStream;
 import com.jitlogic.zico.core.rds.RAGZSegment;
 import com.jitlogic.zico.core.rds.RDSCleanupListener;
@@ -30,6 +30,7 @@ import com.jitlogic.zico.core.rds.RDSStore;
 import com.jitlogic.zico.core.search.EqlTraceRecordMatcher;
 import com.jitlogic.zico.core.search.FullTextTraceRecordMatcher;
 import com.jitlogic.zico.core.search.TraceRecordMatcher;
+import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zico.shared.data.HostProxy;
 import com.jitlogic.zico.shared.data.TraceInfoSearchQueryProxy;
 import com.jitlogic.zico.shared.data.TraceInfoSearchResultProxy;
@@ -775,6 +776,14 @@ public class HostStore implements Closeable, RDSCleanupListener {
         }
     }
 
+    public synchronized void update(HostInfo hi) {
+        setAddr(hi.getAddr());
+        setComment(hi.getComment());
+        setMaxSize(hi.getMaxSize());
+        setGroup(hi.getGroup());
+        setComment(hi.getComment());
+        setEnabled(hi.isEnabled());
+    }
 
 }
 

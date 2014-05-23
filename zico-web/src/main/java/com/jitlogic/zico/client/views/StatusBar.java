@@ -114,6 +114,11 @@ public class StatusBar extends Composite implements MessageDisplay {
         message(source, MessageType.ERROR, msg + " " + e.getMessage());
     }
 
+    @Override
+    public void error(String source, String msg, Throwable e) {
+        message(source, MessageType.ERROR, msg + " " + e.getMessage());
+    }
+
 
     public void message(String source, MessageType type, String msg) {
         message(source, type, msg, null, null);

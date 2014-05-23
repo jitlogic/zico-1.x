@@ -41,21 +41,19 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.*;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.api.TraceDataService;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.IsPopupWindow;
 import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
-import com.jitlogic.zico.core.model.TraceRecordSearchQuery;
-import com.jitlogic.zico.shared.data.TraceInfoProxy;
-import com.jitlogic.zico.shared.data.TraceRecordProxy;
-import com.jitlogic.zico.shared.data.TraceRecordSearchQueryProxy;
-import com.jitlogic.zico.shared.data.TraceRecordSearchResultProxy;
-import com.jitlogic.zico.shared.services.TraceDataServiceProxy;
+import com.jitlogic.zico.shared.data.TraceRecordSearchQuery;
+import com.jitlogic.zico.shared.data.TraceInfo;
+import com.jitlogic.zico.shared.data.TraceRecordInfo;
+import com.jitlogic.zico.shared.data.TraceRecordSearchResult;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 import java.util.HashSet;
@@ -96,18 +94,19 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
     Label lblSumStats;
 
     @UiField(provided = true)
-    DataGrid<TraceRecordProxy> resultsGrid;
+    DataGrid<TraceRecordInfo> resultsGrid;
 
-    private ListDataProvider<TraceRecordProxy> resultsStore;
+    private ListDataProvider<TraceRecordInfo> resultsStore;
     private TraceCallTableBuilder rowBuilder;
-    private SingleSelectionModel<TraceRecordProxy> selectionModel;
+    private SingleSelectionModel<TraceRecordInfo> selectionModel;
     private Set<String> expandedDetails = new HashSet<String>();
 
-    private TraceInfoProxy trace;
+    private TraceInfo trace;
     private String rootPath = "";
 
     private TraceCallTreePanel panel;
-    private ZicoRequestFactory rf;
+
+    private TraceDataService traceDataService;
 
     private PopupWindow window;
 
@@ -115,10 +114,10 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
     private final String MDS;
 
     @Inject
-    public TraceRecordSearchDialog(ZicoRequestFactory rf, MessageDisplay md,
-                                   @Assisted TraceCallTreePanel panel, @Assisted TraceInfoProxy trace) {
+    public TraceRecordSearchDialog(TraceDataService traceDataService, MessageDisplay md,
+                                   @Assisted TraceCallTreePanel panel, @Assisted TraceInfo trace) {
 
-        this.rf = rf;
+        this.traceDataService = traceDataService;
         this.trace = trace;
         this.panel = panel;
         this.md = md;
@@ -152,9 +151,9 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
         doGoTo();
     }
 
-    private static final ProvidesKey<TraceRecordProxy> KEY_PROVIDER = new ProvidesKey<TraceRecordProxy>() {
+    private static final ProvidesKey<TraceRecordInfo> KEY_PROVIDER = new ProvidesKey<TraceRecordInfo>() {
         @Override
-        public Object getKey(TraceRecordProxy rec) {
+        public Object getKey(TraceRecordInfo rec) {
             return rec.getPath();
         }
     };
@@ -162,15 +161,15 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
     private static final String EXPANDER_EXPAND = AbstractImagePrototype.create(Resources.INSTANCE.expanderExpand()).getHTML();
     private static final String EXPANDER_COLLAPSE = AbstractImagePrototype.create(Resources.INSTANCE.expanderCollapse()).getHTML();
 
-    private final Cell<TraceRecordProxy> DETAIL_EXPANDER_CELL = new ActionCell<TraceRecordProxy>("",
-            new ActionCell.Delegate<TraceRecordProxy>() {
+    private final Cell<TraceRecordInfo> DETAIL_EXPANDER_CELL = new ActionCell<TraceRecordInfo>("",
+            new ActionCell.Delegate<TraceRecordInfo>() {
                 @Override
-                public void execute(TraceRecordProxy rec) {
+                public void execute(TraceRecordInfo rec) {
                     toggleDetails(rec);
                 }
             }) {
         @Override
-        public void render(Cell.Context context, TraceRecordProxy tr, SafeHtmlBuilder sb) {
+        public void render(Cell.Context context, TraceRecordInfo tr, SafeHtmlBuilder sb) {
             if ((tr.getAttributes() != null && tr.getAttributes().size() > 0)||tr.getExceptionInfo() != null) {
                 sb.appendHtmlConstant("<span style=\"cursor: pointer;\">");
                 sb.appendHtmlConstant(expandedDetails.contains(tr.getPath()) ? EXPANDER_COLLAPSE : EXPANDER_EXPAND);
@@ -179,9 +178,9 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
         }
     };
 
-    private AbstractCell<TraceRecordProxy> METHOD_CELL = new AbstractCell<TraceRecordProxy>() {
+    private AbstractCell<TraceRecordInfo> METHOD_CELL = new AbstractCell<TraceRecordInfo>() {
         @Override
-        public void render(Context context, TraceRecordProxy tr, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceRecordInfo tr, SafeHtmlBuilder sb) {
             String color = tr.getExceptionInfo() != null ? "red"
                     : tr.getAttributes() != null ? "blue" : "black";
             sb.appendHtmlConstant("<span style=\"color: " + color + ";\">");
@@ -192,9 +191,9 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
 
     private final static String SMALL_CELL_CSS = Resources.INSTANCE.zicoCssResources().traceSmallCell();
 
-    private AbstractCell<TraceRecordProxy> METHOD_PCT_CELL = new AbstractCell<TraceRecordProxy>() {
+    private AbstractCell<TraceRecordInfo> METHOD_PCT_CELL = new AbstractCell<TraceRecordInfo>() {
         @Override
-        public void render(Context context, TraceRecordProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceRecordInfo rec, SafeHtmlBuilder sb) {
             double pct = 100.0 * rec.getTime() / trace.getExecutionTime();
             String color = "rgb(" + ((int) (pct * 2.49)) + ",0,0)";
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\" style=\"color: " + color + ";\">");
@@ -205,48 +204,48 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
 
     private void createResultsGrid() {
 
-        resultsGrid = new DataGrid<TraceRecordProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
-        selectionModel = new SingleSelectionModel<TraceRecordProxy>(KEY_PROVIDER);
+        resultsGrid = new DataGrid<TraceRecordInfo>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
+        selectionModel = new SingleSelectionModel<TraceRecordInfo>(KEY_PROVIDER);
         resultsGrid.setSelectionModel(selectionModel);
 
-        Column<TraceRecordProxy, TraceRecordProxy> colExpander
-                = new IdentityColumn<TraceRecordProxy>(DETAIL_EXPANDER_CELL);
+        Column<TraceRecordInfo, TraceRecordInfo> colExpander
+                = new IdentityColumn<TraceRecordInfo>(DETAIL_EXPANDER_CELL);
         resultsGrid.addColumn(colExpander, "#");
         resultsGrid.setColumnWidth(colExpander, 32, Style.Unit.PX);
 
-        Column<TraceRecordProxy, TraceRecordProxy> colMethod = new IdentityColumn<TraceRecordProxy>(METHOD_CELL);
-        resultsGrid.addColumn(colMethod, new ResizableHeader<TraceRecordProxy>("Method", resultsGrid, colMethod));
+        Column<TraceRecordInfo, TraceRecordInfo> colMethod = new IdentityColumn<TraceRecordInfo>(METHOD_CELL);
+        resultsGrid.addColumn(colMethod, new ResizableHeader<TraceRecordInfo>("Method", resultsGrid, colMethod));
         resultsGrid.setColumnWidth(colMethod, 100, Style.Unit.PCT);
 
-        Column<TraceRecordProxy, String> colTime = new Column<TraceRecordProxy, String>(new TextCell()) {
+        Column<TraceRecordInfo, String> colTime = new Column<TraceRecordInfo, String>(new TextCell()) {
             @Override
-            public String getValue(TraceRecordProxy rec) {
+            public String getValue(TraceRecordInfo rec) {
                 return ClientUtil.formatDuration(rec.getTime());
             }
         };
-        resultsGrid.addColumn(colTime, new ResizableHeader<TraceRecordProxy>("Time", resultsGrid, colTime));
+        resultsGrid.addColumn(colTime, new ResizableHeader<TraceRecordInfo>("Time", resultsGrid, colTime));
         resultsGrid.setColumnWidth(colTime, 50, Style.Unit.PX);
 
-        Column<TraceRecordProxy,String> colCalls = new Column<TraceRecordProxy, String>(new TextCell()) {
+        Column<TraceRecordInfo,String> colCalls = new Column<TraceRecordInfo, String>(new TextCell()) {
             @Override
-            public String getValue(TraceRecordProxy rec) {
+            public String getValue(TraceRecordInfo rec) {
                 return ""+rec.getCalls();
             }
         };
-        resultsGrid.addColumn(colCalls, new ResizableHeader<TraceRecordProxy>("Calls", resultsGrid, colCalls));
+        resultsGrid.addColumn(colCalls, new ResizableHeader<TraceRecordInfo>("Calls", resultsGrid, colCalls));
         resultsGrid.setColumnWidth(colCalls, 50, Style.Unit.PX);
 
-        Column<TraceRecordProxy,String> colErrors = new Column<TraceRecordProxy, String>(new TextCell()) {
+        Column<TraceRecordInfo,String> colErrors = new Column<TraceRecordInfo, String>(new TextCell()) {
             @Override
-            public String getValue(TraceRecordProxy rec) {
+            public String getValue(TraceRecordInfo rec) {
                 return ""+rec.getErrors();
             }
         };
-        resultsGrid.addColumn(colErrors, new ResizableHeader<TraceRecordProxy>("Errors", resultsGrid, colErrors));
+        resultsGrid.addColumn(colErrors, new ResizableHeader<TraceRecordInfo>("Errors", resultsGrid, colErrors));
         resultsGrid.setColumnWidth(colErrors, 50, Style.Unit.PX);
 
-        Column<TraceRecordProxy,TraceRecordProxy> colPct = new IdentityColumn<TraceRecordProxy>(METHOD_PCT_CELL);
-        resultsGrid.addColumn(colPct, new ResizableHeader<TraceRecordProxy>("Pct", resultsGrid, colPct));
+        Column<TraceRecordInfo,TraceRecordInfo> colPct = new IdentityColumn<TraceRecordInfo>(METHOD_PCT_CELL);
+        resultsGrid.addColumn(colPct, new ResizableHeader<TraceRecordInfo>("Pct", resultsGrid, colPct));
         resultsGrid.setColumnWidth(colPct, 50, Style.Unit.PX);
 
         rowBuilder = new TraceCallTableBuilder(resultsGrid, expandedDetails);
@@ -257,9 +256,9 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
         resultsGrid.setSkipRowHoverCheck(true);
         resultsGrid.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
 
-        resultsGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceRecordProxy>() {
+        resultsGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceRecordInfo>() {
             @Override
-            public void onCellPreview(CellPreviewEvent<TraceRecordProxy> event) {
+            public void onCellPreview(CellPreviewEvent<TraceRecordInfo> event) {
                 NativeEvent nev = event.getNativeEvent();
                 String eventType = nev.getType();
                 if ((BrowserEvents.KEYDOWN.equals(eventType) && nev.getKeyCode() == KeyCodes.KEY_ENTER)
@@ -286,12 +285,12 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
             }
         }, ContextMenuEvent.getType());
 
-        resultsStore = new ListDataProvider<TraceRecordProxy>();
+        resultsStore = new ListDataProvider<TraceRecordInfo>();
         resultsStore.addDataDisplay(resultsGrid);
     }
 
 
-    private void toggleDetails(TraceRecordProxy rec) {
+    private void toggleDetails(TraceRecordInfo rec) {
         String path = rec.getPath();
         if (expandedDetails.contains(path)) {
             expandedDetails.remove(path);
@@ -303,7 +302,7 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
 
 
     private void doGoTo() {
-        TraceRecordProxy tri = selectionModel.getSelectedObject();
+        TraceRecordInfo tri = selectionModel.getSelectedObject();
         int idx = tri != null ? resultsStore.getList().indexOf(tri) : 0;
         panel.setResults(resultsStore.getList(), idx);
         window.hide();
@@ -320,8 +319,8 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
 
 
     private void doSearch() {
-        TraceDataServiceProxy req = rf.traceDataService();
-        TraceRecordSearchQueryProxy expr = req.create(TraceRecordSearchQueryProxy.class);
+
+        TraceRecordSearchQuery expr = new TraceRecordSearchQuery();
 
         expr.setType(chkEql.getValue() ? TraceRecordSearchQuery.EQL_QUERY : TraceRecordSearchQuery.TXT_QUERY);
 
@@ -341,28 +340,33 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
         GWT.log("Search flags=" + expr.getFlags());
 
         md.info(MDS, "Searching records ...");
-        req.searchRecords(trace.getHostName(), trace.getDataOffs(), 0, rootPath, expr).fire(
-                new Receiver<TraceRecordSearchResultProxy>() {
-                    @Override
-                    public void onSuccess(TraceRecordSearchResultProxy response) {
-                        resultsStore.getList().clear();
-                        resultsStore.getList().addAll(response.getResult());
-                        lblSumStats.setText(response.getResult().size() + " methods, "
-                                        + NumberFormat.getFormat("###.0").format(response.getRecurPct()) + "% of trace execution time. "
-                                        + "Time: " + ClientUtil.formatDuration(response.getRecurTime()) + " non-recursive"
-                                        + ", " + ClientUtil.formatDuration(response.getMinTime()) + " min, "
-                                        + ", " + ClientUtil.formatDuration(response.getMaxTime()) + " max."
 
-                        );
-                        txtSearchFilter.setFocus(true);
-                        md.clear(MDS);
-                    }
-                    @Override
-                    public void onFailure(ServerFailure failure) {
-                        md.error(MDS, "Error performing search request", failure);
-                    }
-                }
-        );
+        expr.setHostName(trace.getHostName());
+        expr.setTraceOffs(trace.getDataOffs());
+        expr.setMinTime(0);
+        expr.setPath(rootPath);
+
+        traceDataService.searchRecords(expr, new MethodCallback<TraceRecordSearchResult>() {
+            @Override
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error performing search request", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, TraceRecordSearchResult response) {
+                resultsStore.getList().clear();
+                resultsStore.getList().addAll(response.getResult());
+                lblSumStats.setText(response.getResult().size() + " methods, "
+                                + NumberFormat.getFormat("###.0").format(response.getRecurPct()) + "% of trace execution time. "
+                                + "Time: " + ClientUtil.formatDuration(response.getRecurTime()) + " non-recursive"
+                                + ", " + ClientUtil.formatDuration(response.getMinTime()) + " min, "
+                                + ", " + ClientUtil.formatDuration(response.getMaxTime()) + " max."
+
+                );
+                txtSearchFilter.setFocus(true);
+                md.clear(MDS);
+            }
+        });
     }
 
     @Override

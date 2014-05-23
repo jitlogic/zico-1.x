@@ -21,22 +21,24 @@ import com.jitlogic.zico.client.views.admin.PasswordChangeDialog;
 import com.jitlogic.zico.client.views.traces.*;
 import com.jitlogic.zico.client.views.admin.TraceTemplatePanel;
 import com.jitlogic.zico.client.views.admin.UserManagementPanel;
+import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zico.shared.data.HostProxy;
+import com.jitlogic.zico.shared.data.TraceInfo;
 import com.jitlogic.zico.shared.data.TraceInfoProxy;
 
 public interface PanelFactory {
 
-    public TraceSearchPanel traceSearchPanel(HostProxy host);
+    public TraceSearchPanel traceSearchPanel(HostInfo host);
 
-    public TraceCallTreePanel traceCallTreePanel(TraceInfoProxy traceInfo);
+    public TraceCallTreePanel traceCallTreePanel(TraceInfo traceInfo);
 
     public TraceTemplatePanel traceTemplatePanel();
 
-    public TraceRecordSearchDialog traceRecordSearchDialog(TraceCallTreePanel panel, TraceInfoProxy trace);
+    public TraceRecordSearchDialog traceRecordSearchDialog(TraceCallTreePanel panel, TraceInfo trace);
 
     public MethodAttrsDialog methodAttrsDialog(@Assisted("hostName") String hostName, Long dataOffs, String path, @Assisted("minTime") Long minTime);
 
-    public MethodRankingPanel methodRankingPanel(TraceInfoProxy traceInfo);
+    public MethodRankingPanel methodRankingPanel(TraceInfo traceInfo);
 
     public PasswordChangeDialog passwordChangeView(@Assisted("userName") String userName);
 

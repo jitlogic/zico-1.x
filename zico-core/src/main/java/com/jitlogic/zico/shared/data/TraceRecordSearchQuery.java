@@ -13,7 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.core.model;
+package com.jitlogic.zico.shared.data;
+
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class TraceRecordSearchQuery {
 
@@ -33,11 +35,58 @@ public class TraceRecordSearchQuery {
 
     public final static int SEARCH_ALL = SEARCH_CLASSES|SEARCH_METHODS|SEARCH_ATTRS|SEARCH_EX_MSG|SEARCH_EX_STACK|SEARCH_SIGNATURE;
 
+    @JsonProperty
+    String hostName;
+
+    @JsonProperty
+    long traceOffs;
+
+    @JsonProperty
+    long minTime;
+
+    @JsonProperty
+    String path;
+
+    @JsonProperty
     int type;
 
+    @JsonProperty
     int flags;
 
+    @JsonProperty
     String searchExpr;
+
+    public String getHostName() {
+        return hostName;
+    }
+
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
+    public long getTraceOffs() {
+        return traceOffs;
+    }
+
+    public void setTraceOffs(long traceOffs) {
+        this.traceOffs = traceOffs;
+    }
+
+    public long getMinTime() {
+        return minTime;
+    }
+
+    public void setMinTime(long minTime) {
+        this.minTime = minTime;
+    }
+
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
 
     public boolean hasFlag(int flag) {
         return 0 != (flag & flags);

@@ -13,26 +13,44 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.jitlogic.zico.shared.data;
 
-import com.google.web.bindery.requestfactory.shared.ProxyFor;
-import com.google.web.bindery.requestfactory.shared.ValueProxy;
+import org.codehaus.jackson.annotate.JsonProperty;
 
-import java.util.List;
+public class PasswordInfo {
 
-@ProxyFor(TraceRecordSearchResult.class)
-public interface TraceRecordSearchResultProxy extends ValueProxy {
-    List<TraceRecordProxy> getResult();
+    @JsonProperty
+    String username;
 
-    double getSumPct();
+    @JsonProperty
+    String oldPassword;
 
-    double getRecurPct();
+    @JsonProperty
+    String newPassword;
 
-    long getSumTime();
 
-    long getRecurTime();
+    public String getUsername() {
+        return username;
+    }
 
-    long getMinTime();
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    long getMaxTime();
+    public String getOldPassword() {
+        return oldPassword;
+    }
+
+    public void setOldPassword(String oldPassword) {
+        this.oldPassword = oldPassword;
+    }
+
+    public String getNewPassword() {
+        return newPassword;
+    }
+
+    public void setNewPassword(String newPassword) {
+        this.newPassword = newPassword;
+    }
 }

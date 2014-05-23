@@ -17,12 +17,8 @@ package com.jitlogic.zico.core;
 
 
 import com.google.web.bindery.requestfactory.shared.Locator;
-import com.jitlogic.zico.core.ZicoConfig;
-import com.jitlogic.zico.core.ZicoUtil;
 import com.jitlogic.zico.core.eql.EqlException;
 import com.jitlogic.zico.core.eql.Parser;
-import com.jitlogic.zico.core.model.KeyValuePair;
-import com.jitlogic.zico.core.model.TraceInfo;
 import com.jitlogic.zico.core.model.TraceTemplate;
 import com.jitlogic.zico.core.search.EqlTraceRecordMatcher;
 import com.jitlogic.zico.core.search.TraceRecordMatcher;
@@ -45,7 +41,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;

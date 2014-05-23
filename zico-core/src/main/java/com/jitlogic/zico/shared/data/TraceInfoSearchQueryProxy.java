@@ -17,9 +17,6 @@ package com.jitlogic.zico.shared.data;
 
 import com.google.web.bindery.requestfactory.shared.ProxyFor;
 import com.google.web.bindery.requestfactory.shared.ValueProxy;
-import com.jitlogic.zico.core.model.TraceInfoSearchQuery;
-
-import java.util.Date;
 
 @ProxyFor(TraceInfoSearchQuery.class)
 public interface TraceInfoSearchQueryProxy extends ValueProxy {

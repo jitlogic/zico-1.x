@@ -13,16 +13,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.core.model;
+package com.jitlogic.zico.shared.data;
 
 
-import com.jitlogic.zorka.common.util.ZorkaUtil;
+import org.codehaus.jackson.annotate.JsonProperty;
 
 public class KeyValuePair {
 
-    private String key;
-    private String value;
+    @JsonProperty
+    String key;
 
+    @JsonProperty
+    String value;
+
+    public KeyValuePair() {
+
+    }
 
     public KeyValuePair(String key, String value) {
         this.key = key;
@@ -49,23 +55,4 @@ public class KeyValuePair {
         this.value = value;
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj instanceof KeyValuePair
-            && ZorkaUtil.objEquals(key, ((KeyValuePair)obj).key)
-            && ZorkaUtil.objEquals(value, ((KeyValuePair)obj).value);
-    }
-
-
-    @Override
-    public int hashCode() {
-        return 17 * key.hashCode() + 31 * value.hashCode();
-    }
-
-
-    @Override
-    public String toString() {
-        return "['" + key + "','" + value + "']";
-    }
 }

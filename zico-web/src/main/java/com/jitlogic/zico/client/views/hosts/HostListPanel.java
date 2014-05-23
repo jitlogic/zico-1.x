@@ -42,18 +42,17 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
+import com.jitlogic.zico.client.api.HostService;
 import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.widgets.*;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.MenuItem;
+import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zico.shared.data.HostListObject;
-import com.jitlogic.zico.shared.data.HostProxy;
-import com.jitlogic.zico.shared.services.HostServiceProxy;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Provider;
 import java.util.List;
@@ -100,13 +99,13 @@ public class HostListPanel extends Composite {
 
     private Provider<Shell> shell;
     private PanelFactory panelFactory;
-    private ZicoRequestFactory rf;
 
+    private HostService hostService;
 
     private ListDataProvider<HostListObject> hostGridStore;
     private SingleSelectionModel<HostListObject> selectionModel;
 
-    private Map<String,HostGroup> hostGroups = new TreeMap<String, HostGroup>();
+    private Map<String,HostGroup> hostGroups = new TreeMap<>();
 
     private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces, mnuDisableHost, mnuEnableHost;
 
@@ -115,18 +114,18 @@ public class HostListPanel extends Composite {
     private boolean adminMode = false;
     private PopupMenu contextMenu;
 
-    private MessageDisplay messageDisplay;
+    private MessageDisplay md;
 
-    private static final String SRC = "HostListPanel";
+    private static final String MDS = "HostListPanel";
 
     @Inject
     public HostListPanel(Provider<Shell> shell, PanelFactory panelFactory,
-                         ZicoRequestFactory rf, MessageDisplay messageDisplay) {
+                         HostService hostService, MessageDisplay md) {
 
         this.shell = shell;
         this.panelFactory = panelFactory;
-        this.rf = rf;
-        this.messageDisplay = messageDisplay;
+        this.hostService = hostService;
+        this.md = md;
         this.resources = Resources.INSTANCE;
 
         createHostGrid();
@@ -211,7 +210,7 @@ public class HostListPanel extends Composite {
     private static final Cell<HostListObject> NAME_CELL = new AbstractCell<HostListObject>() {
         @Override
         public void render(Context context, HostListObject host, SafeHtmlBuilder sb) {
-            if (host instanceof HostProxy) {
+            if (host instanceof HostInfo) {
                 String color = (host.isEnabled()) ? "black" : "gray";
                 sb.appendHtmlConstant("<span style=\"color: " + color + ";\">");
                 sb.append(SafeHtmlUtils.fromString(host.getName()));
@@ -309,12 +308,12 @@ public class HostListPanel extends Composite {
     }
 
 
-    private void rebuildHostGroups(List<HostProxy> hlist) {
+    private void rebuildHostGroups(List<HostInfo> hlist) {
         for (Map.Entry<String,HostGroup> e : hostGroups.entrySet()) {
             e.getValue().clear();
         }
 
-        for (HostProxy host : hlist) {
+        for (HostInfo host : hlist) {
             String groupName = host.getGroup().length() > 0 ? host.getGroup() : "(default)";
             if (!hostGroups.containsKey(groupName)) {
                 hostGroups.put(groupName, new HostGroup(groupName));
@@ -417,21 +416,19 @@ public class HostListPanel extends Composite {
 
     private void toggleHost(boolean enabled) {
         HostListObject info = selectionModel.getSelectedObject();
-        if (info instanceof HostProxy) {
-            messageDisplay.info(SRC, "Disabling host");
-            HostServiceProxy req = rf.hostService();
-            HostProxy editedHost = req.edit((HostProxy)info);
-            editedHost.setEnabled(enabled);
-            req.persist(editedHost);
-            req.fire(new Receiver<Void>() {
+        if (info instanceof HostInfo) {
+            md.info(MDS, "Disabling host");
+            ((HostInfo) info).setEnabled(enabled);
+            hostService.update(info.getName(), (HostInfo)info, new MethodCallback<Void>() {
                 @Override
-                public void onSuccess(Void aVoid) {
-                    refresh(null);
-                    messageDisplay.clear(SRC);
+                public void onFailure(Method method, Throwable e) {
+                    md.error(MDS, "Error enabling/disabling host", e);
                 }
+
                 @Override
-                public void onFailure(ServerFailure error) {
-                    messageDisplay.error(SRC, "Error enabling/disabling host", error);
+                public void onSuccess(Method method, Void response) {
+                    refresh(null);
+                    md.clear(MDS);
                 }
             });
         }
@@ -441,17 +438,18 @@ public class HostListPanel extends Composite {
     @UiHandler("btnRefresh")
     void refresh(ClickEvent e) {
         hostGridStore.getList().clear();
-        messageDisplay.info(SRC, "Loading host list ...");
-        rf.hostService().findAll().fire(new Receiver<List<HostProxy>>() {
+        md.info(MDS, "Loading host list ...");
+        hostService.list(new MethodCallback<List<HostInfo>>() {
             @Override
-            public void onSuccess(List<HostProxy> response) {
-                messageDisplay.clear(SRC);
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error loading host list.", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, List<HostInfo> response) {
+                md.clear(MDS);
                 rebuildHostGroups(response);
                 redrawHostList();
-            }
-            @Override
-            public void onFailure(ServerFailure error) {
-                messageDisplay.error(SRC, "Error loading host list.", error);
             }
         });
     }
@@ -459,7 +457,7 @@ public class HostListPanel extends Composite {
 
     @UiHandler("btnAddHost")
     void addHost(ClickEvent e) {
-        new HostEditDialog(rf, this, null, messageDisplay).getWindow().show();
+        //new HostEditDialog(rf, this, null, messageDisplay).getWindow().show();
     }
 
 
@@ -467,14 +465,24 @@ public class HostListPanel extends Composite {
     void removeHost(ClickEvent e) {
         // TODO "Are you sure" message box
         final HostListObject hi = selectionModel.getSelectedObject();
-        if (hi instanceof HostProxy) {
+        if (hi instanceof HostInfo) {
 
             ConfirmDialog dialog = new ConfirmDialog("Removing host", "Remove host " + hi.getName() + " ?")
                     .withBtn("Yes", new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
                             hostGridStore.getList().remove(hi);
-                            rf.hostService().remove((HostProxy)hi).fire();
+                            hostService.delete(hi.getName(), new MethodCallback<Void>() {
+                                @Override
+                                public void onFailure(Method method, Throwable exception) {
+
+                                }
+
+                                @Override
+                                public void onSuccess(Method method, Void response) {
+
+                                }
+                            });
                         }})
                     .withBtn("No");
             dialog.show();
@@ -485,8 +493,8 @@ public class HostListPanel extends Composite {
     @UiHandler("btnEditHost")
     void editHost(ClickEvent e) {
         HostListObject hostInfo = selectionModel.getSelectedObject();
-        if (hostInfo instanceof HostProxy) {
-            new HostEditDialog(rf, this, (HostProxy)hostInfo, messageDisplay).getWindow().show();
+        if (hostInfo instanceof HostInfo) {
+            new HostEditDialog(hostService, this, (HostInfo)hostInfo, md).getWindow().show();
         }
     }
 
@@ -508,8 +516,8 @@ public class HostListPanel extends Composite {
         HostListObject hostInfo = selectionModel.getSelectedObject();
         GWT.log("Selected host: " + hostInfo);
 
-        if (hostInfo instanceof HostProxy && 0 == (((HostProxy)hostInfo).getFlags() & HostProxy.DISABLED)) {
-            shell.get().addView(panelFactory.traceSearchPanel((HostProxy)hostInfo), hostInfo.getName() + ": traces");
+        if (hostInfo instanceof HostInfo && 0 == (((HostInfo)hostInfo).getFlags() & HostInfo.DISABLED)) {
+//            shell.get().addView(panelFactory.traceSearchPanel((HostInfo)hostInfo), hostInfo.getName() + ": traces");
         }
     }
 }

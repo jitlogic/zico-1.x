@@ -23,14 +23,13 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.api.UserService;
 import com.jitlogic.zico.client.widgets.IsPopupWindow;
 import com.jitlogic.zico.client.widgets.PopupWindow;
-import com.jitlogic.zico.shared.data.UserProxy;
-import com.jitlogic.zico.shared.services.UserServiceProxy;
+import com.jitlogic.zico.shared.data.UserInfo;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import java.util.*;
 
@@ -50,9 +49,9 @@ public class UserEditDialog implements IsPopupWindow {
     @UiField
     VerticalPanel hostList;
 
-
-    private UserServiceProxy editUserRequest;
-    private UserProxy editedUser;
+    private UserService userService;
+    private UserInfo editedUser;
+    private boolean newUser;
     public UserManagementPanel panel;
 
     private List<String> availableHosts;
@@ -63,11 +62,12 @@ public class UserEditDialog implements IsPopupWindow {
 
     private MessageDisplay md;
 
-    public UserEditDialog(ZicoRequestFactory rf, UserProxy user, UserManagementPanel panel,
+    public UserEditDialog(UserService userService, UserInfo user, UserManagementPanel panel,
                           List<String> availableHosts, MessageDisplay md) {
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
-        editUserRequest = rf.userService();
-        this.editedUser = user != null ? editUserRequest.edit(user) : editUserRequest.create(UserProxy.class);
+
+        this.editedUser = user != null ? user : new UserInfo();
+        this.newUser = user == null;
         this.panel = panel;
         this.md = md;
 
@@ -131,17 +131,24 @@ public class UserEditDialog implements IsPopupWindow {
         Collections.sort(hosts);
         editedUser.setAllowedHosts(hosts);
 
-        editUserRequest.persist(editedUser).fire(new Receiver<Void>() {
+        MethodCallback<Void> cb = new MethodCallback<Void>() {
             @Override
-            public void onSuccess(Void response) {
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error saving user data", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, Void response) {
                 window.hide();
                 panel.refreshUsers(null);
             }
-            @Override
-            public void onFailure(ServerFailure failure) {
-                md.error(MDS, "Error saving user data", failure);
-            }
-        });
+        };
+
+        if (newUser) {
+            userService.create(editedUser, cb);
+        } else {
+            userService.update(editedUser.getUserName(), editedUser, cb);
+        }
     }
 
     @Override

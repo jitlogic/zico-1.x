@@ -16,6 +16,7 @@
 package com.jitlogic.zico.client.views.hosts;
 
 
+import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.shared.data.HostProxy;
 
@@ -31,24 +32,24 @@ public class HostGroup implements HostListObject {
     private boolean expanded = true;
     private String name;
 
-    private Set<HostProxy> hosts = new HashSet<HostProxy>();
+    private Set<HostInfo> hosts = new HashSet<>();
 
     public HostGroup(String name) {
         this.name = name;
     }
 
-    public void addHost(HostProxy host) {
+    public void addHost(HostInfo host) {
         hosts.add(host);
     }
 
-    public List<HostProxy> getHosts() {
-        List<HostProxy> ret = new ArrayList<HostProxy>(hosts.size());
+    public List<HostInfo> getHosts() {
+        List<HostInfo> ret = new ArrayList<>(hosts.size());
 
         ret.addAll(hosts);
 
-        Collections.sort(ret, new Comparator<HostProxy>() {
+        Collections.sort(ret, new Comparator<HostInfo>() {
             @Override
-            public int compare(HostProxy o1, HostProxy o2) {
+            public int compare(HostInfo o1, HostInfo o2) {
                 return o1.getName().compareTo(o2.getName());
             }
         });
