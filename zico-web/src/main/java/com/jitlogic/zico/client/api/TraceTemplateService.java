@@ -18,11 +18,12 @@ package com.jitlogic.zico.client.api;
 
 import com.jitlogic.zico.shared.data.TraceTemplateInfo;
 import org.fusesource.restygwt.client.MethodCallback;
+import org.fusesource.restygwt.client.RestService;
 
 import javax.ws.rs.*;
 import java.util.List;
 
-public interface TraceTemplateService {
+public interface TraceTemplateService extends RestService {
 
     @GET
     @Path("templates")

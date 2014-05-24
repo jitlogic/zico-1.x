@@ -31,10 +31,10 @@ public class HostManagementApiUnitTest extends ZicoFixture {
     @Test
     public void testCreateEmptyHostAndCheckHostDir() throws Exception {
         assertNull(hostStoreManager.getHost("test", false));
-        assertEquals(0, hostService.findAll().size());
+        assertEquals(0, hostService.list().size());
 
         assertNotNull(hostStoreManager.getHost("test", true));
-        assertEquals(1, hostService.findAll().size());
+        assertEquals(1, hostService.list().size());
 
         HostStore host = hostStoreManager.getHost("test", false);
         assertTrue(new File(host.getRootPath(), "host.properties").exists());
@@ -52,7 +52,7 @@ public class HostManagementApiUnitTest extends ZicoFixture {
         hostStoreManager.delete("test");
         assertFalse(new File(host.getRootPath(), "host.properties").exists());
         assertNull(hostStoreManager.getHost("test", false));
-        assertEquals(0, hostService.findAll().size());
+        assertEquals(0, hostService.list().size());
     }
 
     //

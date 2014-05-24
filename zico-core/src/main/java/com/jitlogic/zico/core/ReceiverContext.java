@@ -15,10 +15,9 @@
  */
 package com.jitlogic.zico.core;
 
-import com.jitlogic.zico.shared.data.HostProxy;
+import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zorka.common.tracedata.MetadataChecker;
 import com.jitlogic.zorka.common.tracedata.Symbol;
-import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
 import com.jitlogic.zorka.common.tracedata.TraceMarker;
 import com.jitlogic.zorka.common.tracedata.TraceRecord;
 import com.jitlogic.zorka.common.zico.ZicoDataProcessor;
@@ -54,13 +53,13 @@ public class ReceiverContext implements MetadataChecker, ZicoDataProcessor {
     @Override
     public synchronized void process(Object obj) throws IOException {
 
-        if (hostStore.hasFlag(HostProxy.DELETED)) {
+        if (hostStore.hasFlag(HostInfo.DELETED)) {
             log.info("Resetting connection for " + hostStore.getName() + " due to dirty SID map.");
             throw new ZicoException(ZicoPacket.ZICO_EOD,
                     "Host has been deleted. Connection needs to be reset. Try again.");
         }
 
-        if (hostStore.hasFlag(HostProxy.DISABLED)) {
+        if (hostStore.hasFlag(HostInfo.DISABLED)) {
             // Host store is disabled. Ignore incoming packets.
             return;
         }
@@ -105,7 +104,7 @@ public class ReceiverContext implements MetadataChecker, ZicoDataProcessor {
 
 
     private void processTraceRecord(TraceRecord rec) throws IOException {
-        if (!hostStore.hasFlag(HostProxy.DISABLED)) {
+        if (!hostStore.hasFlag(HostInfo.DISABLED)) {
             rec.traverse(this);
             visitedObjects.clear();
             hostStore.processTraceRecord(rec);

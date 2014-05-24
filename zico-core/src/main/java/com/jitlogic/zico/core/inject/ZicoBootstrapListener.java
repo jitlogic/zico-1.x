@@ -31,16 +31,9 @@ public class ZicoBootstrapListener extends GuiceServletContextListener {
 
     private final static Logger log = LoggerFactory.getLogger(ZicoBootstrapListener.class);
 
-    public static class ZicoServletModule extends ServletModule {
-        @Override
-        protected void configureServlets() {
-            serve("/gwtRequest").with(ZicoRequestFactoryServlet.class);
-        }
-    }
-
     @Override
     protected Injector getInjector() {
-        final Injector injector = Guice.createInjector(new ProdZicoModule(), new ZicoServletModule());
+        final Injector injector = Guice.createInjector(new ProdZicoModule());
 
         injector.getInstance(ZicoService.class).start();
         Runtime.getRuntime().addShutdownHook(new Thread() {

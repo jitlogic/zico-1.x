@@ -22,6 +22,8 @@ import java.util.List;
 
 public class TraceInfoSearchResult {
 
+    public static final int MORE_RESULTS = 0x0001;
+
     @JsonProperty
     private int seq;
 

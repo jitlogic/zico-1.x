@@ -23,13 +23,9 @@ import com.google.inject.Provides;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
 import com.jitlogic.zico.client.MessageDisplay;
-import com.jitlogic.zico.client.api.HostService;
-import com.jitlogic.zico.client.api.SystemService;
-import com.jitlogic.zico.client.api.TraceDataService;
-import com.jitlogic.zico.client.api.TraceTemplateService;
+import com.jitlogic.zico.client.api.*;
 import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.views.StatusBar;
-import com.jitlogic.zico.core.services.UserService;
 import org.fusesource.restygwt.client.Resource;
 import org.fusesource.restygwt.client.RestServiceProxy;
 

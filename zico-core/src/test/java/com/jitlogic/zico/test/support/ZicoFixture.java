@@ -22,10 +22,7 @@ import com.jitlogic.zico.core.HostStoreManager;
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.ZicoConfig;
 import com.jitlogic.zico.core.ZicoService;
-import com.jitlogic.zico.core.services.HostGwtService;
-import com.jitlogic.zico.core.services.SystemGwtService;
-import com.jitlogic.zico.core.services.TraceDataGwtService;
-import com.jitlogic.zico.core.services.UserGwtService;
+import com.jitlogic.zico.core.services.*;
 import com.jitlogic.zorka.common.test.support.TestUtil;
 import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
 import com.jitlogic.zorka.common.util.ZorkaConfig;
@@ -45,10 +42,11 @@ public class ZicoFixture {
     protected HostStoreManager hostStoreManager;
     protected ZicoService zicoService;
 
-    protected TraceDataGwtService traceDataService;
-    protected SystemGwtService systemService;
-    protected HostGwtService hostService;
-    protected UserGwtService userService;
+    protected TraceDataService traceDataService;
+    protected TraceTemplateService traceTemplateService;
+    protected SystemService systemService;
+    protected HostService hostService;
+    protected UserService userService;
 
     protected SymbolRegistry symbolRegistry;
 
@@ -87,10 +85,11 @@ public class ZicoFixture {
         zicoService = injector.getInstance(ZicoService.class);
         zicoService.start();
 
-        traceDataService = injector.getInstance(TraceDataGwtService.class);
-        systemService = injector.getInstance(SystemGwtService.class);
-        hostService = injector.getInstance(HostGwtService.class);
-        userService = injector.getInstance(UserGwtService.class);
+        traceDataService = injector.getInstance(TraceDataService.class);
+        traceTemplateService = injector.getInstance(TraceTemplateService.class);
+        systemService = injector.getInstance(SystemService.class);
+        hostService = injector.getInstance(HostService.class);
+        userService = injector.getInstance(UserService.class);
 
         symbolRegistry = injector.getInstance(SymbolRegistry.class);
 

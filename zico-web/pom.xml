@@ -17,11 +17,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.google.web.bindery</groupId>
-            <artifactId>requestfactory-apt</artifactId>
-            <version>${gwt.plugin.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.google.gwt</groupId>
             <artifactId>gwt-user</artifactId>
             <version>${gwt.version}</version>

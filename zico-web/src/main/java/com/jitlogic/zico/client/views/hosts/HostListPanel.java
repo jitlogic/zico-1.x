@@ -105,7 +105,7 @@ public class HostListPanel extends Composite {
     private ListDataProvider<HostListObject> hostGridStore;
     private SingleSelectionModel<HostListObject> selectionModel;
 
-    private Map<String,HostGroup> hostGroups = new TreeMap<>();
+    private Map<String,HostGroup> hostGroups = new TreeMap<String,HostGroup>();
 
     private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces, mnuDisableHost, mnuEnableHost;
 

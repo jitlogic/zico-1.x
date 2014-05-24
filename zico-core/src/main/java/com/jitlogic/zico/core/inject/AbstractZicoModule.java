@@ -35,7 +35,6 @@ public abstract class AbstractZicoModule implements Module {
 
     @Override
     public void configure(Binder binder) {
-        binder.bind(ZicoRequestFactoryServlet.class);
         binder.bind(ZicoDataProcessorFactory.class).to(HostStoreManager.class);
 
         binder.bind(HostService.class);

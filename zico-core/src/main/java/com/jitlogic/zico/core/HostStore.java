@@ -31,9 +31,6 @@ import com.jitlogic.zico.core.search.EqlTraceRecordMatcher;
 import com.jitlogic.zico.core.search.FullTextTraceRecordMatcher;
 import com.jitlogic.zico.core.search.TraceRecordMatcher;
 import com.jitlogic.zico.shared.data.HostInfo;
-import com.jitlogic.zico.shared.data.HostProxy;
-import com.jitlogic.zico.shared.data.TraceInfoSearchQueryProxy;
-import com.jitlogic.zico.shared.data.TraceInfoSearchResultProxy;
 import com.jitlogic.zorka.common.tracedata.FressianTraceFormat;
 import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
 import com.jitlogic.zorka.common.tracedata.SymbolicException;
@@ -115,7 +112,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
         this.templater = templater;
 
-        if (!hasFlag(HostProxy.DISABLED)) {
+        if (!hasFlag(HostInfo.DISABLED)) {
             open();
         }
     }
@@ -211,7 +208,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
         Map<Integer,String> tids = getTids();
 
         if (traceDataStore == null || traceIndexStore == null || infos == null || tids == null
-                || hasFlag(HostProxy.DISABLED|HostProxy.DELETED)) {
+                || hasFlag(HostInfo.DISABLED|HostInfo.DELETED)) {
             throw new ZicoRuntimeException("Store " + getName() + " is closed and cannot accept records.");
         }
 
@@ -249,7 +246,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
         boolean enabled = isEnabled();
 
-        flags |= HostProxy.CHK_IN_PROGRESS;
+        flags |= HostInfo.CHK_IN_PROGRESS;
 
         if (enabled) {
             setEnabled(false);
@@ -304,7 +301,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
         close();
 
-        flags &= ~HostProxy.CHK_IN_PROGRESS;
+        flags &= ~HostInfo.CHK_IN_PROGRESS;
 
         if (enabled) {
             setEnabled(enabled);
@@ -356,7 +353,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
 
     private void checkEnabled() {
-        if (hasFlag(HostProxy.DISABLED)) {
+        if (hasFlag(HostInfo.DISABLED)) {
             throw new ZicoRuntimeException("Host " + name
                     + " is disabled. Bring it back online before issuing operation.");
         }
@@ -386,7 +383,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
         int traceId = query.getTraceName() != null ? symbolRegistry.symbolId(query.getTraceName()) : 0;
 
         if (query.getSearchExpr() != null) {
-            if (query.hasFlag(TraceInfoSearchQueryProxy.EQL_QUERY)) {
+            if (query.hasFlag(TraceInfoSearchQuery.EQL_QUERY)) {
                 matcher = new EqlTraceRecordMatcher(symbolRegistry,
                         Parser.expr(query.getSearchExpr()),
                         0, 0, getName());
@@ -400,7 +397,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
         int searchFlags = query.getFlags();
 
-        boolean asc = 0 == (searchFlags & TraceInfoSearchQueryProxy.ORDER_DESC);
+        boolean asc = 0 == (searchFlags & TraceInfoSearchQuery.ORDER_DESC);
 
         Long initialKey = asc
                 ? infos.higherKey(query.getOffset() != 0 ? query.getOffset() : Long.MIN_VALUE)
@@ -413,7 +410,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
             long t = System.nanoTime()-tstart;
 
             if ((lst.size() >= query.getLimit()) || (t > MAX_SEARCH_T1 && lst.size() > 0) || (t > MAX_SEARCH_T2)) {
-                result.markFlag(TraceInfoSearchResultProxy.MORE_RESULTS);
+                result.markFlag(TraceInfoSearchResult.MORE_RESULTS);
                 return result;
             }
 
@@ -421,7 +418,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
             result.setLastOffs(key);
 
-            if (query.hasFlag(TraceInfoSearchQueryProxy.ERRORS_ONLY) && 0 == (tir.getTflags() & TraceMarker.ERROR_MARK)) {
+            if (query.hasFlag(TraceInfoSearchQuery.ERRORS_ONLY) && 0 == (tir.getTflags() & TraceMarker.ERROR_MARK)) {
                 continue;
             }
 
@@ -437,7 +434,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
                 continue;
             }
 
-            TraceRecord idxtr = (query.hasFlag(TraceInfoSearchQueryProxy.DEEP_SEARCH) && matcher != null)
+            TraceRecord idxtr = (query.hasFlag(TraceInfoSearchQuery.DEEP_SEARCH) && matcher != null)
                     ? traceDataStore.read(tir.getDataChunk())
                     : traceIndexStore.read(tir.getIndexChunk());
 
@@ -759,7 +756,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
 
     public synchronized boolean isEnabled() {
-        return !hasFlag(HostProxy.DISABLED);
+        return !hasFlag(HostInfo.DISABLED);
     }
 
 
@@ -768,11 +765,11 @@ public class HostStore implements Closeable, RDSCleanupListener {
         if (enabled) {
             log.info("Bringing host " + name + " online.");
             open();
-            flags &= ~HostProxy.DISABLED;
+            flags &= ~HostInfo.DISABLED;
         } else {
             log.info("Taking host " + name + " offline.");
             close();
-            flags |= HostProxy.DISABLED;
+            flags |= HostInfo.DISABLED;
         }
     }
 

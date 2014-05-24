@@ -447,7 +447,7 @@ public class TraceSearchPanel extends Composite {
                 if (response.getSeq() == seqnum) {
                     List<TraceInfo> results = response.getResults();
                     data.getList().addAll(results);
-                    moreResults = 0 != (response.getFlags() & TraceInfoSearchResultProxy.MORE_RESULTS);
+                    moreResults = 0 != (response.getFlags() & TraceInfoSearchResult.MORE_RESULTS);
                     intoSearchMode(false, moreResults, "Found " + data.getList().size() + " results.");
                     if (moreResults && results.size() < limit) {
                         loadMore(limit - results.size());

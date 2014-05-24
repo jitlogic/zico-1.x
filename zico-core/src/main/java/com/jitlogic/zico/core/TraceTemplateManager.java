@@ -16,7 +16,6 @@
 package com.jitlogic.zico.core;
 
 
-import com.google.web.bindery.requestfactory.shared.Locator;
 import com.jitlogic.zico.core.eql.EqlException;
 import com.jitlogic.zico.core.eql.Parser;
 import com.jitlogic.zico.core.model.TraceTemplate;
@@ -50,7 +49,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 
 @Singleton
-public class TraceTemplateManager extends Locator<TraceTemplate, Integer> {
+public class TraceTemplateManager {
 
     private final static Logger log = LoggerFactory.getLogger(TraceTemplateManager.class);
 
@@ -251,38 +250,12 @@ public class TraceTemplateManager extends Locator<TraceTemplate, Integer> {
     }
 
 
-    @Override
     public TraceTemplate create(Class<? extends TraceTemplate> aClass) {
         return new TraceTemplate();
     }
 
 
-    @Override
     public TraceTemplate find(Class<? extends TraceTemplate> aClass, Integer templateId) {
         return templates.get(templateId);
-    }
-
-
-    @Override
-    public Class<TraceTemplate> getDomainType() {
-        return TraceTemplate.class;
-    }
-
-
-    @Override
-    public Integer getId(TraceTemplate traceTemplate) {
-        return traceTemplate.getId();
-    }
-
-
-    @Override
-    public Class<Integer> getIdType() {
-        return Integer.class;
-    }
-
-
-    @Override
-    public Object getVersion(TraceTemplate traceTemplate) {
-        return 1;
     }
 }

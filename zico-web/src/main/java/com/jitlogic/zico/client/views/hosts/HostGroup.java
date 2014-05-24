@@ -18,7 +18,6 @@ package com.jitlogic.zico.client.views.hosts;
 
 import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zico.shared.data.HostListObject;
-import com.jitlogic.zico.shared.data.HostProxy;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +31,7 @@ public class HostGroup implements HostListObject {
     private boolean expanded = true;
     private String name;
 
-    private Set<HostInfo> hosts = new HashSet<>();
+    private Set<HostInfo> hosts = new HashSet<HostInfo>();
 
     public HostGroup(String name) {
         this.name = name;
@@ -43,7 +42,7 @@ public class HostGroup implements HostListObject {
     }
 
     public List<HostInfo> getHosts() {
-        List<HostInfo> ret = new ArrayList<>(hosts.size());
+        List<HostInfo> ret = new ArrayList<HostInfo>(hosts.size());
 
         ret.addAll(hosts);
 

@@ -42,7 +42,7 @@ public class TraceTemplateService {
     @GET
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON)
-    List<TraceTemplateInfo> list() {
+    public List<TraceTemplateInfo> list() {
         userContext.checkAdmin();
 
         return templateManager.listTemplates().stream()
@@ -50,11 +50,17 @@ public class TraceTemplateService {
                 .collect(Collectors.toList());
     }
 
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public TraceTemplateInfo get(@PathParam("id")int id) {
+        return toTemplateInfo(templateManager.find(TraceTemplate.class, id));
+    }
 
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    void update(@PathParam("id") int id, TraceTemplateInfo ti) {
+    public void update(@PathParam("id") int id, TraceTemplateInfo ti) {
         TraceTemplate t = templateManager.find(TraceTemplate.class, id);
         if (t != null) {
             templateManager.save(updateTemplate(t, ti));
@@ -65,14 +71,14 @@ public class TraceTemplateService {
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    void create(TraceTemplateInfo ti) {
+    public void create(TraceTemplateInfo ti) {
         TraceTemplate t = templateManager.create(TraceTemplate.class);
         templateManager.save(updateTemplate(t, ti));
     }
 
 
     @DELETE @Path("/{id}")
-    void delete(@PathParam("id") int id) {
+    public void delete(@PathParam("id") int id) {
         templateManager.remove(id);
     }
 

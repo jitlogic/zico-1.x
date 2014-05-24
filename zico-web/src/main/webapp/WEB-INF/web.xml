@@ -12,7 +12,7 @@
 
     <context-param>
         <param-name>resteasy.guice.modules</param-name>
-        <param-value>com.jitlogic.zico.core.inject.ProdZicoModule,com.jitlogic.zico.core.inject.ZicoServletModule</param-value>
+        <param-value>com.jitlogic.zico.core.inject.ProdZicoModule</param-value>
     </context-param>
 
     <filter>

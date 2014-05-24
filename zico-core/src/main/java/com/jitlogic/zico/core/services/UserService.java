@@ -49,11 +49,17 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @GET
+    @Path("/{username}")
+    public UserInfo get(@PathParam("username") String username) {
+        userContext.checkAdmin();
+        return toUserInfo(userManager.find(User.class, username));
+    }
 
     @PUT
     @Path("/{username}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public void update(@PathParam("username")String username, UserInfo userInfo) {
+    public void update(@PathParam("username") String username, UserInfo userInfo) {
         userContext.checkAdmin();
         User user = userManager.find(User.class, username);
         if (user != null) {

@@ -47,7 +47,7 @@ import java.util.regex.Pattern;
 @Path("/traces")
 public class TraceDataService {
 
-    private final static Logger log = LoggerFactory.getLogger(TraceDataGwtService.class);
+    private final static Logger log = LoggerFactory.getLogger(TraceDataService.class);
 
     @Inject
     private HostStoreManager storeManager;
