@@ -7,27 +7,27 @@
                 <table>
                     <tr>
                         <td><g:Label>Host name:</g:Label></td>
-                        <td><g:TextBox ui:field="txtHostName"/></td>
+                        <td><g:TextBox width="175px" ui:field="txtHostName"/></td>
                     </tr>
                     <tr>
                         <td><g:Label>Host address:</g:Label></td>
-                        <td><g:TextBox ui:field="txtHostAddr"/></td>
+                        <td><g:TextBox width="175px" ui:field="txtHostAddr"/></td>
                     </tr>
                     <tr>
                         <td><g:Label>Host group:</g:Label></td>
-                        <td><g:TextBox ui:field="txtHostGroup"/></td>
+                        <td><g:TextBox width="175px" ui:field="txtHostGroup"/></td>
                     </tr>
                     <tr>
                         <td><g:Label>Host description:</g:Label></td>
-                        <td><g:TextBox ui:field="txtHostDesc"/></td>
+                        <td><g:TextBox width="175px" ui:field="txtHostDesc"/></td>
                     </tr>
                     <tr>
                         <td><g:Label>Host password:</g:Label></td>
-                        <td><g:TextBox ui:field="txtHostPass"/></td>
+                        <td><g:TextBox width="175px" ui:field="txtHostPass"/></td>
                     </tr>
                     <tr>
                         <td><g:Label>Store size (GB):</g:Label></td>
-                        <td><g:TextBox ui:field="txtMaxSize"/></td>
+                        <td><g:TextBox width="75px" ui:field="txtMaxSize"/></td>
                     </tr>
                 </table>
             </g:HTMLPanel>

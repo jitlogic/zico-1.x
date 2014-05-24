@@ -28,6 +28,10 @@
     cursor: text;
 }
 
+.form input[type="checkbox"] {
+    cursor: pointer;
+}
+
 .line {
     display: flex;
     padding: 2px;

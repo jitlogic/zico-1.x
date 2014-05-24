@@ -121,9 +121,14 @@ public class ToolButton extends Widget implements HasClickHandlers {
     public void onBrowserEvent(Event event) {
         switch (DOM.eventGetType(event)) {
             case Event.ONCLICK:
+                if (!enabled) {
+                    event.stopPropagation();
+                    return;
+                }
                 if (toggleMode && enabled) {
                     setToggled(!isToggled());
                 }
+                break;
         }
         super.onBrowserEvent(event);
     }

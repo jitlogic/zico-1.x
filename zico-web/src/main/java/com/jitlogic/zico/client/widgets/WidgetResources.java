@@ -37,6 +37,9 @@ public interface WidgetResources extends ClientBundle {
     @Source("window-close.png")
     ImageResource windowClose();
 
+    @Source("tab-close.png")
+    ImageResource tabClose();
+
     @Source("WidgetResourcesFormCss.css")
     FormCss formCss();
 }

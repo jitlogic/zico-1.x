@@ -24,6 +24,7 @@
             justify-content: center;
         }
         .login-box {
+            position: relative;
             border: 1px solid #ccc;
             border-radius: 16px;
             padding: 32px;
@@ -38,14 +39,6 @@
             margin-top: 0;
         }
 
-        .login-box .line {
-            display: flex;
-            margin-left: auto;
-            margin-right: auto;
-            margin-bottom: 8px;
-            justify-content: center;
-        }
-
         .login-box input {
             border: 1px solid #999;
             border-radius: 2px;
@@ -53,7 +46,8 @@
 
         .login-box input[type="submit"] {
             background: white;
-            margin-top: 16px;
+            margin-top: 32px;
+            margin-bottom: 24px;
             padding: 4px 64px 4px 64px;
             border: 1px solid #999;
             border-radius: 4px;
@@ -67,6 +61,7 @@
         .browser-comment {
             font-size: 12px;
             margin-top: 32px;
+            padding-top: 32px;
             align-self: center;
             color: #999;
         }
@@ -89,34 +84,37 @@
 <form method="POST" action="j_security_check">
     <div class="container">
         <div class="login-box">
-            <div class="line">
-                <h1>Zorka Intranet Collector</h1>
-            </div>
-            <div class="line">
                 <table>
                     <tbody>
                     <tr>
-                        <td>Username:</td>
+                        <td colspan="2" align="center">
+                            <h1>Zorka Intranet Collector</h1>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" align="right">Username:</td>
                         <td><input size="25" value="" name="j_username" maxlength="25" type="text"></td>
                     </tr>
                     <tr>
-                        <td>Password:</td>
+                        <td align="right">Password:</td>
                         <td><input size="25" value="" name="j_password" maxlength="25" type="password"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" align="center">
+                            <input name="submit" type="submit" value="Login">
+                        </td>
+                    </tr>
+                    <tr class="browser-comment">
+                        <td colspan="2" align="center">
+                            <div>This application requires modern HTML5 browser. Old version of Internet Explorer won't do.</div>
+                            <div>If you see mess on this screen, consider using
+                                <a href="https://www.google.com/intl/en/chrome/browser/">Chrome</a>,
+                                <a href="http://www.mozilla.org/en-US/firefox/new/"> Firefox</a> or
+                                <a href="http://www.opera.com/computer">Opera.</a></div>
+                        </td>
                     </tr>
                     </tbody>
                 </table>
-            </div>
-            <div class="line">
-                <input name="submit" type="submit" value="Login">
-            </div>
-            <div class="browser-comment">
-                <div>This application requires modern HTML5 browser. Old version of Internet Explorer won't do.</div>
-                <div>If you see mess on this screen, consider using
-                    <a href="https://www.google.com/intl/en/chrome/browser/">Chrome</a>,
-                    <a href="http://www.mozilla.org/en-US/firefox/new/"> Firefox</a> or
-                    <a href="http://www.opera.com/computer">Opera.</a></div>
-            </div>
-
         </div>
     </div>
 </form>

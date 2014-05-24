@@ -5,6 +5,10 @@
     cursor: pointer;
 }
 
+.btn:focus {
+    background: none;
+}
+
 .btn:hover {
     background-color: #e0e4ff;
     border: 1px solid #a690ee;

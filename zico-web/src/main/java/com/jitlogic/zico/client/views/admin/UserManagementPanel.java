@@ -99,6 +99,7 @@ public class UserManagementPanel extends Composite {
     @Inject
     public UserManagementPanel(UserService userService, HostService hostService, PanelFactory panelFactory, MessageDisplay md) {
         this.userService = userService;
+        this.hostService = hostService;
         this.panelFactory = panelFactory;
         this.md = md;
 

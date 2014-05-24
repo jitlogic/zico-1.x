@@ -436,7 +436,7 @@ public class HostListPanel extends Composite {
 
 
     @UiHandler("btnRefresh")
-    void refresh(ClickEvent e) {
+    void refresh(ClickEvent _) {
         hostGridStore.getList().clear();
         md.info(MDS, "Loading host list ...");
         hostService.list(new MethodCallback<List<HostInfo>>() {
