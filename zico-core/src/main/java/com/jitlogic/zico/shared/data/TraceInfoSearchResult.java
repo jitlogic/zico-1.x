@@ -25,21 +25,16 @@ public class TraceInfoSearchResult {
     public static final int MORE_RESULTS = 0x0001;
 
     @JsonProperty
-    private int seq;
+    int seq;
 
     @JsonProperty
-    private int flags;
+    int flags;
 
     @JsonProperty
-    private long lastOffs;
+    long lastOffs;
 
     @JsonProperty
-    private List<TraceInfo> results;
-
-    public TraceInfoSearchResult(int seq, List<TraceInfo> results) {
-        this.seq = seq;
-        this.results = results;
-    }
+    List<TraceInfo> results;
 
     public int getSeq() {
         return seq;

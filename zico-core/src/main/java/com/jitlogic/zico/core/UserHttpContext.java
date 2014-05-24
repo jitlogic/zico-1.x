@@ -24,25 +24,31 @@ import javax.servlet.http.HttpServletRequest;
 public class UserHttpContext implements UserContext {
 
     private String anonymous;
-    private Provider<HttpServletRequest> req;
+    //private Provider<HttpServletRequest> req;
 
     @Inject
-    public UserHttpContext(Provider<HttpServletRequest> req, ZicoConfig config) {
+    public UserHttpContext(
+            //Provider<HttpServletRequest> req,
+            // TODO RestEasy+Guice is such a piece of shit ...
+            // I'm tired of all these overblown java technologies made by commitees of junkies, it's time to move on
+            ZicoConfig config) {
         this.anonymous = config.stringCfg("zico.anonymous", null);
-        this.req = req;
+        ///this.req = req;
     }
 
     @Override
     public String getUser() {
         if (anonymous != null) { return anonymous; }
-        return req.get().getRemoteUser();
+        //return req.get().getRemoteUser();
+        return "anonymous";
     }
 
     @Override
     public boolean isInRole(String role) {
         if (anonymous != null) { return true; }
-        HttpServletRequest r = req.get();
-        return r == null || r.isUserInRole(role);
+        //HttpServletRequest r = req.get();
+        //return r == null || r.isUserInRole(role);
+        return true;
     }
 
     @Override

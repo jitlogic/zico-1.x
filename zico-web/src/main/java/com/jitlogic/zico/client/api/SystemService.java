@@ -36,9 +36,9 @@ public interface SystemService extends RestService {
     @POST @Path("system/user/password")
     void resetPassword(PasswordInfo info, MethodCallback<Void> cb);
 
-    @GET @Path("/tidmap/{hostname}")
+    @GET @Path("system/tidmap/{hostname}")
     void getTidMap(@PathParam("hostname") String hostname, MethodCallback<List<SymbolInfo>> cb);
 
-    @POST @Path("/backup")
+    @POST @Path("system/backup")
     void backup(MethodCallback<Void> cb);
 }

@@ -376,7 +376,9 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
         List<TraceInfo> lst = new ArrayList<TraceInfo>(query.getLimit());
 
-        TraceInfoSearchResult result = new TraceInfoSearchResult(query.getSeq(), lst);
+        TraceInfoSearchResult result = new TraceInfoSearchResult();
+        result.setSeq(query.getSeq());
+        result.setResults(lst);
 
         TraceRecordMatcher matcher = null;
 

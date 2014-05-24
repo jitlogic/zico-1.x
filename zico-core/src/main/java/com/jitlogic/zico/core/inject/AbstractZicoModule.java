@@ -23,10 +23,7 @@ import com.google.inject.Singleton;
 import com.jitlogic.zico.core.HostStoreManager;
 import com.jitlogic.zico.core.ZicoConfig;
 import com.jitlogic.zico.core.ZicoService;
-import com.jitlogic.zico.core.services.HostService;
-import com.jitlogic.zico.core.services.SystemService;
-import com.jitlogic.zico.core.services.TraceTemplateService;
-import com.jitlogic.zico.core.services.UserService;
+import com.jitlogic.zico.core.services.*;
 import com.jitlogic.zorka.common.zico.ZicoDataProcessorFactory;
 
 
@@ -40,6 +37,7 @@ public abstract class AbstractZicoModule implements Module {
         binder.bind(HostService.class);
         binder.bind(SystemService.class);
         binder.bind(TraceTemplateService.class);
+        binder.bind(TraceDataService.class);
         binder.bind(UserService.class);
     }
 

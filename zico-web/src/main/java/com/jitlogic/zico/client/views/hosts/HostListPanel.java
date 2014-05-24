@@ -457,7 +457,7 @@ public class HostListPanel extends Composite {
 
     @UiHandler("btnAddHost")
     void addHost(ClickEvent e) {
-        //new HostEditDialog(rf, this, null, messageDisplay).getWindow().show();
+        new HostEditDialog(hostService, this, null, md).getWindow().show();
     }
 
 
@@ -517,7 +517,7 @@ public class HostListPanel extends Composite {
         GWT.log("Selected host: " + hostInfo);
 
         if (hostInfo instanceof HostInfo && 0 == (((HostInfo)hostInfo).getFlags() & HostInfo.DISABLED)) {
-//            shell.get().addView(panelFactory.traceSearchPanel((HostInfo)hostInfo), hostInfo.getName() + ": traces");
+            shell.get().addView(panelFactory.traceSearchPanel((HostInfo)hostInfo), hostInfo.getName() + ": traces");
         }
     }
 }
