@@ -146,11 +146,6 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
         doSearch();
     }
 
-    @UiHandler("btnGoTo")
-    void clickGoTo(ClickEvent e) {
-        doGoTo();
-    }
-
     private static final ProvidesKey<TraceRecordInfo> KEY_PROVIDER = new ProvidesKey<TraceRecordInfo>() {
         @Override
         public Object getKey(TraceRecordInfo rec) {

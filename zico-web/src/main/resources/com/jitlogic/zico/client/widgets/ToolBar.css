@@ -1,38 +1,38 @@
 
-.btn {
+.button {
     border: 1px solid transparent;
     padding: 4px;
     cursor: pointer;
 }
 
-.btn:focus {
+.button:focus {
     background: none;
 }
 
-.btn:hover {
+.button:hover {
     background-color: #e0e4ff;
     border: 1px solid #a690ee;
     border-radius: 2px;
 }
 
-.down {
+.buttonDown {
     background-color: #e0e4ff;
     border: 1px solid #a690ee;
     border-radius: 2px;
 }
 
-.disabled {
+.buttonDisabled {
     color: gray;
     background-color: white;
     cursor: default;
 }
 
-.disabled:hover {
+.buttonDisabled:hover {
     background-color: white;
     border: 1px solid transparent;
 }
 
-.disabled img {
+.buttonDisabled img {
     -webkit-filter: grayscale(100%);
     -moz-filter: grayscale(100%);
     -ms-filter: grayscale(100%);
@@ -42,3 +42,11 @@
     opacity: 0.4;
 }
 
+.separator {
+    border-left: 1px solid #ccc;
+    background: transparent;
+    margin-top: 3px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-bottom: 3px;
+}

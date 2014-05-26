@@ -55,12 +55,18 @@ public class PasswordChangeDialog implements IsPopupWindow {
     private PopupWindow window;
 
     @Inject
-    public PasswordChangeDialog(SystemService systemService, @Assisted("userName") String username) {
+    public PasswordChangeDialog(SystemService systemService, @Assisted("userName") String username,
+                                @Assisted("adminMode") boolean adminMode) {
 
         this.systemService = systemService;
         this.username = username;
 
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
+
+        if (adminMode) {
+            txtOldPassword.setEnabled(false);
+        }
+
         window.setCaption("Change password");
         window.resizeAndCenter(300, 125);
     }

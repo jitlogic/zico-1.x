@@ -103,6 +103,9 @@ public class TraceSearchPanel extends Composite {
     ToolButton btnRunSearch;
 
     @UiField
+    ToolButton btnFindMore;
+
+    @UiField
     ToolButton btnClearFilters;
 
     @UiField(provided = true)
@@ -128,10 +131,7 @@ public class TraceSearchPanel extends Composite {
 
     private int seqnum = 0;
 
-    // Search toolbar controls (in order of occurence on panel toolbar)
-
     private PopupMenu contextMenu;
-    private PopupMenu traceTypeMenu;
     private boolean moreResults;
 
     private String strTraceType;
@@ -154,7 +154,7 @@ public class TraceSearchPanel extends Composite {
         this.resources = Resources.INSTANCE;
 
         traceTypes = new HashMap<Integer, String>();
-        traceTypes.put(0, "(all)");
+        traceTypes.put(0, "<all>");
 
         createTraceGrid();
 
@@ -166,6 +166,7 @@ public class TraceSearchPanel extends Composite {
 
         loadTraceTypes();
         btnReverse.setToggled(true);
+        btnFindMore.setEnabled(false);
         refresh();
     }
 
@@ -197,12 +198,6 @@ public class TraceSearchPanel extends Composite {
         refresh();
     }
 
-//        ToolTipConfig ttcDateTime = new ToolTipConfig("Allowed timestamp formats:" +
-//                "<li><b>YYYY-MM-DD</b> - date only</li>" +
-//                "<li><b>YYYY-MM-DD hh:mm:ss</b> - date and time</li>" +
-//                "<li><b>YYYY-MM-DD hh:mm:ss.SSS</b> - millisecond resolution</li>");
-
-
     private void createTraceGrid() {
         grid = new DataGrid<TraceInfo>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
         selection = new SingleSelectionModel<TraceInfo>(KEY_PROVIDER);
@@ -221,7 +216,7 @@ public class TraceSearchPanel extends Composite {
         Column<TraceInfo, TraceInfo> colTraceType
                 = new IdentityColumn<TraceInfo>(TRACE_TYPE_CELL);
         grid.addColumn(colTraceType, new ResizableHeader<TraceInfo>("Type", grid, colTraceType));
-        grid.setColumnWidth(colTraceType, 50, Style.Unit.PX);
+        grid.setColumnWidth(colTraceType, 60, Style.Unit.PX);
 
         Column<TraceInfo, TraceInfo> colTraceDuration
                 = new IdentityColumn<TraceInfo>(TRACE_DURATION_CELL);
@@ -340,6 +335,7 @@ public class TraceSearchPanel extends Composite {
         txtFilter.setEnabled(!inSearch);
         btnRunSearch.setEnabled(!inSearch);
         btnClearFilters.setEnabled(!inSearch);
+        btnFindMore.setEnabled(!inSearch && moreResults);
 
         if (inSearch) {
             md.info(MDS, message, "Cancel",
@@ -394,6 +390,11 @@ public class TraceSearchPanel extends Composite {
         loadMore();
     }
 
+    @UiHandler("btnFindMore")
+    void findMoreClicked(ClickEvent e) {
+        loadMore();
+    }
+
     private void loadMore() {
         loadMore(50);
     }
@@ -417,7 +418,7 @@ public class TraceSearchPanel extends Composite {
             q.setOffset(list.get(list.size()-1).getDataOffs());
         }
 
-        if (strTraceType != null) {
+        if (strTraceType != null && !"<all>".equals(strTraceType)) {
             q.setTraceName(strTraceType);
         }
 
@@ -452,8 +453,9 @@ public class TraceSearchPanel extends Composite {
                     if (moreResults && results.size() < limit) {
                         loadMore(limit - results.size());
                     }
+                    md.info(MDS, "Found: " + results.size() + " traces " +
+                            (moreResults ? "(more to come - click 'Find More' button)." : "."));
                 }
-                md.clear(MDS);
             }
         });
     }
@@ -467,21 +469,8 @@ public class TraceSearchPanel extends Composite {
 
             @Override
             public void onSuccess(Method method, List<SymbolInfo> response) {
-                traceTypeMenu = new PopupMenu();
-                MenuItem miAll = new MenuItem("<all>",
-                        new Scheduler.ScheduledCommand() {
-                            @Override
-                            public void execute() {
-                                strTraceType = null;
-                                refresh();
-                            }
-                        }
-                );
-                traceTypeMenu.addItem(miAll);
-                traceTypeMenu.addSeparator();
-
-
                 lstTraceType.clear();
+                lstTraceType.addItem("<all>");
                 for (SymbolInfo e : response) {
                     lstTraceType.addItem(e.getName());
                 }

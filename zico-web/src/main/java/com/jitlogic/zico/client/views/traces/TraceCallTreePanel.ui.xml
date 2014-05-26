@@ -7,11 +7,12 @@
         .toolbar {
             display: flex;
             padding: 3px;
-        }
-        .filter {
-            flex: 10;
-            margin-left: 4px;
-            margin-right: 4px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         .item {
             flex: 0 1 auto;
@@ -20,22 +21,31 @@
         }
     </ui:style>
     <g:DockLayoutPanel unit="PX" ui:field="panel">
-        <g:north size="28">
+        <g:north size="32">
             <g:HTMLPanel styleName="{style.toolbar}">
                 <z:ToolButton upIcon="{resources.goUpIcon}" ui:field="btnParentMethod"
-                              addStyleNames="{style.item}"/>
+                              addStyleNames="{style.item}" width="16px" height="16px"
+                              title="Go to parent method."/>
                 <z:ToolButton upIcon="{resources.goDownIcon}" ui:field="btnSlowestMethod"
-                              addStyleNames="{style.item}"/>
+                              addStyleNames="{style.item}" width="16px" height="16px"
+                              title="Go to slowest method in call subtree (starting from selected method)."/>
                 <z:ToolButton upIcon="{resources.ligtningGo}" ui:field="btnErrorMethod"
-                              addStyleNames="{style.item}"/>
+                              addStyleNames="{style.item}" width="16px" height="16px"
+                              title="Go to nearest error."/>
+                <z:ToolSeparator height="20px"/>
                 <z:ToolButton upIcon="{resources.expandIcon}" ui:field="btnExpandAll"
-                              addStyleNames="{style.item}"/>
+                              addStyleNames="{style.item}" width="16px" height="16px"
+                              title="Expand whole call tree."/>
+                <z:ToolSeparator height="20px"/>
                 <z:ToolButton upIcon="{resources.searchIcon}" ui:field="btnSearch"
-                              addStyleNames="{style.item}"/>
+                              addStyleNames="{style.item}" width="16px" height="16px"
+                              title="Search for methods."/>
                 <z:ToolButton upIcon="{resources.goPrevIcon}" ui:field="btnSearchPrev"
-                              addStyleNames="{style.item}"/>
+                              addStyleNames="{style.item}" width="16px" height="16px"
+                              title="Go to previous search result."/>
                 <z:ToolButton upIcon="{resources.goNextIcon}" ui:field="btnSearchNext"
-                              addStyleNames="{style.item}"/>
+                              addStyleNames="{style.item}" width="16px" height="16px"
+                              title="Go to next search result."/>
             </g:HTMLPanel>
         </g:north>
         <g:center>

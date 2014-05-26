@@ -83,6 +83,8 @@ public class StatusBar extends Composite implements MessageDisplay {
             if (current.command != null) {
                 lnkCommand.setText("[" + current.cmdText + "]");
                 lnkCommand.setVisible(true);
+            } else {
+                lnkCommand.setVisible(false);
             }
         } else {
             lblText.setInnerText("Ready.");

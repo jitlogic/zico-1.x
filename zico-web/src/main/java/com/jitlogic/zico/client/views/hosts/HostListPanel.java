@@ -240,8 +240,8 @@ public class HostListPanel extends Composite {
         hostGrid.setSelectionModel(selectionModel);
 
         Column<HostListObject,HostListObject> colExpand = new IdentityColumn<HostListObject>(EXPAND_CELL);
-        hostGrid.addColumn(colExpand, new ResizableHeader<HostListObject>(" ", hostGrid, colExpand));
-        hostGrid.setColumnWidth(colExpand, 24, Style.Unit.PX);
+        hostGrid.addColumn(colExpand, new ResizableHeader<HostListObject>("#", hostGrid, colExpand));
+        hostGrid.setColumnWidth(colExpand, 36, Style.Unit.PX);
 
         Column<HostListObject,HostListObject> colName = new IdentityColumn<HostListObject>(NAME_CELL);
         hostGrid.addColumn(colName, new ResizableHeader<HostListObject>("Name", hostGrid, colName));

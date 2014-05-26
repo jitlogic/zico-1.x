@@ -39,6 +39,6 @@ public interface TraceDataService extends RestService {
     @POST @Path("traces/records/list")
     void listRecords(TraceRecordListQuery query, MethodCallback<List<TraceRecordInfo>> cb);
 
-    @POST @Path("/records/search")
+    @POST @Path("traces/records/search")
     void searchRecords(TraceRecordSearchQuery query, MethodCallback<TraceRecordSearchResult> cb);
 }

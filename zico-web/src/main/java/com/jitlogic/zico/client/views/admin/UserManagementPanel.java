@@ -326,7 +326,7 @@ public class UserManagementPanel extends Composite {
     void changePassword(ClickEvent e) {
         UserInfo user = selectionModel.getSelectedObject();
         if (user != null) {
-            PasswordChangeDialog dialog = panelFactory.passwordChangeView(user.getUserName());
+            PasswordChangeDialog dialog = panelFactory.passwordChangeView(user.getUserName(), true);
             dialog.asPopupWindow().show();
         }
     }

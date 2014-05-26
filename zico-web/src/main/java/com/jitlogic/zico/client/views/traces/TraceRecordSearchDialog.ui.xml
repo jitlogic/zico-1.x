@@ -14,7 +14,6 @@
                     <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkEql">EQL</g:CheckBox>
                     <g:TextBox  addStyleNames="{wres.formCss.fill}" ui:field="txtSearchFilter"/>
                     <g:Button   addStyleNames="{wres.formCss.item}" ui:field="btnSearch">Search</g:Button>
-                    <g:Button   addStyleNames="{wres.formCss.item}" ui:field="btnGoTo">GoTo</g:Button>
                 </div>
                 <div class="{wres.formCss.line}">
                     <g:CheckBox addStyleNames="{wres.formCss.item}" ui:field="chkClass">Class names</g:CheckBox>

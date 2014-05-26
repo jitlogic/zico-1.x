@@ -33,6 +33,7 @@ public class ZicoEP implements EntryPoint {
     static {
         ZicoDataGridResources.INSTANCE.dataGridStyle().ensureInjected();
         WidgetResources.INSTANCE.formCss().ensureInjected();
+        WidgetResources.INSTANCE.toolBarCss().ensureInjected();
         Resources.INSTANCE.zicoCssResources().ensureInjected();
     }
 

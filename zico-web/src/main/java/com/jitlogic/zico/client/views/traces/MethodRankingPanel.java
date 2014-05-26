@@ -17,10 +17,15 @@ package com.jitlogic.zico.client.views.traces;
 
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
@@ -39,24 +44,30 @@ import org.fusesource.restygwt.client.MethodCallback;
 import javax.inject.Inject;
 import java.util.List;
 
-public class MethodRankingPanel extends DockLayoutPanel {
+public class MethodRankingPanel extends Composite {
+    interface MethodRankingPanelUiBinder extends UiBinder<Widget, MethodRankingPanel> { }
+    private static MethodRankingPanelUiBinder ourUiBinder = GWT.create(MethodRankingPanelUiBinder.class);
+
+    @UiField(provided = true)
+    DataGrid<MethodRankInfo> rankGrid;
 
     private TraceDataService traceDataService;
     private TraceInfo traceInfo;
     private MessageDisplay md;
 
-    private DataGrid<MethodRankInfo> rankGrid;
     private ListDataProvider<MethodRankInfo> rankStore;
     private SingleSelectionModel<MethodRankInfo> selectionModel;
 
     @Inject
     public MethodRankingPanel(TraceDataService traceDataService, MessageDisplay md, @Assisted TraceInfo traceInfo) {
-        super(Style.Unit.PX);
         this.traceDataService = traceDataService;
         this.traceInfo = traceInfo;
         this.md = md;
 
         createRankingGrid();
+
+        initWidget(ourUiBinder.createAndBindUi(this));
+
         loadData("calls", "DESC");
     }
 
@@ -168,7 +179,6 @@ public class MethodRankingPanel extends DockLayoutPanel {
         rankStore = new ListDataProvider<MethodRankInfo>(KEY_PROVIDER);
         rankStore.addDataDisplay(rankGrid);
 
-        add(rankGrid);
     }
 
     private static final String MDS = "MethodRankingPanel";

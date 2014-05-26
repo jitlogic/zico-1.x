@@ -124,7 +124,7 @@ public class Shell extends Composite {
 
     @UiHandler("lnkChangePassword")
     void changePassword(ClickEvent e) {
-        panelFactory.passwordChangeView("").asPopupWindow().show();
+        panelFactory.passwordChangeView("", false).asPopupWindow().show();
     }
 
 }
