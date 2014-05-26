@@ -16,27 +16,22 @@
     </context-param>
 
     <filter>
-        <filter-name>guiceFilter</filter-name>
-        <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
-    </filter>
-
-    <filter>
         <filter-name>ZicoCacheControlFilter</filter-name>
         <filter-class>com.jitlogic.zico.core.ZicoCacheControlFilter</filter-class>
     </filter>
 
-    <filter-mapping>
-        <filter-name>guiceFilter</filter-name>
-        <url-pattern>/gwtRequest</url-pattern>
-    </filter-mapping>
-
-    <filter-mapping>
-        <filter-name>guiceFilter</filter-name>
-        <url-pattern>/data</url-pattern>
-    </filter-mapping>
+    <filter>
+        <filter-name>ZicoRequestContextFilter</filter-name>
+        <filter-class>com.jitlogic.zico.core.ZicoRequestContextFilter</filter-class>
+    </filter>
 
     <filter-mapping>
         <filter-name>ZicoCacheControlFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>ZicoRequestContextFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 

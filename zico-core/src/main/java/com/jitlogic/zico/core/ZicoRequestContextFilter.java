@@ -13,48 +13,33 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
+
 package com.jitlogic.zico.core;
 
-import javax.inject.Inject;
-import javax.inject.Provider;
-import javax.inject.Singleton;
+import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
-@Singleton
-public class UserHttpContext implements UserContext {
+public class ZicoRequestContextFilter implements Filter {
 
-    private String anonymous;
-    private Provider<HttpServletRequest> req;
+    private static ThreadLocal<HttpServletRequest> REQ = new ThreadLocal<>();
 
-
-    @Inject
-    public UserHttpContext(Provider<HttpServletRequest> req, ZicoConfig config) {
-        this.anonymous = config.stringCfg("zico.anonymous", null);
-        this.req = req;
+    public static HttpServletRequest getRequest() {
+        return REQ.get();
     }
-
 
     @Override
-    public String getUser() {
-        if (anonymous != null) { return anonymous; }
-        return req.get().getRemoteUser();
+    public void init(FilterConfig filterConfig) throws ServletException {
     }
-
 
     @Override
-    public boolean isInRole(String role) {
-        if (anonymous != null) { return true; }
-        HttpServletRequest r = req.get();
-        return r == null || r.isUserInRole(role);
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+        REQ.set((HttpServletRequest)servletRequest);
+        filterChain.doFilter(servletRequest, servletResponse);
+        REQ.remove();
     }
-
 
     @Override
-    public void checkAdmin() {
-        if (!isInRole("ADMIN")) {
-            throw new ZicoRuntimeException("Insufficient privileges.");
-        }
+    public void destroy() {
     }
-
-
 }

@@ -22,9 +22,12 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.jitlogic.zico.core.HostStoreManager;
 import com.jitlogic.zico.core.ZicoConfig;
+import com.jitlogic.zico.core.ZicoRequestContextFilter;
 import com.jitlogic.zico.core.ZicoService;
 import com.jitlogic.zico.core.services.*;
 import com.jitlogic.zorka.common.zico.ZicoDataProcessorFactory;
+
+import javax.servlet.http.HttpServletRequest;
 
 
 public abstract class AbstractZicoModule implements Module {
@@ -50,5 +53,10 @@ public abstract class AbstractZicoModule implements Module {
                 config.intCfg("zico.listen.port", ZicoService.COLLECTOR_PORT),
                 config.intCfg("zico.threads.max", 32),
                 config.intCfg("zico.socket.timeout", 30000));
+    }
+
+    @Provides
+    public HttpServletRequest provideServletRequest() {
+        return ZicoRequestContextFilter.getRequest();
     }
 }

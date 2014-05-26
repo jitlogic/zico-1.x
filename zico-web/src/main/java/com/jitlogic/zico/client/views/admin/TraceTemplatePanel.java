@@ -239,7 +239,7 @@ public class TraceTemplatePanel extends Composite {
 
 
     @UiHandler("btnEdit")
-    void editTemplate(ClickEvent _) {
+    void editTemplate(ClickEvent e) {
         TraceTemplateInfo tti = selectionModel.getSelectedObject();
         if (tti != null) {
             new TraceTemplateEditDialog(templateService, this, tti, md).asPopupWindow().show();
@@ -248,13 +248,13 @@ public class TraceTemplatePanel extends Composite {
 
 
     @UiHandler("btnAdd")
-    void addTemplate(ClickEvent _) {
+    void addTemplate(ClickEvent e) {
         new TraceTemplateEditDialog(templateService, this, null, md).asPopupWindow().show();
     }
 
 
     @UiHandler("btnRemove")
-    void removeTemplate(ClickEvent _) {
+    void removeTemplate(ClickEvent e) {
         final TraceTemplateInfo template = selectionModel.getSelectedObject();
         if (template != null) {
             ConfirmDialog dialog = new ConfirmDialog("Removing template", "Remove template ?")
@@ -282,7 +282,7 @@ public class TraceTemplatePanel extends Composite {
 
 
     @UiHandler("btnRefresh")
-    public void refreshTemplates(ClickEvent _) {
+    public void refreshTemplates(ClickEvent e) {
         md.info(MDS, "Loading trace display templates");
         templateService.list(new MethodCallback<List<TraceTemplateInfo>>() {
             @Override

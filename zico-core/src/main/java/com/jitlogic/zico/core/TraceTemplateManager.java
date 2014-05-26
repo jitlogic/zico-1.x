@@ -159,7 +159,7 @@ public class TraceTemplateManager {
 
         } finally {
             if (writer != null) {
-                try { writer.close(); } catch (IOException _) { }
+                try { writer.close(); } catch (IOException e) { }
             }
         }
 

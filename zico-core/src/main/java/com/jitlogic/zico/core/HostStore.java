@@ -578,7 +578,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
                 log.error("Cannot read " + f, e);
             } finally {
                 if (is != null) {
-                    try { is.close(); } catch (IOException _) { }
+                    try { is.close(); } catch (IOException e) { }
                 }
             }
             this.addr = props.getProperty("addr", "127.0.0.1");
@@ -612,7 +612,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
             log.error("Cannot write " + f, e);
         } finally {
             if (os != null) {
-                try { os.close(); } catch (IOException _) { }
+                try { os.close(); } catch (IOException e) { }
             }
         }
 
