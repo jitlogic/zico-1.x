@@ -213,7 +213,7 @@ public class MethodAttrsDialog implements IsPopupWindow {
                 return attr[0];
             }
         };
-        attrGrid.addColumn(colAttribute, "Attribute");
+        attrGrid.addColumn(colAttribute);
         attrGrid.setColumnWidth(colAttribute, 100, Style.Unit.PCT);
 
         attrStore = new ListDataProvider<String[]>(KEY_PROVIDER);
