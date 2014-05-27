@@ -22,7 +22,7 @@ zorka.require(
   "apache/apache.bsh",
   "google/libs.bsh",
   "jboss/jbosslibs.bsh",
-  "spring/spring.bsh",
+  "spring.bsh",
   "libs/mapdb.bsh"
 );
 
