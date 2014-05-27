@@ -6,23 +6,21 @@
             <g:HTMLPanel>
                 <table>
                     <tr>
-                        <td>Username:</td>
-                        <td><g:TextBox ui:field="txtUsername"/></td>
+                        <td width="75px" align="right">Username:</td>
+                        <td><g:TextBox width="160px" ui:field="txtUsername"/></td>
                     </tr>
                     <tr>
-                        <td>Real name:</td>
-                        <td><g:TextBox ui:field="txtRealName"/></td>
+                        <td width="75px" align="right">Real name:</td>
+                        <td><g:TextBox width="160px" ui:field="txtRealName"/></td>
                     </tr>
                     <tr>
-                        <td>Admin role:</td>
+                        <td width="75px" align="right">Admin role:</td>
                         <td><g:CheckBox ui:field="chkIsAdmin"/></td>
                     </tr>
-                    <tr>
-                        <td colspan="2">Hosts allowed:</td>
-                    </tr>
+                    <tr><td align="center" colspan="2">Hosts</td></tr>
                     <tr>
                         <td colspan="2">
-                            <g:ScrollPanel height="200px">
+                            <g:ScrollPanel height="200px" width="240px">
                                 <g:VerticalPanel ui:field="hostList"/>
                             </g:ScrollPanel>
                         </td>

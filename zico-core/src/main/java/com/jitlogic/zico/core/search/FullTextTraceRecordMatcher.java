@@ -24,13 +24,13 @@ import com.jitlogic.zorka.common.tracedata.TraceRecord;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static com.jitlogic.zico.core.model.TraceRecordSearchQuery.IGNORE_CASE;
-import static com.jitlogic.zico.core.model.TraceRecordSearchQuery.SEARCH_ATTRS;
-import static com.jitlogic.zico.core.model.TraceRecordSearchQuery.SEARCH_CLASSES;
-import static com.jitlogic.zico.core.model.TraceRecordSearchQuery.SEARCH_EX_MSG;
-import static com.jitlogic.zico.core.model.TraceRecordSearchQuery.SEARCH_EX_STACK;
-import static com.jitlogic.zico.core.model.TraceRecordSearchQuery.SEARCH_METHODS;
-import static com.jitlogic.zico.core.model.TraceRecordSearchQuery.SEARCH_SIGNATURE;
+import static com.jitlogic.zico.shared.data.TraceRecordSearchQuery.IGNORE_CASE;
+import static com.jitlogic.zico.shared.data.TraceRecordSearchQuery.SEARCH_ATTRS;
+import static com.jitlogic.zico.shared.data.TraceRecordSearchQuery.SEARCH_CLASSES;
+import static com.jitlogic.zico.shared.data.TraceRecordSearchQuery.SEARCH_EX_MSG;
+import static com.jitlogic.zico.shared.data.TraceRecordSearchQuery.SEARCH_EX_STACK;
+import static com.jitlogic.zico.shared.data.TraceRecordSearchQuery.SEARCH_METHODS;
+import static com.jitlogic.zico.shared.data.TraceRecordSearchQuery.SEARCH_SIGNATURE;
 
 
 public class FullTextTraceRecordMatcher implements TraceRecordMatcher {

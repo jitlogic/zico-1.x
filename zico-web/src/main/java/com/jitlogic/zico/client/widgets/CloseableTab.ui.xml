@@ -2,14 +2,11 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
     <ui:with field="res" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
     <ui:style>
-        .tab {
-            display: flex;
-        }
         .caption {
-            flex: 0 1 auto;
+            display: inline-block;
         }
         .icon {
-            flex: 0 1 auto;
+            display: inline-block;
             margin-left: 4px;
             cursor: pointer;
             opacity: 0.7;
@@ -19,10 +16,8 @@
         }
     </ui:style>
     <g:HTMLPanel>
-        <div class="{style.tab}">
-            <g:Label ui:field="lblCaption" styleName="{style.caption}">...</g:Label>
-            <g:Image ui:field="imgClose" styleName="{style.icon}" resource="{res.windowClose}"/>
-        </div>
+        <g:Label ui:field="lblCaption" styleName="{style.caption}">...</g:Label>
+        <g:Image ui:field="imgClose" styleName="{style.icon}" resource="{res.tabClose}"/>
     </g:HTMLPanel>
 </ui:UiBinder>
 

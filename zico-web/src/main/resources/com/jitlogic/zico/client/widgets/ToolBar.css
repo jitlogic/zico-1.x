@@ -1,0 +1,52 @@
+
+.button {
+    border: 1px solid transparent;
+    padding: 4px;
+    cursor: pointer;
+}
+
+.button:focus {
+    background: none;
+}
+
+.button:hover {
+    background-color: #e0e4ff;
+    border: 1px solid #a690ee;
+    border-radius: 2px;
+}
+
+.buttonDown {
+    background-color: #e0e4ff;
+    border: 1px solid #a690ee;
+    border-radius: 2px;
+}
+
+.buttonDisabled {
+    color: gray;
+    background-color: white;
+    cursor: default;
+}
+
+.buttonDisabled:hover {
+    background-color: white;
+    border: 1px solid transparent;
+}
+
+.buttonDisabled img {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    filter: gray;
+    filter: grayscale(100%);
+    opacity: 0.4;
+}
+
+.separator {
+    border-left: 1px solid #ccc;
+    background: transparent;
+    margin-top: 3px;
+    margin-left: 3px;
+    margin-right: 3px;
+    margin-bottom: 3px;
+}

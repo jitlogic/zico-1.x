@@ -83,6 +83,8 @@ public class StatusBar extends Composite implements MessageDisplay {
             if (current.command != null) {
                 lnkCommand.setText("[" + current.cmdText + "]");
                 lnkCommand.setVisible(true);
+            } else {
+                lnkCommand.setVisible(false);
             }
         } else {
             lblText.setInnerText("Ready.");
@@ -111,6 +113,11 @@ public class StatusBar extends Composite implements MessageDisplay {
 
     @Override
     public void error(String source, String msg, ServerFailure e) {
+        message(source, MessageType.ERROR, msg + " " + e.getMessage());
+    }
+
+    @Override
+    public void error(String source, String msg, Throwable e) {
         message(source, MessageType.ERROR, msg + " " + e.getMessage());
     }
 

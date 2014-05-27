@@ -7,6 +7,12 @@
         .toolbar {
             display: flex;
             padding: 3px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
         .item {
             flex: 0 1 auto;
@@ -15,18 +21,25 @@
         }
     </ui:style>
     <g:DockLayoutPanel unit="PX" ui:field="panel">
-        <g:north size="28">
+        <g:north size="32">
             <g:HTMLPanel styleName="{style.toolbar}">
-                <z:ToolButton upIcon="{resources.refreshIcon}"
-                              addStyleNames="{style.item}" ui:field="btnRefresh"/>
-                <z:ToolButton upIcon="{resources.addIcon}"
-                              addStyleNames="{style.item}" ui:field="btnAdd"/>
-                <z:ToolButton upIcon="{resources.removeIcon}"
-                              addStyleNames="{style.item}" ui:field="btnRemove"/>
-                <z:ToolButton upIcon="{resources.editIcon}"
-                              addStyleNames="{style.item}" ui:field="btnEdit"/>
-                <z:ToolButton upIcon="{resources.keyIcon}"
-                              addStyleNames="{style.item}" ui:field="btnPassword"/>
+                <z:ToolButton upIcon="{resources.refreshIcon}"  width="16px" height="16px"
+                              addStyleNames="{style.item}" ui:field="btnRefresh"
+                              title="Refresh user list."/>
+                <z:ToolSeparator height="20px"/>
+                <z:ToolButton upIcon="{resources.addIcon}"  width="16px" height="16px"
+                              addStyleNames="{style.item}" ui:field="btnAdd"
+                              title="Add user."/>
+                <z:ToolButton upIcon="{resources.removeIcon}"  width="16px" height="16px"
+                              addStyleNames="{style.item}" ui:field="btnRemove"
+                              title="Remove user."/>
+                <z:ToolButton upIcon="{resources.editIcon}"  width="16px" height="16px"
+                              addStyleNames="{style.item}" ui:field="btnEdit"
+                              title="Edit user."/>
+                <z:ToolSeparator height="20px"/>
+                <z:ToolButton upIcon="{resources.keyIcon}"  width="16px" height="16px"
+                              addStyleNames="{style.item}" ui:field="btnPassword"
+                              title="Reset password for user."/>
             </g:HTMLPanel>
         </g:north>
         <g:center>

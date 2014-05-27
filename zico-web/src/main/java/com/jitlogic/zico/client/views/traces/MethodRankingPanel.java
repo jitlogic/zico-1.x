@@ -17,51 +17,64 @@ package com.jitlogic.zico.client.views.traces;
 
 
 import com.google.gwt.cell.client.TextCell;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style;
+import com.google.gwt.uibinder.client.UiBinder;
+import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
+import com.google.gwt.user.client.ui.Composite;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ClientUtil;
 import com.jitlogic.zico.client.MessageDisplay;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.api.TraceDataService;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
-import com.jitlogic.zico.shared.data.MethodRankInfoProxy;
-import com.jitlogic.zico.shared.data.TraceInfoProxy;
+import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
+import com.jitlogic.zico.shared.data.MethodRankInfo;
+import com.jitlogic.zico.shared.data.TraceInfo;
+import com.jitlogic.zico.shared.data.TraceRecordRankQuery;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 import java.util.List;
 
-public class MethodRankingPanel extends DockLayoutPanel {
+public class MethodRankingPanel extends Composite {
+    interface MethodRankingPanelUiBinder extends UiBinder<Widget, MethodRankingPanel> { }
+    private static MethodRankingPanelUiBinder ourUiBinder = GWT.create(MethodRankingPanelUiBinder.class);
 
-    private ZicoRequestFactory rf;
-    private TraceInfoProxy traceInfo;
+    @UiField(provided = true)
+    DataGrid<MethodRankInfo> rankGrid;
+
+    private TraceDataService traceDataService;
+    private TraceInfo traceInfo;
     private MessageDisplay md;
 
-    private DataGrid<MethodRankInfoProxy> rankGrid;
-    private ListDataProvider<MethodRankInfoProxy> rankStore;
-    private SingleSelectionModel<MethodRankInfoProxy> selectionModel;
+    private ListDataProvider<MethodRankInfo> rankStore;
+    private SingleSelectionModel<MethodRankInfo> selectionModel;
 
     @Inject
-    public MethodRankingPanel(ZicoRequestFactory rf, MessageDisplay md, @Assisted TraceInfoProxy traceInfo) {
-        super(Style.Unit.PX);
-        this.rf = rf;
+    public MethodRankingPanel(TraceDataService traceDataService, MessageDisplay md, @Assisted TraceInfo traceInfo) {
+        this.traceDataService = traceDataService;
         this.traceInfo = traceInfo;
         this.md = md;
 
         createRankingGrid();
+
+        initWidget(ourUiBinder.createAndBindUi(this));
+
         loadData("calls", "DESC");
     }
 
 
-    private final static ProvidesKey<MethodRankInfoProxy> KEY_PROVIDER = new ProvidesKey<MethodRankInfoProxy>() {
+    private final static ProvidesKey<MethodRankInfo> KEY_PROVIDER = new ProvidesKey<MethodRankInfo>() {
         @Override
-        public Object getKey(MethodRankInfoProxy item) {
+        public Object getKey(MethodRankInfo item) {
             return item.getMethod();
         }
     };
@@ -69,123 +82,128 @@ public class MethodRankingPanel extends DockLayoutPanel {
 
     private void createRankingGrid() {
 
-        rankGrid = new DataGrid<MethodRankInfoProxy>(1024*1024, KEY_PROVIDER);
-        selectionModel = new SingleSelectionModel<MethodRankInfoProxy>(KEY_PROVIDER);
+        rankGrid = new DataGrid<MethodRankInfo>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
+        selectionModel = new SingleSelectionModel<MethodRankInfo>(KEY_PROVIDER);
         rankGrid.setSelectionModel(selectionModel);
 
-        Column<MethodRankInfoProxy,String> colMethod = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colMethod = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return m.getMethod();
             }
         };
-        rankGrid.addColumn(colMethod, new ResizableHeader<MethodRankInfoProxy>("Method", rankGrid, colMethod));
+        rankGrid.addColumn(colMethod, new ResizableHeader<MethodRankInfo>("Method", rankGrid, colMethod));
         rankGrid.setColumnWidth(colMethod, 100, Style.Unit.PCT);
 
-        Column<MethodRankInfoProxy,String> colCalls = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colCalls = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return "" + m.getCalls();
             }
         };
-        rankGrid.addColumn(colCalls, new ResizableHeader<MethodRankInfoProxy>("Calls", rankGrid, colCalls));
+        rankGrid.addColumn(colCalls, new ResizableHeader<MethodRankInfo>("Calls", rankGrid, colCalls));
         rankGrid.setColumnWidth(colCalls, 50, Style.Unit.PX);
 
-        Column<MethodRankInfoProxy,String> colErrors = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colErrors = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return ""+m.getErrors();
             }
         };
-        rankGrid.addColumn(colErrors, new ResizableHeader<MethodRankInfoProxy>("Errors", rankGrid, colErrors));
+        rankGrid.addColumn(colErrors, new ResizableHeader<MethodRankInfo>("Errors", rankGrid, colErrors));
         rankGrid.setColumnWidth(colErrors, 50, Style.Unit.PX);
 
-        Column<MethodRankInfoProxy,String> colTime = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colTime = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return ClientUtil.formatDuration(m.getTime());
             }
         };
-        rankGrid.addColumn(colErrors, new ResizableHeader<MethodRankInfoProxy>("Time", rankGrid, colTime));
+        rankGrid.addColumn(colErrors, new ResizableHeader<MethodRankInfo>("Time", rankGrid, colTime));
         rankGrid.setColumnWidth(colTime, 50, Style.Unit.PX);
 
-        Column<MethodRankInfoProxy,String> colMinTime = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colMinTime = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return ClientUtil.formatDuration(m.getMinTime());
             }
         };
-        rankGrid.addColumn(colMinTime, new ResizableHeader<MethodRankInfoProxy>("MinT", rankGrid, colMinTime));
+        rankGrid.addColumn(colMinTime, new ResizableHeader<MethodRankInfo>("MinT", rankGrid, colMinTime));
         rankGrid.setColumnWidth(colMinTime, 50, Style.Unit.PX);
 
-        Column<MethodRankInfoProxy,String> colMaxTime = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colMaxTime = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return ClientUtil.formatDuration(m.getMaxTime());
             }
         };
-        rankGrid.addColumn(colMaxTime, new ResizableHeader<MethodRankInfoProxy>("MaxT", rankGrid, colMaxTime));
+        rankGrid.addColumn(colMaxTime, new ResizableHeader<MethodRankInfo>("MaxT", rankGrid, colMaxTime));
         rankGrid.setColumnWidth(colMaxTime, 50, Style.Unit.PX);
 
-        Column<MethodRankInfoProxy,String> colAvgTime = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colAvgTime = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return ClientUtil.formatDuration(m.getAvgTime());
             }
         };
-        rankGrid.addColumn(colAvgTime, new ResizableHeader<MethodRankInfoProxy>("AvgT", rankGrid, colAvgTime));
+        rankGrid.addColumn(colAvgTime, new ResizableHeader<MethodRankInfo>("AvgT", rankGrid, colAvgTime));
         rankGrid.setColumnWidth(colAvgTime, 50, Style.Unit.PX);
 
-        Column<MethodRankInfoProxy,String> colBareTime = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colBareTime = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return ClientUtil.formatDuration(m.getBareTime());
             }
         };
-        rankGrid.addColumn(colBareTime, new ResizableHeader<MethodRankInfoProxy>("BT", rankGrid, colBareTime));
+        rankGrid.addColumn(colBareTime, new ResizableHeader<MethodRankInfo>("BT", rankGrid, colBareTime));
         rankGrid.setColumnWidth(colBareTime, 50, Style.Unit.PX);
 
-        Column<MethodRankInfoProxy,String> colMaxBareTime = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colMaxBareTime = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return ClientUtil.formatDuration(m.getMaxBareTime());
             }
         };
-        rankGrid.addColumn(colMaxBareTime, new ResizableHeader<MethodRankInfoProxy>("MaxBT", rankGrid, colMaxBareTime));
+        rankGrid.addColumn(colMaxBareTime, new ResizableHeader<MethodRankInfo>("MaxBT", rankGrid, colMaxBareTime));
         rankGrid.setColumnWidth(colMaxBareTime, 50, Style.Unit.PX);
 
-        Column<MethodRankInfoProxy,String> colMinBareTime = new Column<MethodRankInfoProxy, String>(new TextCell()) {
+        Column<MethodRankInfo,String> colMinBareTime = new Column<MethodRankInfo, String>(new TextCell()) {
             @Override
-            public String getValue(MethodRankInfoProxy m) {
+            public String getValue(MethodRankInfo m) {
                 return ClientUtil.formatDuration(m.getMinBareTime());
             }
         };
-        rankGrid.addColumn(colMinBareTime, new ResizableHeader<MethodRankInfoProxy>("MinBT", rankGrid, colMinBareTime));
+        rankGrid.addColumn(colMinBareTime, new ResizableHeader<MethodRankInfo>("MinBT", rankGrid, colMinBareTime));
         rankGrid.setColumnWidth(colMinBareTime, 50, Style.Unit.PX);
 
-        rankStore = new ListDataProvider<MethodRankInfoProxy>(KEY_PROVIDER);
+        rankStore = new ListDataProvider<MethodRankInfo>(KEY_PROVIDER);
         rankStore.addDataDisplay(rankGrid);
 
-        add(rankGrid);
     }
 
     private static final String MDS = "MethodRankingPanel";
 
     private void loadData(String orderBy, String orderDir) {
         md.info(MDS, "Loading data...");
-        rf.traceDataService().traceMethodRank(traceInfo.getHostName(), traceInfo.getDataOffs(), orderBy, orderDir).fire(
-                new Receiver<List<MethodRankInfoProxy>>() {
-                    @Override
-                    public void onSuccess(List<MethodRankInfoProxy> ranking) {
-                        rankStore.getList().clear();
-                        rankStore.getList().addAll(ranking);
-                        md.clear(MDS);
-                    }
-                    @Override
-                    public void onFailure(ServerFailure error) {
-                        md.error(MDS, "Error loading method rank data", error);
-                    }
-                }
-        );
+
+        TraceRecordRankQuery q = new TraceRecordRankQuery();
+        q.setHostname(traceInfo.getHostName());
+        q.setTraceOffs(traceInfo.getDataOffs());
+        q.setOrderBy(orderBy);
+        q.setOrderDesc(orderDir);
+
+        traceDataService.rankRecords(q, new MethodCallback<List<MethodRankInfo>>() {
+            @Override
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error loading method rank data", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, List<MethodRankInfo> ranking) {
+                rankStore.getList().clear();
+                rankStore.getList().addAll(ranking);
+                md.clear(MDS);
+            }
+        });
     }
 }

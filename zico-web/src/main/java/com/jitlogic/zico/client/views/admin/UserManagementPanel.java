@@ -38,15 +38,16 @@ import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
+import com.jitlogic.zico.client.api.HostService;
+import com.jitlogic.zico.client.api.UserService;
 import com.jitlogic.zico.client.widgets.*;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
-import com.jitlogic.zico.shared.data.HostProxy;
-import com.jitlogic.zico.shared.data.UserProxy;
+import com.jitlogic.zico.shared.data.HostInfo;
+import com.jitlogic.zico.shared.data.UserInfo;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -76,13 +77,15 @@ public class UserManagementPanel extends Composite {
     ToolButton btnPassword;
 
     @UiField(provided = true)
-    DataGrid<UserProxy> userGrid;
+    DataGrid<UserInfo> userGrid;
 
-    private ZicoRequestFactory rf;
+    private UserService userService;
+    private HostService hostService;
+
     private PanelFactory panelFactory;
 
-    private ListDataProvider<UserProxy> userStore;
-    private SingleSelectionModel<UserProxy> selectionModel;
+    private ListDataProvider<UserInfo> userStore;
+    private SingleSelectionModel<UserInfo> selectionModel;
 
     private PopupMenu contextMenu;
 
@@ -94,9 +97,9 @@ public class UserManagementPanel extends Composite {
     private static final String MDS = "UserManagementPanel";
 
     @Inject
-    public UserManagementPanel(ZicoRequestFactory requestFactory, PanelFactory panelFactory, MessageDisplay md) {
-
-        this.rf = requestFactory;
+    public UserManagementPanel(UserService userService, HostService hostService, PanelFactory panelFactory, MessageDisplay md) {
+        this.userService = userService;
+        this.hostService = hostService;
         this.panelFactory = panelFactory;
         this.md = md;
 
@@ -111,37 +114,37 @@ public class UserManagementPanel extends Composite {
     }
 
 
-    private final static ProvidesKey<UserProxy> KEY_PROVIDER = new ProvidesKey<UserProxy>() {
+    private final static ProvidesKey<UserInfo> KEY_PROVIDER = new ProvidesKey<UserInfo>() {
         @Override
-        public Object getKey(UserProxy item) {
+        public Object getKey(UserInfo item) {
             return item.getUserName();
         }
     };
 
-    private static final Cell<UserProxy> USERNAME_CELL = new AbstractCell<UserProxy>() {
+    private static final Cell<UserInfo> USERNAME_CELL = new AbstractCell<UserInfo>() {
         @Override
-        public void render(Context context, UserProxy value, SafeHtmlBuilder sb) {
+        public void render(Context context, UserInfo value, SafeHtmlBuilder sb) {
             sb.append(SafeHtmlUtils.fromString(value.getUserName()));
         }
     };
 
-    private static final Cell<UserProxy> REALNAME_CELL = new AbstractCell<UserProxy>() {
+    private static final Cell<UserInfo> REALNAME_CELL = new AbstractCell<UserInfo>() {
         @Override
-        public void render(Context context, UserProxy value, SafeHtmlBuilder sb) {
+        public void render(Context context, UserInfo value, SafeHtmlBuilder sb) {
             sb.append(SafeHtmlUtils.fromString(value.getRealName()));
         }
     };
 
-    private static final Cell<UserProxy> USERROLE_CELL = new AbstractCell<UserProxy>() {
+    private static final Cell<UserInfo> USERROLE_CELL = new AbstractCell<UserInfo>() {
         @Override
-        public void render(Context context, UserProxy value, SafeHtmlBuilder sb) {
+        public void render(Context context, UserInfo value, SafeHtmlBuilder sb) {
             sb.append(SafeHtmlUtils.fromString(value.isAdmin() ? "ADMIN" : "VIEWER"));
         }
     };
 
-    private static final Cell<UserProxy> USERHOSTS_CELL = new AbstractCell<UserProxy>() {
+    private static final Cell<UserInfo> USERHOSTS_CELL = new AbstractCell<UserInfo>() {
         @Override
-        public void render(Context context, UserProxy value, SafeHtmlBuilder sb) {
+        public void render(Context context, UserInfo value, SafeHtmlBuilder sb) {
             if (value.isAdmin()) {
                 sb.appendHtmlConstant(
                     "<span style=\"color: gray;\"> ** all hosts visible due to administrator privileges ** </span>");
@@ -161,32 +164,32 @@ public class UserManagementPanel extends Composite {
 
 
     private void createUserGrid() {
-        userGrid = new DataGrid<UserProxy>(1024 * 1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
-        selectionModel = new SingleSelectionModel<UserProxy>(KEY_PROVIDER);
+        userGrid = new DataGrid<UserInfo>(1024 * 1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
+        selectionModel = new SingleSelectionModel<UserInfo>(KEY_PROVIDER);
         userGrid.setSelectionModel(selectionModel);
 
-        Column<UserProxy,UserProxy> colUsername = new IdentityColumn<UserProxy>(USERNAME_CELL);
-        userGrid.addColumn(colUsername, new ResizableHeader<UserProxy>("Username", userGrid, colUsername));
+        Column<UserInfo,UserInfo> colUsername = new IdentityColumn<UserInfo>(USERNAME_CELL);
+        userGrid.addColumn(colUsername, new ResizableHeader<UserInfo>("Username", userGrid, colUsername));
         userGrid.setColumnWidth(colUsername, 128, Style.Unit.PX);
 
-        Column<UserProxy,UserProxy> colUserRole = new IdentityColumn<UserProxy>(USERROLE_CELL);
-        userGrid.addColumn(colUserRole, new ResizableHeader<UserProxy>("Role", userGrid, colUserRole));
+        Column<UserInfo,UserInfo> colUserRole = new IdentityColumn<UserInfo>(USERROLE_CELL);
+        userGrid.addColumn(colUserRole, new ResizableHeader<UserInfo>("Role", userGrid, colUserRole));
         userGrid.setColumnWidth(colUserRole, 64, Style.Unit.PX);
 
-        Column<UserProxy,UserProxy> colRealName = new IdentityColumn<UserProxy>(REALNAME_CELL);
-        userGrid.addColumn(colRealName, new ResizableHeader<UserProxy>("Real Name", userGrid, colRealName));
+        Column<UserInfo,UserInfo> colRealName = new IdentityColumn<UserInfo>(REALNAME_CELL);
+        userGrid.addColumn(colRealName, new ResizableHeader<UserInfo>("Real Name", userGrid, colRealName));
         userGrid.setColumnWidth(colRealName, 256, Style.Unit.PX);
 
-        Column<UserProxy,UserProxy> colUserHosts = new IdentityColumn<UserProxy>(USERHOSTS_CELL);
+        Column<UserInfo,UserInfo> colUserHosts = new IdentityColumn<UserInfo>(USERHOSTS_CELL);
         userGrid.addColumn(colUserHosts, "Allowed hosts");
         userGrid.setColumnWidth(colUserHosts, 100, Style.Unit.PCT);
 
-        userStore = new ListDataProvider<UserProxy>(KEY_PROVIDER);
+        userStore = new ListDataProvider<UserInfo>(KEY_PROVIDER);
         userStore.addDataDisplay(userGrid);
 
-        userGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<UserProxy>() {
+        userGrid.addCellPreviewHandler(new CellPreviewEvent.Handler<UserInfo>() {
             @Override
-            public void onCellPreview(CellPreviewEvent<UserProxy> event) {
+            public void onCellPreview(CellPreviewEvent<UserInfo> event) {
                 NativeEvent nev = event.getNativeEvent();
                 String eventType = nev.getType();
                 if ((BrowserEvents.KEYDOWN.equals(eventType) && nev.getKeyCode() == KeyCodes.KEY_ENTER)
@@ -278,29 +281,40 @@ public class UserManagementPanel extends Composite {
 
     @UiHandler("btnEdit")
     void editUser(ClickEvent e) {
-        UserProxy user = selectionModel.getSelectedObject();
+        UserInfo user = selectionModel.getSelectedObject();
         if (user != null) {
-            new UserEditDialog(rf, user, this, hostNames, md).asPopupWindow().show();
+            new UserEditDialog(userService, user, this, hostNames, md).asPopupWindow().show();
         }
     }
 
 
     @UiHandler("btnAdd")
     void addUser(ClickEvent e) {
-        new UserEditDialog(rf, null, this, hostNames, md).asPopupWindow().show();
+        new UserEditDialog(userService, null, this, hostNames, md).asPopupWindow().show();
     }
 
 
     @UiHandler("btnRemove")
     void removeUser(ClickEvent e) {
-        final UserProxy user = selectionModel.getSelectedObject();
+        final UserInfo user = selectionModel.getSelectedObject();
         if (user != null) {
             ConfirmDialog dialog = new ConfirmDialog("Removing user", "Remove user " + user.getUserName() + " ?")
                     .withBtn("Yes", new ClickHandler() {
                         @Override
                         public void onClick(ClickEvent event) {
                             userStore.getList().remove(user);
-                            rf.userService().remove(user).fire();
+                            md.info(MDS, "Removing user " + user.getUserName());
+                            userService.delete(user.getUserName(), new MethodCallback<Void>() {
+                                @Override
+                                public void onFailure(Method method, Throwable e) {
+                                    md.error(MDS, "Cannot remove user " + user.getUserName(), e);
+                                }
+
+                                @Override
+                                public void onSuccess(Method method, Void response) {
+                                    md.clear(MDS);
+                                }
+                            });
                         }})
                     .withBtn("No");
             dialog.show();
@@ -310,43 +324,48 @@ public class UserManagementPanel extends Composite {
 
     @UiHandler("btnPassword")
     void changePassword(ClickEvent e) {
-        UserProxy user = selectionModel.getSelectedObject();
+        UserInfo user = selectionModel.getSelectedObject();
         if (user != null) {
-            PasswordChangeDialog dialog = panelFactory.passwordChangeView(user.getUserName());
+            PasswordChangeDialog dialog = panelFactory.passwordChangeView(user.getUserName(), true);
             dialog.asPopupWindow().show();
         }
     }
 
+
     @UiHandler("btnRefresh")
     void refreshUsers(ClickEvent e) {
         userStore.getList().clear();
-        rf.userService().findAll().fire(new Receiver<List<UserProxy>>() {
+        userService.list(new MethodCallback<List<UserInfo>>() {
             @Override
-            public void onSuccess(List<UserProxy> users) {
-                userStore.getList().addAll(users);
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error loading user data", e);
             }
+
             @Override
-            public void onFailure(ServerFailure failure) {
-                md.error(MDS, "Error loading user data", failure);
+            public void onSuccess(Method method, List<UserInfo> users) {
+                userStore.getList().addAll(users);
             }
         });
     }
 
 
     private void loadHosts() {
-        rf.hostService().findAll().fire(new Receiver<List<HostProxy>>() {
+        hostService.list(new MethodCallback<List<HostInfo>>() {
             @Override
-            public void onSuccess(List<HostProxy> hosts) {
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error loading user data", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, List<HostInfo> hosts) {
                 hostNames.clear();
-                for (HostProxy h : hosts) {
+                for (HostInfo h : hosts) {
                     hostNames.add(h.getName());
                 }
                 Collections.sort(hostNames);
-            }
-            @Override
-            public void onFailure(ServerFailure failure) {
-                md.error(MDS, "Error loading user data", failure);
+
             }
         });
     }
+
 }

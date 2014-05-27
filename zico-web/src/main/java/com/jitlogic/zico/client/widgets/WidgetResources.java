@@ -34,9 +34,22 @@ public interface WidgetResources extends ClientBundle {
         String btnline();
     }
 
+    public static interface ToolBarCss extends CssResource {
+        String button();
+        String buttonDown();
+        String buttonDisabled();
+        String separator();
+    }
+
     @Source("window-close.png")
     ImageResource windowClose();
 
+    @Source("tab-close.png")
+    ImageResource tabClose();
+
     @Source("WidgetResourcesFormCss.css")
     FormCss formCss();
+
+    @Source("ToolBar.css")
+    ToolBarCss toolBarCss();
 }

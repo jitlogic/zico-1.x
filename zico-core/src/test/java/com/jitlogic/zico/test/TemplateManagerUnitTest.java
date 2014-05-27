@@ -18,6 +18,8 @@ package com.jitlogic.zico.test;
 import com.jitlogic.zico.core.TraceTemplateManager;
 import com.jitlogic.zico.core.eql.EqlParseException;
 import com.jitlogic.zico.core.model.TraceTemplate;
+import com.jitlogic.zico.core.services.TraceTemplateService;
+import com.jitlogic.zico.shared.data.TraceTemplateInfo;
 import com.jitlogic.zico.test.support.ZicoFixture;
 import com.jitlogic.zico.test.support.ZicoTestUtil;
 import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
@@ -50,52 +52,52 @@ public class TemplateManagerUnitTest extends ZicoFixture {
     }
 
 
-    private TraceTemplate tti(int order, String condition, String templ) {
+    private TraceTemplateInfo tti(int order, String condition, String templ) {
         TraceTemplate tti = new TraceTemplate();
         tti.setOrder(order);
         tti.setCondition(condition);
         tti.setTemplate(templ);
-        return tti;
+        return TraceTemplateService.toTemplateInfo(tti);
     }
 
 
     @Test
     public void testInsertNewTemplateRecord() throws Exception {
-        TraceTemplate t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
+        TraceTemplateInfo t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
 
-        t1.setId(systemService.saveTemplate(t1));
-        assertTrue("TEMPLATE_ID should be assigned by database and > 0", t1.getId() > 0);
+        traceTemplateService.create(t1);
 
-        List<TraceTemplate> lst = systemService.listTemplates();
+        List<TraceTemplateInfo> lst = traceTemplateService.list();
         assertEquals(1, lst.size());
-        assertEquals(t1.getId(), lst.get(0).getId());
+        assertTrue("TEMPLATE_ID should be assigned by database and > 0", lst.get(0).getId() > 0);
     }
 
 
     @Test
     public void testInsertReopenAndReadTemplate() throws Exception {
-        TraceTemplate t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
+        TraceTemplateInfo t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
 
-        t1.setId(systemService.saveTemplate(t1));
+        traceTemplateService.create(t1);
 
         templateManager.close();
         templateManager.open();
 
-        List<TraceTemplate> lst = systemService.listTemplates();
+        List<TraceTemplateInfo> lst = traceTemplateService.list();
         assertEquals(1, lst.size());
     }
 
 
     @Test
     public void testInsertAndModifyNewTemplate() {
-        TraceTemplate t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
-        t1.setId(systemService.saveTemplate(t1));
+        TraceTemplateInfo t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
 
+        traceTemplateService.create(t1);
+        t1.setId(traceTemplateService.list().get(0).getId());
 
         t1.setTemplate("some.Class.findKey(${ARG0})");
-        systemService.saveTemplate(t1);
+        traceTemplateService.update(t1.getId(), t1);
 
-        List<TraceTemplate> lst = systemService.listTemplates();
+        List<TraceTemplateInfo> lst = traceTemplateService.list();
         assertEquals(1, lst.size());
         assertEquals(t1.getId(), lst.get(0).getId());
     }
@@ -103,11 +105,12 @@ public class TemplateManagerUnitTest extends ZicoFixture {
 
     @Test
     public void testAddRemoveTemplate() {
-        TraceTemplate t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
-        t1.setId(systemService.saveTemplate(t1));
+        TraceTemplateInfo t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
+        traceTemplateService.create(t1);
+        t1.setId(traceTemplateService.list().get(0).getId());
 
-        systemService.removeTemplate(t1.getId());
-        assertEquals(0, systemService.listTemplates().size());
+        traceTemplateService.delete(t1.getId());
+        assertEquals(0, traceTemplateService.list().size());
     }
 
 
@@ -119,15 +122,16 @@ public class TemplateManagerUnitTest extends ZicoFixture {
 
     @Test
     public void testExportImportTemplates() {
-        TraceTemplate t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
-        int tid = systemService.saveTemplate(t1);
+        TraceTemplateInfo t1 = tti(0, "METHOD='findKey'", "findKey(${ARG0}");
+        traceTemplateService.create(t1);
+        int tid = traceTemplateService.list().get(0).getId();
 
         templateManager.export();
         templateManager.close();
 
         templateManager.open();
 
-        TraceTemplate t2 = templateManager.find(TraceTemplate.class, tid);
+        TraceTemplateInfo t2 = traceTemplateService.get(tid);
         assertNotNull(t2);
         assertEquals(t1.getTemplate(), t2.getTemplate());
         assertEquals(t1.getOrder(), t2.getOrder());
@@ -138,8 +142,8 @@ public class TemplateManagerUnitTest extends ZicoFixture {
 
     @Test(expected = EqlParseException.class)
     public void testIfTemplateSaveVerifiesEqlExpr() throws Exception {
-        TraceTemplate t1 = tti(0, "METHOD='findKey", "findKey(${ARG0}");
-        templateManager.save(t1);
+        TraceTemplateInfo t1 = tti(0, "METHOD='findKey", "findKey(${ARG0}");
+        traceTemplateService.create(t1);
     }
 
 
@@ -150,7 +154,7 @@ public class TemplateManagerUnitTest extends ZicoFixture {
         assertThat(templateManager.templateDescription(symbols, "websvr1", rec))
             .startsWith("HTTP|");
 
-        templateManager.save(tti(0, "URI != null", "GOT_IT"));
+        traceTemplateService.create(tti(0, "URI != null", "GOT_IT"));
 
         assertThat(templateManager.templateDescription(symbols, "websvr1", rec))
                 .startsWith("GOT_IT");
@@ -162,7 +166,7 @@ public class TemplateManagerUnitTest extends ZicoFixture {
     public void testSelectTemplateByTemplateId() throws Exception {
         TraceRecord r1 = traceP("HTTP", "org.apache.catalina.StandardValve", "invoke", "()V", 1000, kv("URI", "http://xxx"));
         TraceRecord r2 = traceP("EJB", "org.jboss.ejb.Invoker", "invoke", "()V", 1000, kv("URI", "http://xxx"));
-        templateManager.save(tti(0, "trace = 'HTTP'", "GOT_IT"));
+        traceTemplateService.create(tti(0, "trace = 'HTTP'", "GOT_IT"));
         assertEquals("GOT_IT", templateManager.templateDescription(symbols, "myhost", r1));
         assertNotEquals("GOT_IT", templateManager.templateDescription(symbols, "myhost", r2));
     }
@@ -171,7 +175,7 @@ public class TemplateManagerUnitTest extends ZicoFixture {
     @Test
     public void testSelectTemplateByTemplateIdAndHost() throws Exception {
         TraceRecord rec = traceP("HTTP", "org.apache.catalina.StandardValve", "invoke", "()V", 1000, kv("URI", "http://xxx"));
-        templateManager.save(tti(0, "trace = 'HTTP' and host = 'myhost'", "GOT_IT"));
+        traceTemplateService.create(tti(0, "trace = 'HTTP' and host = 'myhost'", "GOT_IT"));
         assertEquals("GOT_IT", templateManager.templateDescription(symbols, "myhost", rec));
         assertNotEquals("GOT_IT", templateManager.templateDescription(symbols, "otherhost", rec));
     }

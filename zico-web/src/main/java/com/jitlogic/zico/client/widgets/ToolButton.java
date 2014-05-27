@@ -1,13 +1,9 @@
 package com.jitlogic.zico.client.widgets;
 
-import com.google.gwt.core.client.GWT;
-import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.shared.HandlerRegistration;
-import com.google.gwt.resources.client.ClientBundle;
-import com.google.gwt.resources.client.CssResource;
 import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.uibinder.client.UiConstructor;
 import com.google.gwt.user.client.DOM;
@@ -18,23 +14,6 @@ import com.google.gwt.user.client.ui.Widget;
 public class ToolButton extends Widget implements HasClickHandlers {
 
     private Element imgElement;
-
-    public static interface Css extends CssResource {
-        String btn();
-        String down();
-        String disabled();
-    }
-
-    public static interface Resources extends ClientBundle {
-        @Source("ToolButton.css")
-        Css css();
-    }
-
-    public static final Resources RESOURCES = GWT.create(Resources.class);
-
-    static {
-        RESOURCES.css().ensureInjected();
-    }
 
     private boolean toggleMode;
     private boolean toggled;
@@ -68,7 +47,7 @@ public class ToolButton extends Widget implements HasClickHandlers {
         }
         div.appendChild(imgElement);
 
-        div.addClassName(RESOURCES.css().btn());
+        div.addClassName(WidgetResources.INSTANCE.toolBarCss().button());
         imgElement.setAttribute("draggable", "false");
 
         setElement(div);
@@ -80,7 +59,7 @@ public class ToolButton extends Widget implements HasClickHandlers {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-        String css = RESOURCES.css().disabled();
+        String css = WidgetResources.INSTANCE.toolBarCss().buttonDisabled();
         if (enabled) {
             getElement().removeClassName(css);
         } else {
@@ -102,7 +81,7 @@ public class ToolButton extends Widget implements HasClickHandlers {
 
     public void setToggled(boolean toggled) {
         this.toggled = toggled;
-        String css = RESOURCES.css().down();
+        String css = WidgetResources.INSTANCE.toolBarCss().buttonDown();
         if (toggled) {
             getElement().removeClassName(css);
         } else {
@@ -121,9 +100,14 @@ public class ToolButton extends Widget implements HasClickHandlers {
     public void onBrowserEvent(Event event) {
         switch (DOM.eventGetType(event)) {
             case Event.ONCLICK:
+                if (!enabled) {
+                    event.stopPropagation();
+                    return;
+                }
                 if (toggleMode && enabled) {
                     setToggled(!isToggled());
                 }
+                break;
         }
         super.onBrowserEvent(event);
     }

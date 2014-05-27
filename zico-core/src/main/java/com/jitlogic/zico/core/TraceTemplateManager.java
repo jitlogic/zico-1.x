@@ -16,13 +16,8 @@
 package com.jitlogic.zico.core;
 
 
-import com.google.web.bindery.requestfactory.shared.Locator;
-import com.jitlogic.zico.core.ZicoConfig;
-import com.jitlogic.zico.core.ZicoUtil;
 import com.jitlogic.zico.core.eql.EqlException;
 import com.jitlogic.zico.core.eql.Parser;
-import com.jitlogic.zico.core.model.KeyValuePair;
-import com.jitlogic.zico.core.model.TraceInfo;
 import com.jitlogic.zico.core.model.TraceTemplate;
 import com.jitlogic.zico.core.search.EqlTraceRecordMatcher;
 import com.jitlogic.zico.core.search.TraceRecordMatcher;
@@ -45,7 +40,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,7 +49,7 @@ import java.util.Map;
 import java.util.NavigableMap;
 
 @Singleton
-public class TraceTemplateManager extends Locator<TraceTemplate, Integer> {
+public class TraceTemplateManager {
 
     private final static Logger log = LoggerFactory.getLogger(TraceTemplateManager.class);
 
@@ -165,7 +159,7 @@ public class TraceTemplateManager extends Locator<TraceTemplate, Integer> {
 
         } finally {
             if (writer != null) {
-                try { writer.close(); } catch (IOException _) { }
+                try { writer.close(); } catch (IOException e) { }
             }
         }
 
@@ -256,38 +250,12 @@ public class TraceTemplateManager extends Locator<TraceTemplate, Integer> {
     }
 
 
-    @Override
     public TraceTemplate create(Class<? extends TraceTemplate> aClass) {
         return new TraceTemplate();
     }
 
 
-    @Override
     public TraceTemplate find(Class<? extends TraceTemplate> aClass, Integer templateId) {
         return templates.get(templateId);
-    }
-
-
-    @Override
-    public Class<TraceTemplate> getDomainType() {
-        return TraceTemplate.class;
-    }
-
-
-    @Override
-    public Integer getId(TraceTemplate traceTemplate) {
-        return traceTemplate.getId();
-    }
-
-
-    @Override
-    public Class<Integer> getIdType() {
-        return Integer.class;
-    }
-
-
-    @Override
-    public Object getVersion(TraceTemplate traceTemplate) {
-        return 1;
     }
 }

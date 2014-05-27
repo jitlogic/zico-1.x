@@ -46,7 +46,7 @@ public class Parser {
 
         for (int i = 0; i < s.length(); i++) {
             if (s.charAt(i) == '\\') {
-                char c = s.charAt(i + 1);
+                Character c = s.charAt(i + 1);
                 sb.append(ESCAPE_CHARS.containsKey(c) ? ESCAPE_CHARS.get(c) : c);
                 i++;
             } else {

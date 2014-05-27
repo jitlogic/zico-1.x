@@ -18,10 +18,9 @@ package com.jitlogic.zico.test;
 
 import com.jitlogic.zico.core.HostStore;
 import com.jitlogic.zico.core.ZicoRuntimeException;
-import com.jitlogic.zico.core.model.TraceInfo;
-import com.jitlogic.zico.core.model.TraceInfoSearchQuery;
-import com.jitlogic.zico.core.model.TraceInfoSearchResult;
-import com.jitlogic.zico.shared.data.TraceInfoSearchQueryProxy;
+import com.jitlogic.zico.shared.data.TraceInfo;
+import com.jitlogic.zico.shared.data.TraceInfoSearchQuery;
+import com.jitlogic.zico.shared.data.TraceInfoSearchResult;
 import com.jitlogic.zico.test.support.ZicoFixture;
 import com.jitlogic.zorka.common.tracedata.FressianTraceWriter;
 import com.jitlogic.zorka.common.tracedata.MetricsRegistry;
@@ -184,7 +183,7 @@ public class DataCollectionUnitTest extends ZicoFixture {
         TraceRecord t1 = trace(); t1.getMarker().setFlags(TraceMarker.ERROR_MARK);
         submit(t1, trace());
         TraceInfoSearchResult result = traceDataService.searchTraces(
-                tiq("test", TraceInfoSearchQueryProxy.ERRORS_ONLY, null, 1000L, null));
+                tiq("test", TraceInfoSearchQuery.ERRORS_ONLY, null, 1000L, null));
         assertEquals(1, result.getResults().size());
     }
 
@@ -193,7 +192,7 @@ public class DataCollectionUnitTest extends ZicoFixture {
     public void testSubmitAndFilterByMethodErrorObject() throws Exception {
         TraceRecord t1 = trace(); t1.setException(boo());
         submit(t1, trace());
-        TraceInfoSearchQuery query = tiq("test", TraceInfoSearchQueryProxy.ERRORS_ONLY, null, 1000L, null);
+        TraceInfoSearchQuery query = tiq("test", TraceInfoSearchQuery.ERRORS_ONLY, null, 1000L, null);
         TraceInfoSearchResult result = traceDataService.searchTraces(query);
         assertEquals(1, result.getResults().size());
     }
@@ -203,7 +202,7 @@ public class DataCollectionUnitTest extends ZicoFixture {
     public void testSubmitAndFilterUsingEqlQuery() throws Exception {
         submit(trace(), trace(kv("SQL", "select 1")));
         TraceInfoSearchResult result = traceDataService.searchTraces(
-                tiq("test", TraceInfoSearchQueryProxy.EQL_QUERY, null, 1000L, "SQL != null"));
+                tiq("test", TraceInfoSearchQuery.EQL_QUERY, null, 1000L, "SQL != null"));
         assertEquals(1, result.getResults().size());
     }
 
@@ -212,7 +211,7 @@ public class DataCollectionUnitTest extends ZicoFixture {
     public void testSubmitAndFilterUsingDeepSearch() throws Exception {
         submit(trace(), trace(trace(kv("SQL", "select 1"))));
         TraceInfoSearchResult result = traceDataService.searchTraces(
-                tiq("test", TraceInfoSearchQueryProxy.DEEP_SEARCH, null, 0, "SQL"));
+                tiq("test", TraceInfoSearchQuery.DEEP_SEARCH, null, 0, "SQL"));
         assertEquals(1, result.getResults().size());
     }
 
@@ -220,7 +219,7 @@ public class DataCollectionUnitTest extends ZicoFixture {
     @Test
     public void testSubmitAndListInDescendingOrder() throws Exception {
         submit(trace(), trace());
-        TraceInfoSearchQuery query = tiq("test", TraceInfoSearchQueryProxy.ORDER_DESC, null, 0, null);
+        TraceInfoSearchQuery query = tiq("test", TraceInfoSearchQuery.ORDER_DESC, null, 0, null);
         TraceInfoSearchResult result = traceDataService.searchTraces(query);
         List<TraceInfo> lst = result.getResults();
         assertEquals(2, lst.size());
@@ -245,7 +244,7 @@ public class DataCollectionUnitTest extends ZicoFixture {
     @Test
     public void testSubmitAndPageResultsDesc() throws Exception {
         submit(trace(), trace(), trace(), trace());
-        TraceInfoSearchQuery query = tiq("test", TraceInfoSearchQueryProxy.ORDER_DESC, null, 0, null);
+        TraceInfoSearchQuery query = tiq("test", TraceInfoSearchQuery.ORDER_DESC, null, 0, null);
         query.setLimit(2);
         TraceInfoSearchResult rslt1 = traceDataService.searchTraces(query);
         assertEquals(2, rslt1.getResults().size());

@@ -16,7 +16,6 @@
 package com.jitlogic.zico.core;
 
 
-import com.google.web.bindery.requestfactory.shared.Locator;
 import com.jitlogic.zico.core.model.User;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +34,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentNavigableMap;
 
 @Singleton
-public class UserManager extends Locator<User, String> {
+public class UserManager {
 
     private final static Logger log = LoggerFactory.getLogger(UserManager.class);
 
@@ -179,40 +177,16 @@ public class UserManager extends Locator<User, String> {
     }
 
 
-    @Override
     public User create(Class<? extends User> aClass) {
         return new User();
     }
 
 
-    @Override
     public User find(Class<? extends User> clazz, String username) {
         return users.get(username);
     }
 
 
-    @Override
-    public Class<User> getDomainType() {
-        return User.class;
-    }
-
-
-    @Override
-    public String getId(User user) {
-        return user.getUserName();
-    }
-
-
-    @Override
-    public Class<String> getIdType() {
-        return String.class;
-    }
-
-
-    @Override
-    public Object getVersion(User user) {
-        return 1;
-    }
 
 
     public List<User> findAll() {

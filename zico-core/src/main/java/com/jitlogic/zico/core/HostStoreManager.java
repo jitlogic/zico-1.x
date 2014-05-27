@@ -15,8 +15,7 @@
  */
 package com.jitlogic.zico.core;
 
-import com.google.web.bindery.requestfactory.shared.Locator;
-import com.jitlogic.zico.shared.data.HostProxy;
+import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zorka.common.tracedata.HelloRequest;
 import com.jitlogic.zorka.common.util.ZorkaUtil;
 import com.jitlogic.zorka.common.zico.ZicoDataProcessor;
@@ -36,11 +35,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 @Singleton
-public class HostStoreManager extends Locator<HostStore, String> implements Closeable, ZicoDataProcessorFactory {
+public class HostStoreManager implements Closeable, ZicoDataProcessorFactory {
 
     private final static Logger log = LoggerFactory.getLogger(HostStoreManager.class);
 
@@ -148,7 +146,7 @@ public class HostStoreManager extends Locator<HostStore, String> implements Clos
         HostStore store = storesByName.get(name);
         if (store != null) {
             String rootPath = store.getRootPath();
-            store.markFlag(HostProxy.DELETED);
+            store.markFlag(HostInfo.DELETED);
             store.save();
             store.close();
             ZorkaUtil.rmrf(rootPath);
@@ -192,40 +190,14 @@ public class HostStoreManager extends Locator<HostStore, String> implements Clos
     }
 
 
-    @Override
     public HostStore create(Class<? extends HostStore> clazz) {
 
         throw new ZicoRuntimeException("Not implemented.");
     }
 
 
-    @Override
     public HostStore find(Class<? extends HostStore> clazz, String id) {
         return getHost(id, false);
-    }
-
-
-    @Override
-    public Class<HostStore> getDomainType() {
-        return HostStore.class;
-    }
-
-
-    @Override
-    public String getId(HostStore host) {
-        return host.getName();
-    }
-
-
-    @Override
-    public Class<String> getIdType() {
-        return String.class;
-    }
-
-
-    @Override
-    public Object getVersion(HostStore host) {
-        return 1;
     }
 
 

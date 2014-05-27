@@ -17,15 +17,9 @@ package com.jitlogic.zico.client.views;
 
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.uibinder.client.UiBinder;
-import com.google.gwt.uibinder.client.UiField;
-import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 
-import java.util.List;
 
 public class WelcomeView extends Composite {
     interface WelcomeViewUiBinder extends UiBinder<HTMLPanel, WelcomeView> { }

@@ -23,14 +23,14 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.PasswordTextBox;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.api.SystemService;
 import com.jitlogic.zico.client.widgets.IsPopupWindow;
 import com.jitlogic.zico.client.widgets.PopupWindow;
+import com.jitlogic.zico.shared.data.PasswordInfo;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 
@@ -49,18 +49,24 @@ public class PasswordChangeDialog implements IsPopupWindow {
     @UiField
     PasswordTextBox txtRepPassword;
 
-    private ZicoRequestFactory rf;
+    private SystemService systemService;
     private String username;
 
     private PopupWindow window;
 
     @Inject
-    public PasswordChangeDialog(ZicoRequestFactory rf, @Assisted("userName") String username) {
+    public PasswordChangeDialog(SystemService systemService, @Assisted("userName") String username,
+                                @Assisted("adminMode") boolean adminMode) {
 
-        this.rf = rf;
+        this.systemService = systemService;
         this.username = username;
 
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
+
+        if (adminMode) {
+            txtOldPassword.setEnabled(false);
+        }
+
         window.setCaption("Change password");
         window.resizeAndCenter(300, 125);
     }
@@ -97,22 +103,28 @@ public class PasswordChangeDialog implements IsPopupWindow {
             return;
         }
 
-        rf.userService().resetPassword(username, oldPassword, newPassword).fire(new Receiver<Void>() {
+        PasswordInfo pwi = new PasswordInfo();
+        pwi.setUsername(username);
+        pwi.setOldPassword(oldPassword);
+        pwi.setNewPassword(newPassword);
+
+        systemService.resetPassword(pwi, new MethodCallback<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {
+            public void onFailure(Method method, Throwable e) {
+                if (username == null) txtOldPassword.setText("");
+                txtNewPassword.setText("");
+                txtRepPassword.setText("");
+                Window.alert("Password change failed: " + e.getMessage());
+            }
+
+            @Override
+            public void onSuccess(Method method, Void response) {
                 if (username == null) txtOldPassword.setText("");
                 txtNewPassword.setText("");
                 txtRepPassword.setText("");
 
                 Window.alert("Password has been changed.");
                 window.hide();
-            }
-
-            public void onFailure(ServerFailure e) {
-                if (username == null) txtOldPassword.setText("");
-                txtNewPassword.setText("");
-                txtRepPassword.setText("");
-                Window.alert("Password change failed: " + e.getMessage());
             }
         });
     }

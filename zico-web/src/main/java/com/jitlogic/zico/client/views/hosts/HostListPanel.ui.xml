@@ -6,18 +6,34 @@
     <ui:style>
         .toolbar {
             padding: 3px;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
         }
     </ui:style>
     <g:DockLayoutPanel unit="PX" ui:field="panel">
         <g:north size="32">
             <g:HorizontalPanel styleName="{style.toolbar}" ui:field="toolbar">
-                <z:ToolButton upIcon="{resources.refreshIcon}" ui:field="btnRefresh"/>
-                <z:ToolButton upIcon="{resources.addIcon}" ui:field="btnAddHost"/>
-                <z:ToolButton upIcon="{resources.removeIcon}" ui:field="btnRemoveHost"/>
-                <z:ToolButton upIcon="{resources.editIcon}" ui:field="btnEditHost"/>
-                <z:ToolButton upIcon="{resources.disableIcon}" ui:field="btnDisableHost"/>
-                <z:ToolButton upIcon="{resources.enableIcon}" ui:field="btnEnableHost"/>
-                <z:ToolButton upIcon="{resources.listColumnsIcon}" ui:field="btnListTraces"/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.refreshIcon}" ui:field="btnRefresh"
+                        title="Refresh host list."/>
+                <z:ToolSeparator height="20px"/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.addIcon}" ui:field="btnAddHost"
+                        title="Add host."/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.removeIcon}" ui:field="btnRemoveHost"
+                        title="Remove host."/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.editIcon}" ui:field="btnEditHost"
+                        title="Edit host properties."/>
+                <z:ToolSeparator height="20px"/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.disableIcon}" ui:field="btnDisableHost"
+                        title="Disable host."/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.enableIcon}" ui:field="btnEnableHost"
+                        title="Enable host."/>
+                <z:ToolSeparator height="20px"/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.listColumnsIcon}" ui:field="btnListTraces"
+                        title="Open trace list for selected host."/>
             </g:HorizontalPanel>
         </g:north>
         <g:center>

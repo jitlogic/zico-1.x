@@ -28,6 +28,19 @@
     cursor: text;
 }
 
+.form input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.form input[disabled] {
+    background: #eee;
+    cursor: default;
+}
+
+.form input[disabled]:hover {
+    border:1px solid #ccc;
+}
+
 .line {
     display: flex;
     padding: 2px;

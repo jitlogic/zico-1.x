@@ -8,6 +8,7 @@
         .toolbar {
             display: flex;
             padding: 3px;
+            align-items: center;
         }
         .filter {
             flex: 10;
@@ -22,28 +23,39 @@
     </ui:style>
 
     <g:DockLayoutPanel unit="PX" ui:field="panel">
-        <g:north size="28">
+        <g:north size="32">
             <g:HTMLPanel addStyleNames="{style.toolbar} {wres.formCss.form}">
-                <z:ToolButton upIcon="{resources.methodTreeIcon}" toggleMode="true"
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.methodTreeIcon}" toggleMode="true"
                               addStyleNames="{style.item}" ui:field="btnDeepSearch"/>
-                <z:ToolButton upIcon="{resources.errorMarkIcon}" toggleMode="true"
-                              addStyleNames="{style.item}" ui:field="btnErrors"/>
-                <z:ToolButton upIcon="{resources.sort}" toggleMode="true"
-                              addStyleNames="{style.item}" ui:field="btnReverse"/>
-                <g:ListBox multipleSelect="false" width="80px"
-                           addStyleNames="{style.item}" ui:field="lstTraceType"/>
-                <g:TextBox width="80px"
+                <z:ToolSeparator height="20px"/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.errorMarkIcon}" toggleMode="true"
+                              addStyleNames="{style.item}" ui:field="btnErrors"
+                              title="Search only error traces"/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.sort}" toggleMode="true"
+                              addStyleNames="{style.item}" ui:field="btnReverse"
+                              title="Reverse order"/>
+                <g:ListBox height="21px" width="80px" multipleSelect="false"
+                           addStyleNames="{style.item}" ui:field="lstTraceType"
+                           title="Choose trace type"/>
+                <g:TextBox height="18px" width="80px" title="Minimum duration (in seconds)"
                            addStyleNames="{style.item}" ui:field="txtDuration"/>
-                <z:ToolButton upIcon="{resources.eqlIcon}" toggleMode="true"
-                              addStyleNames="{style.item}" ui:field="btnEnableEql"/>
-                <g:TextBox width="250px"
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.eqlIcon}" toggleMode="true"
+                              addStyleNames="{style.item}" ui:field="btnEnableEql"
+                              title="EQL query (instead of full text search)"/>
+                <g:TextBox height="18px" title="Type search phrase (or EQL query)"
                            addStyleNames="{style.filter}" ui:field="txtFilter"/>
-                <g:TextBox width="130px"
+                <g:TextBox height="18px" width="130px" title="Search traces older than this date"
                            addStyleNames="{style.item}" ui:field="txtSinceDate"/>
-                <z:ToolButton upIcon="{resources.searchIcon}"
-                              addStyleNames="{style.item}" ui:field="btnRunSearch"/>
-                <z:ToolButton upIcon="{resources.clearIcon}"
-                              addStyleNames="{style.item}" ui:field="btnClearFilters"/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.searchIcon}"
+                              addStyleNames="{style.item}" ui:field="btnRunSearch"
+                              title="Run search."/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.goNextIcon}"
+                              addStyleNames="{style.item}" ui:field="btnFindMore"
+                              title="Find More."/>
+                <z:ToolSeparator height="20px"/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.clearIcon}"
+                              addStyleNames="{style.item}" ui:field="btnClearFilters"
+                              title="Clear search filters."/>
             </g:HTMLPanel>
         </g:north>
         <g:center>

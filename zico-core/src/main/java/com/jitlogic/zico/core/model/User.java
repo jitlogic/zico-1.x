@@ -47,7 +47,7 @@ public class User implements Serializable {
         userName = obj.getString("username");
         realName = obj.getString("realname");
         flags = obj.getInt("flags");
-        password = obj.getString("password");
+        password = obj.optString("password");
 
         JSONArray hosts = obj.getJSONArray("hosts");
 

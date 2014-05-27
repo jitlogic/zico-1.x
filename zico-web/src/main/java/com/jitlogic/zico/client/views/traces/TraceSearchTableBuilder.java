@@ -30,11 +30,11 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.view.client.SelectionModel;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.shared.data.TraceInfoProxy;
+import com.jitlogic.zico.shared.data.TraceInfo;
 
 import java.util.Set;
 
-public class TraceSearchTableBuilder extends AbstractCellTableBuilder<TraceInfoProxy> {
+public class TraceSearchTableBuilder extends AbstractCellTableBuilder<TraceInfo> {
 
     private final String evenRowStyle;
     private final String selectedRowStyle;
@@ -47,14 +47,14 @@ public class TraceSearchTableBuilder extends AbstractCellTableBuilder<TraceInfoP
 
 
     private Set<Long> expandedDetails;
-    private Column<TraceInfoProxy,TraceInfoProxy> colDetails;
+    private Column<TraceInfo,TraceInfo> colDetails;
 
     /**
      * Construct a new table builder.
      *
      * @param cellTable the table this builder will build rows for
      */
-    public TraceSearchTableBuilder(AbstractCellTable<TraceInfoProxy> cellTable,
+    public TraceSearchTableBuilder(AbstractCellTable<TraceInfo> cellTable,
                                    Set<Long> expandedDetails) {
         super(cellTable);
 
@@ -69,22 +69,22 @@ public class TraceSearchTableBuilder extends AbstractCellTableBuilder<TraceInfoP
         selectedCellStyle = " " + style.selectedRowCell();
         extenderCellStyle = Resources.INSTANCE.zicoCssResources().methodDetailCell();
 
-        this.colDetails = new IdentityColumn<TraceInfoProxy>(new TraceDetailCell());
+        this.colDetails = new IdentityColumn<TraceInfo>(new TraceDetailCell());
         this.expandedDetails = expandedDetails;
     }
 
 
     @Override
-    protected void buildRowImpl(TraceInfoProxy rowValue, int absRowIndex) {
+    protected void buildRowImpl(TraceInfo rowValue, int absRowIndex) {
         // Calculate the row styles.
-        SelectionModel<? super TraceInfoProxy> selectionModel = cellTable.getSelectionModel();
+        SelectionModel<? super TraceInfo> selectionModel = cellTable.getSelectionModel();
         boolean isSelected = (selectionModel == null || rowValue == null) ? false : selectionModel.isSelected(rowValue);
         StringBuilder trClasses = new StringBuilder(evenRowStyle);
         if (isSelected) {
             trClasses.append(selectedRowStyle);
         }
         // Add custom row styles.
-        RowStyles<TraceInfoProxy> rowStyles = cellTable.getRowStyles();
+        RowStyles<TraceInfo> rowStyles = cellTable.getRowStyles();
         if (rowStyles != null) {
             String extraRowStyles = rowStyles.getStyleNames(rowValue, absRowIndex);
             if (extraRowStyles != null) {
@@ -99,7 +99,7 @@ public class TraceSearchTableBuilder extends AbstractCellTableBuilder<TraceInfoP
     }
 
 
-    private void buildDetailRow(TraceInfoProxy value, int absRowIndex, boolean isSelected, String trClasses) {
+    private void buildDetailRow(TraceInfo value, int absRowIndex, boolean isSelected, String trClasses) {
         TableRowBuilder tr = startRow();
         tr.className(trClasses);
         tr.startTD().endTD();
@@ -113,7 +113,7 @@ public class TraceSearchTableBuilder extends AbstractCellTableBuilder<TraceInfoP
     }
 
 
-    private void buildStandardRow(TraceInfoProxy rowValue, int absRowIndex, boolean isSelected, String trClasses) {
+    private void buildStandardRow(TraceInfo rowValue, int absRowIndex, boolean isSelected, String trClasses) {
         //boolean isEven = absRowIndex % 2 == 0;
 
 
@@ -124,7 +124,7 @@ public class TraceSearchTableBuilder extends AbstractCellTableBuilder<TraceInfoP
         // Build the columns.
         int columnCount = cellTable.getColumnCount();
         for (int curColumn = 0; curColumn < columnCount; curColumn++) {
-            Column<TraceInfoProxy, ?> column = cellTable.getColumn(curColumn);
+            Column<TraceInfo, ?> column = cellTable.getColumn(curColumn);
             // Create the cell styles.
             StringBuilder tdClasses = new StringBuilder(cellStyle);
             tdClasses.append(evenCellStyle);

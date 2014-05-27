@@ -40,25 +40,21 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ClientUtil;
 import com.jitlogic.zico.client.MessageDisplay;
+import com.jitlogic.zico.client.api.SystemService;
+import com.jitlogic.zico.client.api.TraceDataService;
 import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.client.widgets.ToolButton;
-import com.jitlogic.zico.shared.data.HostProxy;
-import com.jitlogic.zico.shared.data.SymbolProxy;
-import com.jitlogic.zico.shared.data.TraceInfoProxy;
-import com.jitlogic.zico.shared.data.TraceInfoSearchQueryProxy;
-import com.jitlogic.zico.shared.data.TraceInfoSearchResultProxy;
-import com.jitlogic.zico.shared.services.TraceDataServiceProxy;
+import com.jitlogic.zico.shared.data.*;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -107,22 +103,27 @@ public class TraceSearchPanel extends Composite {
     ToolButton btnRunSearch;
 
     @UiField
+    ToolButton btnFindMore;
+
+    @UiField
     ToolButton btnClearFilters;
 
     @UiField(provided = true)
-    DataGrid<TraceInfoProxy> grid;
+    DataGrid<TraceInfo> grid;
 
     public final static String RE_TIMESTAMP = "\\d{4}-\\d{2}-\\d{2}\\s*(\\d{2}:\\d{2}:\\d{2}(\\.\\d{1-3})?)?";
 
     private PanelFactory pf;
-    private ZicoRequestFactory rf;
+
+    private TraceDataService traceDataService;
+    private SystemService systemService;
 
     private Provider<Shell> shell;
 
-    private HostProxy host;
+    private HostInfo host;
 
-    private ListDataProvider<TraceInfoProxy> data;
-    private SingleSelectionModel<TraceInfoProxy> selection;
+    private ListDataProvider<TraceInfo> data;
+    private SingleSelectionModel<TraceInfo> selection;
     private TraceSearchTableBuilder rowBuilder;
     private Set<Long> expandedDetails = new HashSet<Long>();
 
@@ -130,10 +131,7 @@ public class TraceSearchPanel extends Composite {
 
     private int seqnum = 0;
 
-    // Search toolbar controls (in order of occurence on panel toolbar)
-
     private PopupMenu contextMenu;
-    private PopupMenu traceTypeMenu;
     private boolean moreResults;
 
     private String strTraceType;
@@ -143,10 +141,11 @@ public class TraceSearchPanel extends Composite {
 
 
     @Inject
-    public TraceSearchPanel(Provider<Shell> shell, ZicoRequestFactory rf,
-                            PanelFactory pf, @Assisted HostProxy host, MessageDisplay md) {
+    public TraceSearchPanel(Provider<Shell> shell, TraceDataService traceDataService, SystemService systemService,
+                            PanelFactory pf, @Assisted HostInfo host, MessageDisplay md) {
         this.shell = shell;
-        this.rf = rf;
+        this.traceDataService = traceDataService;
+        this.systemService = systemService;
         this.pf = pf;
         this.host = host;
         this.md = md;
@@ -155,7 +154,7 @@ public class TraceSearchPanel extends Composite {
         this.resources = Resources.INSTANCE;
 
         traceTypes = new HashMap<Integer, String>();
-        traceTypes.put(0, "(all)");
+        traceTypes.put(0, "<all>");
 
         createTraceGrid();
 
@@ -167,6 +166,7 @@ public class TraceSearchPanel extends Composite {
 
         loadTraceTypes();
         btnReverse.setToggled(true);
+        btnFindMore.setEnabled(false);
         refresh();
     }
 
@@ -198,54 +198,48 @@ public class TraceSearchPanel extends Composite {
         refresh();
     }
 
-//        ToolTipConfig ttcDateTime = new ToolTipConfig("Allowed timestamp formats:" +
-//                "<li><b>YYYY-MM-DD</b> - date only</li>" +
-//                "<li><b>YYYY-MM-DD hh:mm:ss</b> - date and time</li>" +
-//                "<li><b>YYYY-MM-DD hh:mm:ss.SSS</b> - millisecond resolution</li>");
-
-
     private void createTraceGrid() {
-        grid = new DataGrid<TraceInfoProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
-        selection = new SingleSelectionModel<TraceInfoProxy>(KEY_PROVIDER);
+        grid = new DataGrid<TraceInfo>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
+        selection = new SingleSelectionModel<TraceInfo>(KEY_PROVIDER);
         grid.setSelectionModel(selection);
 
-        Column<TraceInfoProxy, TraceInfoProxy> colExpander
-                = new IdentityColumn<TraceInfoProxy>(DETAIL_EXPANDER_CELL);
+        Column<TraceInfo, TraceInfo> colExpander
+                = new IdentityColumn<TraceInfo>(DETAIL_EXPANDER_CELL);
         grid.addColumn(colExpander, "#");
         grid.setColumnWidth(colExpander, 32, Style.Unit.PX);
 
-        Column<TraceInfoProxy, TraceInfoProxy> colTraceClock
-                = new IdentityColumn<TraceInfoProxy>(TRACE_CLOCK_CELL);
-        grid.addColumn(colTraceClock, new ResizableHeader<TraceInfoProxy>("Clock", grid, colTraceClock));
+        Column<TraceInfo, TraceInfo> colTraceClock
+                = new IdentityColumn<TraceInfo>(TRACE_CLOCK_CELL);
+        grid.addColumn(colTraceClock, new ResizableHeader<TraceInfo>("Clock", grid, colTraceClock));
         grid.setColumnWidth(colTraceClock, 140, Style.Unit.PX);
 
-        Column<TraceInfoProxy, TraceInfoProxy> colTraceType
-                = new IdentityColumn<TraceInfoProxy>(TRACE_TYPE_CELL);
-        grid.addColumn(colTraceType, new ResizableHeader<TraceInfoProxy>("Type", grid, colTraceType));
-        grid.setColumnWidth(colTraceType, 50, Style.Unit.PX);
+        Column<TraceInfo, TraceInfo> colTraceType
+                = new IdentityColumn<TraceInfo>(TRACE_TYPE_CELL);
+        grid.addColumn(colTraceType, new ResizableHeader<TraceInfo>("Type", grid, colTraceType));
+        grid.setColumnWidth(colTraceType, 60, Style.Unit.PX);
 
-        Column<TraceInfoProxy, TraceInfoProxy> colTraceDuration
-                = new IdentityColumn<TraceInfoProxy>(TRACE_DURATION_CELL);
-        grid.addColumn(colTraceDuration, new ResizableHeader<TraceInfoProxy>("Time", grid, colTraceDuration));
+        Column<TraceInfo, TraceInfo> colTraceDuration
+                = new IdentityColumn<TraceInfo>(TRACE_DURATION_CELL);
+        grid.addColumn(colTraceDuration, new ResizableHeader<TraceInfo>("Time", grid, colTraceDuration));
         grid.setColumnWidth(colTraceDuration, 64, Style.Unit.PX);
 
-        Column<TraceInfoProxy, TraceInfoProxy> colTraceCalls
-                = new IdentityColumn<TraceInfoProxy>(TRACE_CALLS_CELL);
-        grid.addColumn(colTraceCalls, new ResizableHeader<TraceInfoProxy>("Calls", grid, colTraceCalls));
+        Column<TraceInfo, TraceInfo> colTraceCalls
+                = new IdentityColumn<TraceInfo>(TRACE_CALLS_CELL);
+        grid.addColumn(colTraceCalls, new ResizableHeader<TraceInfo>("Calls", grid, colTraceCalls));
         grid.setColumnWidth(colTraceCalls, 50, Style.Unit.PX);
 
-        Column<TraceInfoProxy, TraceInfoProxy> colTraceErrors
-                = new IdentityColumn<TraceInfoProxy>(TRACE_ERRORS_CELL);
-        grid.addColumn(colTraceErrors, new ResizableHeader<TraceInfoProxy>("Errs", grid, colTraceErrors));
+        Column<TraceInfo, TraceInfo> colTraceErrors
+                = new IdentityColumn<TraceInfo>(TRACE_ERRORS_CELL);
+        grid.addColumn(colTraceErrors, new ResizableHeader<TraceInfo>("Errs", grid, colTraceErrors));
         grid.setColumnWidth(colTraceErrors, 50, Style.Unit.PX);
 
-        Column<TraceInfoProxy, TraceInfoProxy> colTraceRecords
-                = new IdentityColumn<TraceInfoProxy>(TRACE_RECORDS_CELL);
-        grid.addColumn(colTraceRecords, new ResizableHeader<TraceInfoProxy>("Recs", grid, colTraceRecords));
+        Column<TraceInfo, TraceInfo> colTraceRecords
+                = new IdentityColumn<TraceInfo>(TRACE_RECORDS_CELL);
+        grid.addColumn(colTraceRecords, new ResizableHeader<TraceInfo>("Recs", grid, colTraceRecords));
         grid.setColumnWidth(colTraceRecords, 50, Style.Unit.PX);
 
-        Column<TraceInfoProxy, TraceInfoProxy> colTraceDesc
-                = new IdentityColumn<TraceInfoProxy>(TRACE_NAME_CELL);
+        Column<TraceInfo, TraceInfo> colTraceDesc
+                = new IdentityColumn<TraceInfo>(TRACE_NAME_CELL);
         grid.addColumn(colTraceDesc, "Description");
         grid.setColumnWidth(colTraceDesc, 100, Style.Unit.PCT);
 
@@ -257,12 +251,12 @@ public class TraceSearchPanel extends Composite {
         grid.setSkipRowHoverCheck(true);
         grid.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
 
-        data = new ListDataProvider<TraceInfoProxy>();
+        data = new ListDataProvider<TraceInfo>();
         data.addDataDisplay(grid);
 
-        grid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceInfoProxy>() {
+        grid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceInfo>() {
             @Override
-            public void onCellPreview(CellPreviewEvent<TraceInfoProxy> event) {
+            public void onCellPreview(CellPreviewEvent<TraceInfo> event) {
                 NativeEvent nev = event.getNativeEvent();
                 String eventType = nev.getType();
                 if ((BrowserEvents.KEYDOWN.equals(eventType) && nev.getKeyCode() == KeyCodes.KEY_ENTER)
@@ -341,6 +335,7 @@ public class TraceSearchPanel extends Composite {
         txtFilter.setEnabled(!inSearch);
         btnRunSearch.setEnabled(!inSearch);
         btnClearFilters.setEnabled(!inSearch);
+        btnFindMore.setEnabled(!inSearch && moreResults);
 
         if (inSearch) {
             md.info(MDS, message, "Cancel",
@@ -366,7 +361,7 @@ public class TraceSearchPanel extends Composite {
 
 
     private void openDetailView() {
-        TraceInfoProxy traceInfo = selection.getSelectedObject();
+        TraceInfo traceInfo = selection.getSelectedObject();
         if (traceInfo != null) {
             TraceCallTreePanel detail = pf.traceCallTreePanel(traceInfo);
             shell.get().addView(detail, ClientUtil.formatTimestamp(traceInfo.getClock()) + "@" + host.getName());
@@ -375,7 +370,7 @@ public class TraceSearchPanel extends Composite {
 
 
     private void openRankingView() {
-        TraceInfoProxy traceInfo = selection.getSelectedObject();
+        TraceInfo traceInfo = selection.getSelectedObject();
         if (traceInfo != null) {
             MethodRankingPanel ranking = pf.methodRankingPanel(traceInfo);
             shell.get().addView(ranking, ClientUtil.formatTimestamp(traceInfo.getClock()) + "@" + host.getName());
@@ -383,7 +378,7 @@ public class TraceSearchPanel extends Composite {
     }
 
     private void openMethodAttrsDialog() {
-        TraceInfoProxy ti = selection.getSelectedObject();
+        TraceInfo ti = selection.getSelectedObject();
         if (ti != null) {
             pf.methodAttrsDialog(ti.getHostName(), ti.getDataOffs(), "", 0L).asPopupWindow().show();
         }
@@ -395,31 +390,35 @@ public class TraceSearchPanel extends Composite {
         loadMore();
     }
 
+    @UiHandler("btnFindMore")
+    void findMoreClicked(ClickEvent e) {
+        loadMore();
+    }
+
     private void loadMore() {
         loadMore(50);
     }
 
     private void loadMore(final int limit) {
         intoSearchMode(true, false, "Searching ...");
-        TraceDataServiceProxy req = rf.traceDataService();
-        TraceInfoSearchQueryProxy q = req.create(TraceInfoSearchQueryProxy.class);
+        TraceInfoSearchQuery q = new TraceInfoSearchQuery();
         q.setLimit(limit);
         q.setHostName(host.getName());
         q.setSeq(seqnum);
 
         q.setFlags(
-                (btnErrors.isToggled() ? TraceInfoSearchQueryProxy.ERRORS_ONLY : 0)
-              | (btnReverse.isToggled() ? TraceInfoSearchQueryProxy.ORDER_DESC : 0)
-              | (btnDeepSearch.isToggled() ? TraceInfoSearchQueryProxy.DEEP_SEARCH : 0)
-              | (btnEnableEql.isToggled() ? TraceInfoSearchQueryProxy.EQL_QUERY : 0)
+                (btnErrors.isToggled() ? TraceInfoSearchQuery.ERRORS_ONLY : 0)
+              | (btnReverse.isToggled() ? TraceInfoSearchQuery.ORDER_DESC : 0)
+              | (btnDeepSearch.isToggled() ? TraceInfoSearchQuery.DEEP_SEARCH : 0)
+              | (btnEnableEql.isToggled() ? TraceInfoSearchQuery.EQL_QUERY : 0)
         );
 
-        List<TraceInfoProxy> list = data.getList();
+        List<TraceInfo> list = data.getList();
         if (list.size() > 0) {
             q.setOffset(list.get(list.size()-1).getDataOffs());
         }
 
-        if (strTraceType != null) {
+        if (strTraceType != null && !"<all>".equals(strTraceType)) {
             q.setTraceName(strTraceType);
         }
 
@@ -437,59 +436,49 @@ public class TraceSearchPanel extends Composite {
         }
 
         md.info(MDS, "Searching for traces ...");
-        req.searchTraces(q).fire(new Receiver<TraceInfoSearchResultProxy>() {
+        traceDataService.search(q, new MethodCallback<TraceInfoSearchResult>() {
             @Override
-            public void onSuccess(TraceInfoSearchResultProxy response) {
-                if (response.getSeq() == seqnum) {
-                    List<TraceInfoProxy> results = response.getResults();
-                    data.getList().addAll(results);
-                    moreResults = 0 != (response.getFlags() & TraceInfoSearchResultProxy.MORE_RESULTS);
-                    intoSearchMode(false, moreResults, "Found " + data.getList().size() + " results.");
-                    if (moreResults && results.size() < limit) {
-                        loadMore(limit-results.size());
-                    }
-                }
-                md.clear(MDS);
+            public void onFailure(Method method, Throwable e) {
+                intoSearchMode(false, false, "Error occured while searching: " + e.getMessage());
+                md.error(MDS, "Trace search request failed", e);
             }
 
             @Override
-            public void onFailure(ServerFailure error) {
-                intoSearchMode(false, false, "Error occured while searching: " + error.getMessage());
-                md.error(MDS, "Trace search request failed", error);
+            public void onSuccess(Method method, TraceInfoSearchResult response) {
+                if (response.getSeq() == seqnum) {
+                    List<TraceInfo> results = response.getResults();
+                    data.getList().addAll(results);
+                    moreResults = 0 != (response.getFlags() & TraceInfoSearchResult.MORE_RESULTS);
+                    intoSearchMode(false, moreResults, "Found " + data.getList().size() + " results.");
+                    if (moreResults && results.size() < limit) {
+                        loadMore(limit - results.size());
+                    }
+                    md.info(MDS, "Found: " + results.size() + " traces " +
+                            (moreResults ? "(more to come - click 'Find More' button)." : "."));
+                }
             }
         });
     }
 
     private void loadTraceTypes() {
-        rf.systemService().getTidMap(host.getName()).fire(new Receiver<List<SymbolProxy>>() {
+        systemService.getTidMap(host.getName(), new MethodCallback<List<SymbolInfo>>() {
             @Override
-            public void onSuccess(List<SymbolProxy> response) {
-                traceTypeMenu = new PopupMenu();
-                MenuItem miAll = new MenuItem("<all>",
-                new Scheduler.ScheduledCommand() {
-                    @Override
-                    public void execute() {
-                        strTraceType = null;
-                        refresh();
-                    }
-                });
-                traceTypeMenu.addItem(miAll);
-                traceTypeMenu.addSeparator();
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error loading TID map", e);
+            }
 
-
+            @Override
+            public void onSuccess(Method method, List<SymbolInfo> response) {
                 lstTraceType.clear();
-                for (SymbolProxy e : response) {
+                lstTraceType.addItem("<all>");
+                for (SymbolInfo e : response) {
                     lstTraceType.addItem(e.getName());
                 }
-            }
-            @Override
-            public void onFailure(ServerFailure error) {
-                md.error(MDS, "Error loading TID map", error);
             }
         });
     }
 
-    private void toggleDetails(TraceInfoProxy ti) {
+    private void toggleDetails(TraceInfo ti) {
         long offs = ti.getDataOffs();
         if (expandedDetails.contains(offs)) {
             expandedDetails.remove(offs);
@@ -499,9 +488,9 @@ public class TraceSearchPanel extends Composite {
         grid.redrawRow(data.getList().indexOf(ti));
     }
 
-    private static final ProvidesKey<TraceInfoProxy> KEY_PROVIDER = new ProvidesKey<TraceInfoProxy>() {
+    private static final ProvidesKey<TraceInfo> KEY_PROVIDER = new ProvidesKey<TraceInfo>() {
         @Override
-        public Object getKey(TraceInfoProxy item) {
+        public Object getKey(TraceInfo item) {
             return item.getDataOffs();
         }
     };
@@ -510,15 +499,15 @@ public class TraceSearchPanel extends Composite {
     private static final String EXPANDER_EXPAND = AbstractImagePrototype.create(Resources.INSTANCE.expanderExpand()).getHTML();
     private static final String EXPANDER_COLLAPSE = AbstractImagePrototype.create(Resources.INSTANCE.expanderCollapse()).getHTML();
 
-    private final Cell<TraceInfoProxy> DETAIL_EXPANDER_CELL = new ActionCell<TraceInfoProxy>("",
-            new ActionCell.Delegate<TraceInfoProxy>() {
+    private final Cell<TraceInfo> DETAIL_EXPANDER_CELL = new ActionCell<TraceInfo>("",
+            new ActionCell.Delegate<TraceInfo>() {
                 @Override
-                public void execute(TraceInfoProxy rec) {
+                public void execute(TraceInfo rec) {
                     toggleDetails(rec);
                 }
             }) {
         @Override
-        public void render(Cell.Context context, TraceInfoProxy tr, SafeHtmlBuilder sb) {
+        public void render(Cell.Context context, TraceInfo tr, SafeHtmlBuilder sb) {
             if ((tr.getAttributes() != null && tr.getAttributes().size() > 0)||tr.getExceptionInfo() != null) {
                 sb.appendHtmlConstant("<span style=\"cursor: pointer;\">");
                 sb.appendHtmlConstant(expandedDetails.contains(tr.getDataOffs()) ? EXPANDER_COLLAPSE : EXPANDER_EXPAND);
@@ -527,9 +516,9 @@ public class TraceSearchPanel extends Composite {
         }
     };
 
-    private AbstractCell<TraceInfoProxy> TRACE_NAME_CELL = new AbstractCell<TraceInfoProxy>() {
+    private AbstractCell<TraceInfo> TRACE_NAME_CELL = new AbstractCell<TraceInfo>() {
         @Override
-        public void render(Context context, TraceInfoProxy ti, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceInfo ti, SafeHtmlBuilder sb) {
             String color = ti.getStatus() != 0 ? "red" : "black";
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\" style=\"color: " + color + "; text-align: left;\">");
             sb.append(SafeHtmlUtils.fromString(ti.getDescription()));
@@ -537,54 +526,54 @@ public class TraceSearchPanel extends Composite {
         }
     };
 
-    private AbstractCell<TraceInfoProxy> TRACE_CLOCK_CELL = new AbstractCell<TraceInfoProxy>() {
+    private AbstractCell<TraceInfo> TRACE_CLOCK_CELL = new AbstractCell<TraceInfo>() {
         @Override
-        public void render(Context context, TraceInfoProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString(ClientUtil.formatTimestamp(rec.getClock())));
             sb.appendHtmlConstant("</div>");
         }
     };
 
-    private AbstractCell<TraceInfoProxy> TRACE_TYPE_CELL = new AbstractCell<TraceInfoProxy>() {
+    private AbstractCell<TraceInfo> TRACE_TYPE_CELL = new AbstractCell<TraceInfo>() {
         @Override
-        public void render(Context context, TraceInfoProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getTraceType()));
             sb.appendHtmlConstant("</div>");
         }
     };
 
-    private AbstractCell<TraceInfoProxy> TRACE_DURATION_CELL = new AbstractCell<TraceInfoProxy>() {
+    private AbstractCell<TraceInfo> TRACE_DURATION_CELL = new AbstractCell<TraceInfo>() {
         @Override
-        public void render(Context context, TraceInfoProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString(ClientUtil.formatDuration(rec.getExecutionTime())));
             sb.appendHtmlConstant("</div>");
         }
     };
 
-    private AbstractCell<TraceInfoProxy> TRACE_CALLS_CELL = new AbstractCell<TraceInfoProxy>() {
+    private AbstractCell<TraceInfo> TRACE_CALLS_CELL = new AbstractCell<TraceInfo>() {
         @Override
-        public void render(Context context, TraceInfoProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getCalls()));
             sb.appendHtmlConstant("</div>");
         }
     };
 
-    private AbstractCell<TraceInfoProxy> TRACE_RECORDS_CELL = new AbstractCell<TraceInfoProxy>() {
+    private AbstractCell<TraceInfo> TRACE_RECORDS_CELL = new AbstractCell<TraceInfo>() {
         @Override
-        public void render(Context context, TraceInfoProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getRecords()));
             sb.appendHtmlConstant("</div>");
         }
     };
 
-    private AbstractCell<TraceInfoProxy> TRACE_ERRORS_CELL = new AbstractCell<TraceInfoProxy>() {
+    private AbstractCell<TraceInfo> TRACE_ERRORS_CELL = new AbstractCell<TraceInfo>() {
         @Override
-        public void render(Context context, TraceInfoProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getErrors()));
             sb.appendHtmlConstant("</div>");

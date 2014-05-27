@@ -43,20 +43,21 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.ClientUtil;
 import com.jitlogic.zico.client.MessageDisplay;
+import com.jitlogic.zico.client.api.TraceDataService;
 import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
 import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.MenuItem;
 import com.jitlogic.zico.client.widgets.PopupMenu;
 import com.jitlogic.zico.client.widgets.ToolButton;
-import com.jitlogic.zico.shared.data.TraceInfoProxy;
-import com.jitlogic.zico.shared.data.TraceRecordProxy;
+import com.jitlogic.zico.shared.data.TraceInfo;
+import com.jitlogic.zico.shared.data.TraceRecordInfo;
+import com.jitlogic.zico.shared.data.TraceRecordListQuery;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -96,23 +97,24 @@ public class TraceCallTreePanel extends Composite {
     ToolButton btnSearchNext;
 
     @UiField(provided = true)
-    DataGrid<TraceRecordProxy> grid;
+    DataGrid<TraceRecordInfo> grid;
 
-    private static final ProvidesKey<TraceRecordProxy> KEY_PROVIDER = new ProvidesKey<TraceRecordProxy>() {
+    private static final ProvidesKey<TraceRecordInfo> KEY_PROVIDER = new ProvidesKey<TraceRecordInfo>() {
         @Override
-        public Object getKey(TraceRecordProxy item) {
+        public Object getKey(TraceRecordInfo item) {
             return item.getPath();
         }
     };
 
-    private ZicoRequestFactory rf;
-    private TraceInfoProxy trace;
+    private TraceInfo trace;
+
+    private TraceDataService traceDataService;
 
     private TraceRecordSearchDialog searchDialog;
     private PanelFactory panelFactory;
 
-    private SingleSelectionModel<TraceRecordProxy> selection;
-    private ListDataProvider<TraceRecordProxy> data;
+    private SingleSelectionModel<TraceRecordInfo> selection;
+    private ListDataProvider<TraceRecordInfo> data;
     private TraceCallTableBuilder rowBuilder;
 
     private Set<String> expandedDetails = new HashSet<String>();
@@ -121,17 +123,17 @@ public class TraceCallTreePanel extends Composite {
 
     private boolean fullyExpanded;
 
-    private List<TraceRecordProxy> searchResults = new ArrayList<TraceRecordProxy>();
+    private List<TraceRecordInfo> searchResults = new ArrayList<TraceRecordInfo>();
     private int curentSearchResultIdx = -1;
 
     private MessageDisplay md;
     private final String MDS;
 
     @Inject
-    public TraceCallTreePanel(ZicoRequestFactory rf, PanelFactory panelFactory,
-                              MessageDisplay md, @Assisted TraceInfoProxy trace) {
-        this.rf = rf;
+    public TraceCallTreePanel(TraceDataService traceDataService, PanelFactory panelFactory,
+                              MessageDisplay md, @Assisted TraceInfo trace) {
         this.md = md;
+        this.traceDataService = traceDataService;
         this.panelFactory = panelFactory;
         this.trace = trace;
 
@@ -156,42 +158,42 @@ public class TraceCallTreePanel extends Composite {
     private final static String SMALL_CELL_CSS = Resources.INSTANCE.zicoCssResources().traceSmallCell();
 
     private void createCallTreeGrid() {
-        grid = new DataGrid<TraceRecordProxy>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
-        selection = new SingleSelectionModel<TraceRecordProxy>(KEY_PROVIDER);
+        grid = new DataGrid<TraceRecordInfo>(1024*1024, ZicoDataGridResources.INSTANCE, KEY_PROVIDER);
+        selection = new SingleSelectionModel<TraceRecordInfo>(KEY_PROVIDER);
         grid.setSelectionModel(selection);
 
-        Column<TraceRecordProxy, TraceRecordProxy> colExpander
-                = new IdentityColumn<TraceRecordProxy>(DETAIL_EXPANDER_CELL);
+        Column<TraceRecordInfo, TraceRecordInfo> colExpander
+                = new IdentityColumn<TraceRecordInfo>(DETAIL_EXPANDER_CELL);
         grid.addColumn(colExpander, "#");
         grid.setColumnWidth(colExpander, 32, Style.Unit.PX);
 
-        Column<TraceRecordProxy, TraceRecordProxy> colMethodName
-                = new IdentityColumn<TraceRecordProxy>(METHOD_TREE_CELL);
-        grid.addColumn(colMethodName, new ResizableHeader<TraceRecordProxy>("Method", grid, colMethodName));
+        Column<TraceRecordInfo, TraceRecordInfo> colMethodName
+                = new IdentityColumn<TraceRecordInfo>(METHOD_TREE_CELL);
+        grid.addColumn(colMethodName, new ResizableHeader<TraceRecordInfo>("Method", grid, colMethodName));
         grid.setColumnWidth(colMethodName, 100, Style.Unit.PCT);
 
 
-        Column<TraceRecordProxy, TraceRecordProxy> colTime =
-            new IdentityColumn<TraceRecordProxy>(METHOD_TIME_CELL);
-        grid.addColumn(colTime, new ResizableHeader<TraceRecordProxy>("Time", grid, colTime));
+        Column<TraceRecordInfo, TraceRecordInfo> colTime =
+            new IdentityColumn<TraceRecordInfo>(METHOD_TIME_CELL);
+        grid.addColumn(colTime, new ResizableHeader<TraceRecordInfo>("Time", grid, colTime));
         grid.setColumnWidth(colTime, 60, Style.Unit.PX);
 
 
-        Column<TraceRecordProxy, TraceRecordProxy> colCalls =
-            new IdentityColumn<TraceRecordProxy>(METHOD_CALLS_CELL);
-        grid.addColumn(colCalls, new ResizableHeader<TraceRecordProxy>("Calls", grid, colCalls));
+        Column<TraceRecordInfo, TraceRecordInfo> colCalls =
+            new IdentityColumn<TraceRecordInfo>(METHOD_CALLS_CELL);
+        grid.addColumn(colCalls, new ResizableHeader<TraceRecordInfo>("Calls", grid, colCalls));
         grid.setColumnWidth(colCalls, 60, Style.Unit.PX);
 
 
-        Column<TraceRecordProxy, TraceRecordProxy> colErrors =
-            new IdentityColumn<TraceRecordProxy>(METHOD_ERRORS_CELL);
-        grid.addColumn(colErrors, new ResizableHeader<TraceRecordProxy>("Errors", grid, colErrors));
+        Column<TraceRecordInfo, TraceRecordInfo> colErrors =
+            new IdentityColumn<TraceRecordInfo>(METHOD_ERRORS_CELL);
+        grid.addColumn(colErrors, new ResizableHeader<TraceRecordInfo>("Errors", grid, colErrors));
         grid.setColumnWidth(colErrors, 60, Style.Unit.PX);
 
 
-        Column<TraceRecordProxy, TraceRecordProxy> colPct =
-            new IdentityColumn<TraceRecordProxy>(METHOD_PCT_CELL);
-        grid.addColumn(colPct, new ResizableHeader<TraceRecordProxy>("Pct", grid, colPct));
+        Column<TraceRecordInfo, TraceRecordInfo> colPct =
+            new IdentityColumn<TraceRecordInfo>(METHOD_PCT_CELL);
+        grid.addColumn(colPct, new ResizableHeader<TraceRecordInfo>("Pct", grid, colPct));
         grid.setColumnWidth(colPct, 60, Style.Unit.PX);
 
         rowBuilder = new TraceCallTableBuilder(grid, expandedDetails);
@@ -203,14 +205,14 @@ public class TraceCallTreePanel extends Composite {
         grid.setSkipRowHoverCheck(true);
         grid.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
 
-        grid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceRecordProxy>() {
+        grid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceRecordInfo>() {
             @Override
-            public void onCellPreview(CellPreviewEvent<TraceRecordProxy> event) {
+            public void onCellPreview(CellPreviewEvent<TraceRecordInfo> event) {
                 NativeEvent nev = event.getNativeEvent();
                 String eventType = nev.getType();
                 if ((BrowserEvents.KEYDOWN.equals(eventType) && nev.getKeyCode() == KeyCodes.KEY_ENTER)
                         || BrowserEvents.DBLCLICK.equals(nev.getType())) {
-                    TraceRecordProxy tr = event.getValue();
+                    TraceRecordInfo tr = event.getValue();
                     panelFactory.methodAttrsDialog(trace.getHostName(), trace.getDataOffs(), tr.getPath(), 0L).asPopupWindow().show();
                 }
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
@@ -237,7 +239,7 @@ public class TraceCallTreePanel extends Composite {
             }
         }, ContextMenuEvent.getType());
 
-        data = new ListDataProvider<TraceRecordProxy>();
+        data = new ListDataProvider<TraceRecordInfo>();
         data.addDataDisplay(grid);
     }
 
@@ -250,7 +252,7 @@ public class TraceCallTreePanel extends Composite {
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
-                        TraceRecordProxy tr = selection.getSelectedObject();
+                        TraceRecordInfo tr = selection.getSelectedObject();
                         if (tr != null) {
                             panelFactory.methodAttrsDialog(trace.getHostName(), trace.getDataOffs(), tr.getPath(), 0L).asPopupWindow().show();
                         }
@@ -269,7 +271,7 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    public void setResults(List<TraceRecordProxy> results, int idx) {
+    public void setResults(List<TraceRecordInfo> results, int idx) {
         this.searchResults = results;
         goToResult(idx);
     }
@@ -293,10 +295,10 @@ public class TraceCallTreePanel extends Composite {
             path = "/";
         }
 
-        List<TraceRecordProxy> lst = data.getList();
+        List<TraceRecordInfo> lst = data.getList();
 
         for (int i = 0; i < lst.size(); i++) {
-            TraceRecordProxy tr = lst.get(i);
+            TraceRecordInfo tr = lst.get(i);
             String trPath = "/"+tr.getPath();
             if (trPath.equals(path)) {
                 selection.setSelected(tr, true);
@@ -323,40 +325,47 @@ public class TraceCallTreePanel extends Composite {
 
         md.info(MDS, "Loading data. Please wait ...");
 
-        rf.traceDataService().listRecords(trace.getHostName(), trace.getDataOffs(), 0, null, recursive)
-            .fire(new Receiver<List<TraceRecordProxy>>() {
-                @Override
-                public void onSuccess(List<TraceRecordProxy> response) {
-                    data.setList(response);
-                    if (action != null) {
-                        action.run();
-                    }
-                    if (response.size() > 1) {
-                        grid.getRowElement(0).scrollIntoView();
-                    }
-                    md.clear(MDS);
+        TraceRecordListQuery q = new TraceRecordListQuery();
+        q.setHostName(trace.getHostName());
+        q.setTraceOffs(trace.getDataOffs());
+        q.setMinTime(0);
+        q.setPath(null);
+        q.setRecursive(recursive);
+
+        traceDataService.listRecords(q, new MethodCallback<List<TraceRecordInfo>>() {
+            @Override
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error loading trace data", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, List<TraceRecordInfo> response) {
+                data.setList(response);
+                if (action != null) {
+                    action.run();
                 }
-                @Override
-                public void onFailure(ServerFailure failure) {
-                    md.error(MDS, "Error loading trace data", failure);
+                if (response.size() > 1) {
+                    grid.getRowElement(0).scrollIntoView();
                 }
-            });
+                md.clear(MDS);
+            }
+        });
     }
 
 
     @UiHandler("btnParentMethod")
     void findParent(ClickEvent e) {
-        TraceRecordProxy rec = selection.getSelectedObject();
+        TraceRecordInfo rec = selection.getSelectedObject();
 
         if (rec == null) {
             return;
         }
 
-        List<TraceRecordProxy> recList = data.getList();
+        List<TraceRecordInfo> recList = data.getList();
 
         int nsegs = rec.getPath().split("/").length;
 
-        TraceRecordProxy prec = rec;
+        TraceRecordInfo prec = rec;
         int idx = 0;
 
         for (idx = recList.indexOf(rec)-1; idx >= 0; idx--) {
@@ -384,14 +393,14 @@ public class TraceCallTreePanel extends Composite {
             return;
         }
 
-        TraceRecordProxy rec = selection.getSelectedObject();
-        List<TraceRecordProxy> recList = data.getList();
+        TraceRecordInfo rec = selection.getSelectedObject();
+        List<TraceRecordInfo> recList = data.getList();
         if (rec == null) {
             rec = recList.get(0);
         }
 
         for (int i = recList.indexOf(rec)+1; i < recList.size(); i++) {
-            TraceRecordProxy tr = recList.get(i);
+            TraceRecordInfo tr = recList.get(i);
             if (tr.getExceptionInfo() != null) {
                 selection.setSelected(tr, true);
                 grid.getRowElement(i).scrollIntoView();
@@ -404,13 +413,13 @@ public class TraceCallTreePanel extends Composite {
 
     @UiHandler("btnSlowestMethod")
     void findSlowestMethod(ClickEvent e) {
-        TraceRecordProxy rec = selection.getSelectedObject();
-        List<TraceRecordProxy> recList = data.getList();
+        TraceRecordInfo rec = selection.getSelectedObject();
+        List<TraceRecordInfo> recList = data.getList();
         if (rec == null) {
             rec = recList.get(0);
         }
 
-        TraceRecordProxy lrec = null;
+        TraceRecordInfo lrec = null;
         int lidx = -1, startIdx = recList.indexOf(rec);
 
         if (rec.getChildren() > 0 && !isExpanded(startIdx)) {
@@ -420,7 +429,7 @@ public class TraceCallTreePanel extends Composite {
 
         if (startIdx+1 < recList.size()) {
             for (int idx = startIdx+1; idx < recList.size(); idx++) {
-                TraceRecordProxy r = recList.get(idx);
+                TraceRecordInfo r = recList.get(idx);
                 if (r.getPath().startsWith(rec.getPath())) {
                     if (lrec == null || r.getTime() > lrec.getTime()) {
                         lrec = r;
@@ -464,30 +473,36 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private void doExpand(final TraceRecordProxy rec) {
+    private void doExpand(final TraceRecordInfo rec) {
         md.info(MDS, "Loading trace data...");
-        rf.traceDataService().listRecords(trace.getHostName(), trace.getDataOffs(), 0, rec.getPath(), false).fire(
-                new Receiver<List<TraceRecordProxy>>() {
-                    @Override
-                    public void onSuccess(List<TraceRecordProxy> newrecs) {
-                        List<TraceRecordProxy> list = data.getList();
-                        int idx = list.indexOf(rec)+1;
-                        for (int i = 0; i < newrecs.size(); i++) {
-                            list.add(idx+i, newrecs.get(i));
-                        }
-                        md.clear(MDS);
-                    }
-                    @Override
-                    public void onFailure(ServerFailure failure) {
-                        md.error(MDS, "Error loading trace data", failure);
-                    }
+        TraceRecordListQuery q = new TraceRecordListQuery();
+        q.setHostName(trace.getHostName());;
+        q.setTraceOffs(trace.getDataOffs());
+        q.setMinTime(0);
+        q.setPath(rec.getPath());
+        q.setRecursive(false);
+
+        traceDataService.listRecords(q, new MethodCallback<List<TraceRecordInfo>>() {
+            @Override
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error loading trace data", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, List<TraceRecordInfo> records) {
+                List<TraceRecordInfo> list = data.getList();
+                int idx = list.indexOf(rec)+1;
+                for (int i = 0; i < records.size(); i++) {
+                    list.add(idx+i, records.get(i));
                 }
-        );
+                md.clear(MDS);
+            }
+        });
     }
 
 
-    private void doCollapse(TraceRecordProxy rec) {
-        List<TraceRecordProxy> list = data.getList();
+    private void doCollapse(TraceRecordInfo rec) {
+        List<TraceRecordInfo> list = data.getList();
         int idx = list.indexOf(rec) + 1;
         while (idx < list.size() && list.get(idx).getPath().startsWith(rec.getPath())) {
             list.remove(idx);
@@ -495,7 +510,7 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private void toggleSubtree(TraceRecordProxy rec) {
+    private void toggleSubtree(TraceRecordInfo rec) {
         if (rec.getChildren() > 0) {
             if (isExpanded(rec)) {
                 doCollapse(rec);
@@ -508,16 +523,16 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private boolean isExpanded(TraceRecordProxy rec) {
+    private boolean isExpanded(TraceRecordInfo rec) {
         int idx = data.getList().indexOf(rec);
         return idx >= 0 ? isExpanded(idx) : false;
     }
 
 
     private boolean isExpanded(int idx) {
-        List<TraceRecordProxy> lst = data.getList();
+        List<TraceRecordInfo> lst = data.getList();
         if (idx < lst.size()-1) {
-            TraceRecordProxy tr = lst.get(idx), ntr = lst.get(idx+1);
+            TraceRecordInfo tr = lst.get(idx), ntr = lst.get(idx+1);
             return tr != null && ntr != null && ntr.getPath().startsWith(tr.getPath());
         } else {
             return false;
@@ -525,7 +540,7 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private void toggleDetails(TraceRecordProxy rec) {
+    private void toggleDetails(TraceRecordInfo rec) {
         String path = rec.getPath();
         if (expandedDetails.contains(path)) {
             expandedDetails.remove(path);
@@ -543,10 +558,10 @@ public class TraceCallTreePanel extends Composite {
     private static final String EXPANDER_COLLAPSE = AbstractImagePrototype.create(Resources.INSTANCE.expanderCollapse()).getHTML();
 
 
-    private final Cell<TraceRecordProxy> METHOD_TREE_CELL = new AbstractCell<TraceRecordProxy>("click") {
+    private final Cell<TraceRecordInfo> METHOD_TREE_CELL = new AbstractCell<TraceRecordInfo>("click") {
 
         @Override
-        public void render(Context context, TraceRecordProxy tr, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceRecordInfo tr, SafeHtmlBuilder sb) {
             String path = tr.getPath();
             int offs = path != null && path.length() > 0 ? (path.split("/").length) * 24 : 0;
             String color = tr.getExceptionInfo() != null ? "red" : tr.getAttributes() != null ? "blue" : "black";
@@ -563,8 +578,8 @@ public class TraceCallTreePanel extends Composite {
         }
 
         @Override
-        public void onBrowserEvent(Context context, Element parent, TraceRecordProxy rec,
-                                   NativeEvent event, ValueUpdater<TraceRecordProxy> valueUpdater) {
+        public void onBrowserEvent(Context context, Element parent, TraceRecordInfo rec,
+                                   NativeEvent event, ValueUpdater<TraceRecordInfo> valueUpdater) {
             super.onBrowserEvent(context, parent, rec, event, valueUpdater);
             EventTarget eventTarget = event.getEventTarget();
             if (Element.is(eventTarget)) {
@@ -576,36 +591,36 @@ public class TraceCallTreePanel extends Composite {
         }
     };
 
-    private AbstractCell<TraceRecordProxy> METHOD_TIME_CELL = new AbstractCell<TraceRecordProxy>() {
+    private AbstractCell<TraceRecordInfo> METHOD_TIME_CELL = new AbstractCell<TraceRecordInfo>() {
         @Override
-        public void render(Context context, TraceRecordProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceRecordInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString(ClientUtil.formatDuration(rec.getTime())));
             sb.appendHtmlConstant("</div>");
         }
     };
 
-    private AbstractCell<TraceRecordProxy> METHOD_CALLS_CELL = new AbstractCell<TraceRecordProxy>() {
+    private AbstractCell<TraceRecordInfo> METHOD_CALLS_CELL = new AbstractCell<TraceRecordInfo>() {
         @Override
-        public void render(Context context, TraceRecordProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceRecordInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getCalls()));
             sb.appendHtmlConstant("</div>");
         }
     };
 
-    private AbstractCell<TraceRecordProxy> METHOD_ERRORS_CELL = new AbstractCell<TraceRecordProxy>() {
+    private AbstractCell<TraceRecordInfo> METHOD_ERRORS_CELL = new AbstractCell<TraceRecordInfo>() {
         @Override
-        public void render(Context context, TraceRecordProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceRecordInfo rec, SafeHtmlBuilder sb) {
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getErrors()));
             sb.appendHtmlConstant("</div>");
         }
     };
 
-    private AbstractCell<TraceRecordProxy> METHOD_PCT_CELL = new AbstractCell<TraceRecordProxy>() {
+    private AbstractCell<TraceRecordInfo> METHOD_PCT_CELL = new AbstractCell<TraceRecordInfo>() {
         @Override
-        public void render(Context context, TraceRecordProxy rec, SafeHtmlBuilder sb) {
+        public void render(Context context, TraceRecordInfo rec, SafeHtmlBuilder sb) {
             double pct = 100.0 * rec.getTime() / trace.getExecutionTime();
             String color = "rgb(" + ((int) (pct * 2.49)) + ",0,0)";
             sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\" style=\"color: " + color + ";\">");
@@ -615,15 +630,15 @@ public class TraceCallTreePanel extends Composite {
     };
 
 
-    private final Cell<TraceRecordProxy> DETAIL_EXPANDER_CELL = new ActionCell<TraceRecordProxy>("",
-        new ActionCell.Delegate<TraceRecordProxy>() {
+    private final Cell<TraceRecordInfo> DETAIL_EXPANDER_CELL = new ActionCell<TraceRecordInfo>("",
+        new ActionCell.Delegate<TraceRecordInfo>() {
         @Override
-        public void execute(TraceRecordProxy rec) {
+        public void execute(TraceRecordInfo rec) {
             toggleDetails(rec);
         }
     }) {
         @Override
-        public void render(Cell.Context context, TraceRecordProxy tr, SafeHtmlBuilder sb) {
+        public void render(Cell.Context context, TraceRecordInfo tr, SafeHtmlBuilder sb) {
             if ((tr.getAttributes() != null && tr.getAttributes().size() > 0)||tr.getExceptionInfo() != null) {
                 sb.appendHtmlConstant("<span style=\"cursor: pointer;\">");
                 sb.appendHtmlConstant(expandedDetails.contains(tr.getPath()) ? EXPANDER_COLLAPSE : EXPANDER_EXPAND);

@@ -22,15 +22,13 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.Request;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.api.HostService;
 import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.client.widgets.WidgetResources;
-import com.jitlogic.zico.shared.data.HostProxy;
-import com.jitlogic.zico.shared.services.HostServiceProxy;
+import com.jitlogic.zico.shared.data.HostInfo;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 
@@ -65,99 +63,96 @@ public class HostEditDialog {
     private static final long MB = 1024*KB;
     private static final long GB = 1024*MB;
 
-    private HostProxy editedHost;
-    private HostServiceProxy editHostRequest;
+    private HostInfo editedHost;
+    private boolean newHost;
+
     private HostListPanel panel;
 
     private PopupWindow window;
     private MessageDisplay messageDisplay;
 
+    private HostService hostService;
 
     @Inject
-    public HostEditDialog(ZicoRequestFactory rf, HostListPanel panel, HostProxy info, MessageDisplay messageDisplay) {
+    public HostEditDialog(HostService hostService, HostListPanel panel, HostInfo host, MessageDisplay messageDisplay) {
         super();
         wres = WidgetResources.INSTANCE;
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         this.panel = panel;
+        this.hostService = hostService;
+        this.editedHost = host != null ? host : new HostInfo();
+        this.newHost = host == null;
         this.messageDisplay = messageDisplay;
 
-        editHostRequest = rf.hostService();
-        if (info != null) {
-            editedHost = editHostRequest.edit(info);
-        }
 
         window.resizeAndCenter(290, 210);
 
-        if (info != null) {
-            window.setCaption("Edit host: " + info.getName());
-            txtHostName.setText(info.getName());
+        if (host != null) {
+            window.setCaption("Edit host: " + host.getName());
+            txtHostName.setText(host.getName());
             txtHostName.setEnabled(false);
-            txtHostGroup.setText(info.getGroup());
-            txtHostAddr.setText(info.getAddr());
-            txtHostPass.setText(info.getPass());
-            long sz = info.getMaxSize() / GB;
+            txtHostGroup.setText(host.getGroup());
+            txtHostAddr.setText(host.getAddr());
+            txtHostPass.setText(host.getPass());
+            long sz = host.getMaxSize() / GB;
             txtMaxSize.setText(""+sz);
-            txtHostDesc.setText(info.getComment());
+            txtHostDesc.setText(host.getComment());
         } else {
             window.setCaption("New host");
             txtMaxSize.setText("1");
         }
     }
 
+
     public PopupWindow getWindow() {
         return window;
     }
+
 
     @UiHandler("btnOk")
     void handleOk(ClickEvent e) {
         save();
     }
 
+
     @UiHandler("btnCancel")
     void handleCancel(ClickEvent e) {
         window.hide();
     }
 
+
     public void save() {
-
-        Request<Void> req;
-
-        if (editedHost == null) {
-
-            String name = txtHostName.getText();
-            if (name.length() == 0 || !name.matches("^[0-9a-zA-Z_\\-\\.]+$")) {
-                messageDisplay.error(SRC, "Illegal host name: '" + name + "'. Use only those characters: 0-9a-zA-Z_-");
-                return;
-            }
-
-            req = editHostRequest.newHost(
-                    name,
-                    txtHostAddr.getText(),
-                    txtHostGroup.getText(),
-                    txtHostDesc.getText(),
-                    txtHostPass.getText(),
-                    Long.parseLong(txtMaxSize.getText()) * GB);
-        } else {
-            editedHost.setAddr(txtHostAddr.getText());
-            editedHost.setGroup(txtHostGroup.getText());
-            editedHost.setComment(txtHostDesc.getText());
-            editedHost.setPass(txtHostPass.getText());
-            editedHost.setMaxSize(Long.parseLong(txtMaxSize.getText()) * GB);
-            req = editHostRequest.persist(editedHost);
+        String name = txtHostName.getText();
+        if (name.length() == 0 || !name.matches("^[0-9a-zA-Z_\\-\\.]+$")) {
+            messageDisplay.error(SRC, "Illegal host name: '" + name + "'. Use only those characters: 0-9a-zA-Z_-");
+            return;
         }
 
-        req.fire(new Receiver<Void>() {
+        editedHost.setAddr(txtHostAddr.getText());
+        editedHost.setGroup(txtHostGroup.getText());
+        editedHost.setComment(txtHostDesc.getText());
+        editedHost.setPass(txtHostPass.getText());
+        editedHost.setMaxSize(Long.parseLong(txtMaxSize.getText()) * GB);
+
+        MethodCallback<Void> cb = new MethodCallback<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {
+            public void onFailure(Method method, Throwable e) {
+                messageDisplay.error(SRC, "Cannot save host settings", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, Void response) {
                 window.hide();
                 messageDisplay.clear(SRC);
                 panel.refresh(null);
             }
-            @Override
-            public void onFailure(ServerFailure error) {
-                messageDisplay.error(SRC, "Cannot save host settings", error);
-            }
-        });
-    }
+        };
+
+        if (newHost) {
+            hostService.create(editedHost, cb);
+        } else {
+            hostService.update(editedHost.getName(), editedHost, cb);
+        }
+   }
 
 }

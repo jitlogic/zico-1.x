@@ -8,14 +8,14 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
+import com.jitlogic.zico.client.api.SystemService;
 import com.jitlogic.zico.client.inject.PanelFactory;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
-import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.views.hosts.HostListPanel;
 import com.jitlogic.zico.client.widgets.CloseableTab;
+import com.jitlogic.zico.shared.data.UserInfo;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 public class Shell extends Composite {
     interface ShellUiBinder extends UiBinder<Widget, Shell> { }
@@ -45,21 +45,20 @@ public class Shell extends Composite {
     @UiField(provided = true)
     StatusBar statusBar;
 
-    private ZicoRequestFactory rf;
-
+    private SystemService systemService;
     private PanelFactory panelFactory;
 
     private final String SRC = "Shell";
 
     @Inject
-    public Shell(final HostListPanel hostListPanel, ZicoRequestFactory rf,
-                 WelcomeView welcomeView,
+    public Shell(final HostListPanel hostListPanel,
+                 SystemService systemService, WelcomeView welcomeView,
                  PanelFactory panelFactory, MessageDisplay md) {
         this.hostListPanel = hostListPanel;
         this.welcomeView = welcomeView;
+        this.systemService = systemService;
         this.panelFactory = panelFactory;
         this.statusBar = (StatusBar)md;
-        this.rf = rf;
 
         initWidget(ourUiBinder.createAndBindUi(this));
         checkAdminRole();
@@ -74,20 +73,22 @@ public class Shell extends Composite {
 
     private void checkAdminRole() {
         statusBar.info(SRC, "Loading user profile ...");
-        rf.userService().isAdminMode().fire(new Receiver<Boolean>() {
+
+        systemService.user(new MethodCallback<UserInfo>() {
             @Override
-            public void onSuccess(Boolean isAdmin) {
-                hostListPanel.setAdminMode(isAdmin);
-                if (!isAdmin) {
+            public void onFailure(Method method, Throwable e) {
+                statusBar.error(SRC, "Error performing server request", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, UserInfo user) {
+                hostListPanel.setAdminMode(user.isAdmin());
+                if (!user.isAdmin()) {
                     lnkManageUsers.setVisible(false);
                     lnkBackupConfig.setVisible(false);
                     lnkTraceTemplates.setVisible(false);
                 }
                 statusBar.clear(SRC);
-            }
-            @Override
-            public void onFailure(ServerFailure failure) {
-                statusBar.error(SRC, "Error performing server request", failure);
             }
         });
     }
@@ -101,15 +102,15 @@ public class Shell extends Composite {
 
     @UiHandler("lnkBackupConfig")
     void openUserManagementPanel(ClickEvent e) {
-        rf.systemService().backupConfig().fire(new Receiver<Void>() {
+        systemService.backup(new MethodCallback<Void>() {
             @Override
-            public void onSuccess(Void response) {
-                Window.alert("Symbols and configuration backed up succesfully.");
+            public void onFailure(Method method, Throwable e) {
+                statusBar.error(SRC, "Error backing up symbols and configuration.", e);
             }
 
             @Override
-            public void onFailure(ServerFailure failure) {
-                statusBar.error(SRC, "Error backing up symbols and configuration.", failure);
+            public void onSuccess(Method method, Void response) {
+                Window.alert("Symbols and configuration backed up succesfully.");
             }
         });
     }
@@ -123,7 +124,7 @@ public class Shell extends Composite {
 
     @UiHandler("lnkChangePassword")
     void changePassword(ClickEvent e) {
-        panelFactory.passwordChangeView("").asPopupWindow().show();
+        panelFactory.passwordChangeView("", false).asPopupWindow().show();
     }
 
 }

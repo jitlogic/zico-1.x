@@ -5,29 +5,44 @@
 <web-app>
     <display-name>Zorka Intranet Collector</display-name>
 
-    <filter>
-        <filter-name>guiceFilter</filter-name>
-        <filter-class>com.google.inject.servlet.GuiceFilter</filter-class>
-    </filter>
+    <context-param>
+        <param-name>resteasy.servlet.mapping.prefix</param-name>
+        <param-value>/data</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>resteasy.guice.modules</param-name>
+        <param-value>com.jitlogic.zico.core.inject.ProdZicoModule</param-value>
+    </context-param>
 
     <filter>
         <filter-name>ZicoCacheControlFilter</filter-name>
         <filter-class>com.jitlogic.zico.core.ZicoCacheControlFilter</filter-class>
     </filter>
 
-    <filter-mapping>
-        <filter-name>guiceFilter</filter-name>
-        <url-pattern>/gwtRequest</url-pattern>
-    </filter-mapping>
+    <filter>
+        <filter-name>ZicoRequestContextFilter</filter-name>
+        <filter-class>com.jitlogic.zico.core.ZicoRequestContextFilter</filter-class>
+    </filter>
 
     <filter-mapping>
         <filter-name>ZicoCacheControlFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
+    <filter-mapping>
+        <filter-name>ZicoRequestContextFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <listener>
-        <listener-class>com.jitlogic.zico.core.inject.ZicoBootstrapListener</listener-class>
+        <listener-class>com.jitlogic.zico.core.inject.ZicoRestBootstrapListener</listener-class>
     </listener>
+
+    <servlet>
+        <servlet-name>resteasy-servlet</servlet-name>
+        <servlet-class>org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher</servlet-class>
+    </servlet>
 
     <servlet>
         <servlet-name>LogoutServlet</servlet-name>
@@ -37,6 +52,11 @@
     <servlet-mapping>
         <servlet-name>LogoutServlet</servlet-name>
         <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>resteasy-servlet</servlet-name>
+        <url-pattern>/data/*</url-pattern>
     </servlet-mapping>
 
     <welcome-file-list>

@@ -16,9 +16,9 @@
 package com.jitlogic.zico.core;
 
 
-import com.jitlogic.zico.core.model.KeyValuePair;
-import com.jitlogic.zico.core.model.SymbolicExceptionInfo;
-import com.jitlogic.zico.core.model.TraceRecordInfo;
+import com.jitlogic.zico.shared.data.KeyValuePair;
+import com.jitlogic.zico.shared.data.SymbolicExceptionInfo;
+import com.jitlogic.zico.shared.data.TraceRecordInfo;
 import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
 import com.jitlogic.zorka.common.tracedata.SymbolicException;
 import com.jitlogic.zorka.common.tracedata.SymbolicStackElement;

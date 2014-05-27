@@ -16,8 +16,8 @@
 package com.jitlogic.zico.test.support;
 
 
-import com.jitlogic.zico.core.model.KeyValuePair;
-import com.jitlogic.zico.core.model.TraceInfoSearchQuery;
+import com.jitlogic.zico.shared.data.KeyValuePair;
+import com.jitlogic.zico.shared.data.TraceInfoSearchQuery;
 import com.jitlogic.zorka.common.tracedata.MetricsRegistry;
 import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
 import com.jitlogic.zorka.common.tracedata.SymbolicException;

@@ -32,16 +32,17 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.api.TraceDataService;
 import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
 import com.jitlogic.zico.client.widgets.IsPopupWindow;
 import com.jitlogic.zico.client.widgets.PopupWindow;
-import com.jitlogic.zico.shared.data.KeyValueProxy;
-import com.jitlogic.zico.shared.data.SymbolicExceptionProxy;
-import com.jitlogic.zico.shared.data.TraceRecordProxy;
+import com.jitlogic.zico.shared.data.KeyValuePair;
+import com.jitlogic.zico.shared.data.SymbolicExceptionInfo;
+import com.jitlogic.zico.shared.data.TraceRecordInfo;
+import com.jitlogic.zico.shared.data.TraceRecordListQuery;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -69,17 +70,18 @@ public class MethodAttrsDialog implements IsPopupWindow {
     private ListDataProvider<String[]> attrStore;
     private SingleSelectionModel<String[]> selectionModel;
 
-    private ZicoRequestFactory rf;
+    private TraceDataService traceDataService;
 
     private PopupWindow window;
 
     private MessageDisplay md;
 
     @Inject
-    public MethodAttrsDialog(ZicoRequestFactory rf, MessageDisplay md,
+    public MethodAttrsDialog(TraceDataService traceDataService, MessageDisplay md,
                              @Assisted("hostName") String hostName, @Assisted Long dataOffs,
                              @Assisted String path, @Assisted("minTime") Long minTime) {
-        this.rf = rf;
+
+        this.traceDataService = traceDataService;
         this.md = md;
 
         setupGrid();
@@ -87,7 +89,7 @@ public class MethodAttrsDialog implements IsPopupWindow {
         window = new PopupWindow(uiBinder.createAndBindUi(this));
 
         window.setCaption("Trace Details");
-        window.resizeAndCenter(1200, 750);
+        window.resizeAndCenter(900, 600);
 
         loadTraceDetail(hostName, dataOffs, path, minTime);
     }
@@ -97,21 +99,28 @@ public class MethodAttrsDialog implements IsPopupWindow {
 
     private void loadTraceDetail(String hostName, Long dataOffs, String path, Long minTime) {
         md.info(MDS, "Loading method attributes...");
-        rf.traceDataService().getRecord(hostName, dataOffs, minTime, path).fire(new Receiver<TraceRecordProxy>() {
+        TraceRecordListQuery query = new TraceRecordListQuery();
+        query.setHostName(hostName);
+        query.setTraceOffs(dataOffs);
+        query.setMinTime(minTime);
+        query.setPath(path);
+
+        traceDataService.getRecord(query, new MethodCallback<TraceRecordInfo>() {
             @Override
-            public void onSuccess(TraceRecordProxy tr) {
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Cannot load method/trace details", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, TraceRecordInfo tr) {
                 fillTraceDetail(tr);
                 md.clear(MDS);
-            }
-            @Override
-            public void onFailure(ServerFailure error) {
-                md.error(MDS, "Cannot load method/trace details", error);
             }
         });
     }
 
 
-    private void fillTraceDetail(TraceRecordProxy tr) {
+    private void fillTraceDetail(TraceRecordInfo tr) {
         List<String[]> attrs = new ArrayList<String[]>();
 
         StringBuilder sb = new StringBuilder();
@@ -119,7 +128,7 @@ public class MethodAttrsDialog implements IsPopupWindow {
         sb.append(tr.getMethod() + "\n\n");
 
         if (tr.getAttributes() != null) {
-            for (KeyValueProxy e : tr.getAttributes()) {
+            for (KeyValuePair e : tr.getAttributes()) {
                 String key = e.getKey(), val = e.getValue() != null ? e.getValue() : "";
                 attrs.add(new String[]{key, val});
                 val = val.indexOf("\n") != -1 ? val.substring(0, val.indexOf('\n')) + "..." : val;
@@ -141,7 +150,7 @@ public class MethodAttrsDialog implements IsPopupWindow {
             attrs.add(0, new String[]{"(all)", sb.toString()});
         }
 
-        SymbolicExceptionProxy e = tr.getExceptionInfo();
+        SymbolicExceptionInfo e = tr.getExceptionInfo();
         sb = new StringBuilder();
         while (e != null) {
             sb.append(e.getExClass() + ": " + e.getMessage() + "\n");
@@ -204,7 +213,7 @@ public class MethodAttrsDialog implements IsPopupWindow {
                 return attr[0];
             }
         };
-        attrGrid.addColumn(colAttribute, "Attribute");
+        attrGrid.addColumn(colAttribute);
         attrGrid.setColumnWidth(colAttribute, 100, Style.Unit.PCT);
 
         attrStore = new ListDataProvider<String[]>(KEY_PROVIDER);

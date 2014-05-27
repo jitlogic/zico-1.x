@@ -6,16 +6,16 @@
             <g:HTMLPanel>
                 <table>
                     <tr>
-                        <td>Order:</td>
-                        <td><g:TextBox ui:field="txtOrder" width="75"/></td>
+                        <td width="75px" align="right">Order:</td>
+                        <td><g:TextBox ui:field="txtOrder" width="75px"/></td>
                     </tr>
                     <tr>
-                        <td>Condition:</td>
-                        <td><g:TextBox ui:field="txtCondition" width="450"/></td>
+                        <td width="75px" align="right">Condition:</td>
+                        <td><g:TextBox ui:field="txtCondition" width="450px"/></td>
                     </tr>
                     <tr>
-                        <td>Template:</td>
-                        <td><g:TextBox ui:field="txtTemplate" width="450"/></td>
+                        <td width="75px" align="right">Template:</td>
+                        <td><g:TextBox ui:field="txtTemplate" width="450px"/></td>
                     </tr>
                 </table>
             </g:HTMLPanel>

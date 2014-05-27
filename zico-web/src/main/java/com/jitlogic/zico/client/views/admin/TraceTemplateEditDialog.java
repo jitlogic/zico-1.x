@@ -22,14 +22,13 @@ import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
-import com.google.web.bindery.requestfactory.shared.Receiver;
-import com.google.web.bindery.requestfactory.shared.ServerFailure;
 import com.jitlogic.zico.client.MessageDisplay;
-import com.jitlogic.zico.client.inject.ZicoRequestFactory;
+import com.jitlogic.zico.client.api.TraceTemplateService;
 import com.jitlogic.zico.client.widgets.IsPopupWindow;
 import com.jitlogic.zico.client.widgets.PopupWindow;
-import com.jitlogic.zico.shared.data.TraceTemplateProxy;
-import com.jitlogic.zico.shared.services.SystemServiceProxy;
+import com.jitlogic.zico.shared.data.TraceTemplateInfo;
+import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 public class TraceTemplateEditDialog implements IsPopupWindow {
     interface TraceTemplateViewUiBinder extends UiBinder<Widget, TraceTemplateEditDialog> { }
@@ -44,23 +43,23 @@ public class TraceTemplateEditDialog implements IsPopupWindow {
     @UiField
     TextBox txtTemplate;
 
-    private SystemServiceProxy editTemplateRequest;
-    private TraceTemplateProxy editedTemplate;
+    private TraceTemplateInfo editedTemplate;
+    private boolean newTemplate;
+
+    private TraceTemplateService templateService;
     private TraceTemplatePanel panel;
 
     private PopupWindow window;
 
     private MessageDisplay md;
 
-    public TraceTemplateEditDialog(ZicoRequestFactory rf, TraceTemplatePanel panel, TraceTemplateProxy tti, MessageDisplay md) {
-
+    public TraceTemplateEditDialog(TraceTemplateService templateService, TraceTemplatePanel panel,
+                                   TraceTemplateInfo tti, MessageDisplay md) {
+        this.templateService = templateService;
         this.panel = panel;
+        this.editedTemplate = tti != null ? tti : new TraceTemplateInfo();
+        this.newTemplate = tti == null;
         this.md = md;
-
-        editTemplateRequest = rf.systemService();
-        editedTemplate = tti != null
-                ? editTemplateRequest.edit(tti)
-                : editTemplateRequest.create(TraceTemplateProxy.class);
 
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
         window.resizeAndCenter(540, 125);
@@ -92,18 +91,25 @@ public class TraceTemplateEditDialog implements IsPopupWindow {
 
         md.info(MDS, "Saving template ...");
 
-        editTemplateRequest.saveTemplate(editedTemplate).fire(new Receiver<Integer>() {
+        MethodCallback<Void> cb = new MethodCallback<Void>() {
             @Override
-            public void onSuccess(Integer response) {
+            public void onFailure(Method method, Throwable e) {
+                md.error(MDS, "Error saving trace template", e);
+            }
+
+            @Override
+            public void onSuccess(Method method, Void response) {
                 window.hide();
                 panel.refreshTemplates(null);
                 md.clear(MDS);
             }
-            @Override
-            public void onFailure(ServerFailure failure) {
-                md.error(MDS, "Error saving trace template", failure);
-            }
-        });
+        };
+
+        if (newTemplate) {
+            templateService.create(editedTemplate, cb);
+        } else {
+            templateService.update(editedTemplate.getId(), editedTemplate, cb);
+        }
     }
 
     @Override
