@@ -7,7 +7,9 @@
     <inherits name='com.google.web.bindery.requestfactory.RequestFactory'/>
     <inherits name='com.google.gwt.inject.Inject'/>
     <inherits name="org.fusesource.restygwt.RestyGWT"/>
-
+    
+    <extend-property name="user.agent" values="opera"/>
+    
     <entry-point class='com.jitlogic.zico.client.ZicoEP'/>
 
     <source path="client"/>
