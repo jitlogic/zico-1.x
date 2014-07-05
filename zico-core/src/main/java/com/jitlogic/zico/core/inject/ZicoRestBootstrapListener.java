@@ -34,7 +34,7 @@ public class ZicoRestBootstrapListener extends GuiceResteasyBootstrapServletCont
         injector.getInstance(ZicoService.class).start();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                System.out.println("Shutting down Zorka Intranet Collector ...");
+                log.info("Shutting down Zorka Intranet Collector ...");
                 injector.getInstance(ZicoService.class).stop();
 
                 try {

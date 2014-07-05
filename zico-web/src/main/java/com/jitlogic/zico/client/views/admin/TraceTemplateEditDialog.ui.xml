@@ -1,6 +1,6 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'>
-    <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
+    <ui:with field="wres" type="com.jitlogic.zico.widgets.client.WidgetResources"/>
     <g:DockLayoutPanel unit="PX" styleName="{wres.formCss.form}">
         <g:center>
             <g:HTMLPanel>

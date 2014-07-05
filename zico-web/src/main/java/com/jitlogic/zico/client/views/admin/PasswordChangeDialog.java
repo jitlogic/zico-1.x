@@ -26,9 +26,9 @@ import com.google.gwt.user.client.ui.PasswordTextBox;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.assistedinject.Assisted;
 import com.jitlogic.zico.client.api.SystemService;
-import com.jitlogic.zico.client.widgets.IsPopupWindow;
-import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.shared.data.PasswordInfo;
+import com.jitlogic.zico.widgets.client.IsPopupWindow;
+import com.jitlogic.zico.widgets.client.PopupWindow;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 

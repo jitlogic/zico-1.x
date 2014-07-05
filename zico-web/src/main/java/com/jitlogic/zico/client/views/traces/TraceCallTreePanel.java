@@ -15,6 +15,7 @@
  */
 package com.jitlogic.zico.client.views.traces;
 
+import com.jitlogic.zico.widgets.client.*;
 import com.google.gwt.cell.client.AbstractCell;
 import com.google.gwt.cell.client.ActionCell;
 import com.google.gwt.cell.client.Cell;
@@ -44,18 +45,13 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
 import com.jitlogic.zico.client.ClientUtil;
-import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.api.TraceDataService;
-import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
-import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
-import com.jitlogic.zico.client.widgets.MenuItem;
-import com.jitlogic.zico.client.widgets.PopupMenu;
-import com.jitlogic.zico.client.widgets.ToolButton;
 import com.jitlogic.zico.shared.data.TraceInfo;
 import com.jitlogic.zico.shared.data.TraceRecordInfo;
 import com.jitlogic.zico.shared.data.TraceRecordListQuery;
+import com.jitlogic.zico.widgets.client.MenuItem;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 

@@ -29,17 +29,57 @@ public interface Resources extends ClientBundle {
     @Source("Zico.css")
     ZicoCssResources zicoCssResources();
 
+
+    @Source("../images/add.png")
+    ImageResource addIcon();
+
+    @Source("../images/attachment.png")
+    ImageResource attachment();
+
+    @Source("../images/cancel.png")
+    ImageResource cancel();
+
+    @Source("../images/clear.png")
+    ImageResource clearIcon();
+
+    @Source("../images/clock.png")
+    ImageResource clockIcon();
+
+    @Source("../images/disable.png")
+    ImageResource disableIcon();
+
+    @Source("../images/edit.png")
+    ImageResource editIcon();
+
+    @Source("../images/enable.png")
+    ImageResource enableIcon();
+
+    @Source("../images/eql.png")
+    ImageResource eqlIcon();
+
     @Source("../images/error-mark.png")
     ImageResource errorMarkIcon();
 
-    @Source("../images/refresh.png")
-    ImageResource refreshIcon();
+    @Source("../images/exception-thrown.png")
+    ImageResource exceptionIcon();
 
-    @Source("../images/time.png")
-    ImageResource timeIcon();
+    @Source("../images/expander-collapse.png")
+    ImageResource expanderCollapse();
+
+    @Source("../images/expander-expand.png")
+    ImageResource expanderExpand();
+
+    @Source("../images/expand.png")
+    ImageResource expandIcon();
 
     @Source("../images/filter.png")
     ImageResource filterIcon();
+
+    @Source("../images/goto.png")
+    ImageResource gotoIcon();
+
+    @Source("../images/go-down-search.png")
+    ImageResource goDownIcon();
 
     @Source("../images/go-next.png")
     ImageResource goNextIcon();
@@ -47,47 +87,44 @@ public interface Resources extends ClientBundle {
     @Source("../images/go-previous.png")
     ImageResource goPrevIcon();
 
-    @Source("../images/go-down-search.png")
-    ImageResource goDownIcon();
-
     @Source("../images/go-up-search.png")
     ImageResource goUpIcon();
 
-    @Source("../images/exception-thrown.png")
-    ImageResource exceptionIcon();
-
-    @Source("../images/expand.png")
-    ImageResource expandIcon();
+    @Source("../images/key.png")
+    ImageResource keyIcon();
 
     @Source("../images/lightning-go.png")
     ImageResource ligtningGo();
 
-    @Source("../images/add.png")
-    ImageResource addIcon();
-
-    @Source("../images/remove.png")
-    ImageResource removeIcon();
-
-    @Source("../images/edit.png")
-    ImageResource editIcon();
-
     @Source("../images/list-columns.png")
     ImageResource listColumnsIcon();
-
-    @Source("../images/clear.png")
-    ImageResource clearIcon();
-
-    @Source("../images/search.png")
-    ImageResource searchIcon();
-
-    @Source("../images/method-tree.png")
-    ImageResource methodTreeIcon();
 
     @Source("../images/method-attrs.png")
     ImageResource methodAttrsIcon();
 
     @Source("../images/method-rank.png")
     ImageResource methodRankIcon();
+
+    @Source("../images/method-tree.png")
+    ImageResource methodTreeIcon();
+
+    @Source("../images/msgbox-ok.png")
+    ImageResource msgBoxOkIcon();
+
+    @Source("../images/refresh.png")
+    ImageResource refreshIcon();
+
+    @Source("../images/remove.png")
+    ImageResource removeIcon();
+
+    @Source("../images/search.png")
+    ImageResource searchIcon();
+
+    @Source("../images/sort.png")
+    ImageResource sort();
+
+    @Source("../images/time.png")
+    ImageResource timeIcon();
 
     @Source("../images/treePlus.png")
     ImageResource treeMinusIcon();
@@ -101,50 +138,9 @@ public interface Resources extends ClientBundle {
     @Source("../images/treePlusSlim.png")
     ImageResource treePlusSlimIcon();
 
-    @Source("../images/goto.png")
-    ImageResource gotoIcon();
-
-    @Source("../images/eql.png")
-    ImageResource eqlIcon();
-
-    @Source("../images/clock.png")
-    ImageResource clockIcon();
-
-    @Source("../images/disable.png")
-    ImageResource disableIcon();
-
-    @Source("../images/enable.png")
-    ImageResource enableIcon();
-
-    @Source("../images/msgbox-ok.png")
-    ImageResource msgBoxOkIcon();
-
-    @Source("../images/key.png")
-    ImageResource keyIcon();
-
     @Source("../images/zoom-in-5.png")
     ImageResource zoomIn();
 
     @Source("../images/zoom-out-5.png")
     ImageResource zoomOut();
-
-    @Source("../images/attachment.png")
-    ImageResource attachment();
-
-    @Source("../images/expander-expand.png")
-    ImageResource expanderExpand();
-
-    @Source("../images/expander-collapse.png")
-    ImageResource expanderCollapse();
-
-    @Source("../images/cancel.png")
-    ImageResource cancel();
-
-    @Source("../images/sort.png")
-    ImageResource sort();
-
-    @DataResource.MimeType("text/html")
-    @Source("tips.html")
-    TextResource tipsHtml();
-
 }

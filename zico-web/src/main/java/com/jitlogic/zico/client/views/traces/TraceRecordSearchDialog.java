@@ -44,14 +44,11 @@ import com.google.inject.assistedinject.Assisted;
 import com.jitlogic.zico.client.*;
 import com.jitlogic.zico.client.api.TraceDataService;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
-import com.jitlogic.zico.client.widgets.IsPopupWindow;
-import com.jitlogic.zico.client.widgets.PopupWindow;
-import com.jitlogic.zico.client.widgets.ResizableHeader;
 import com.jitlogic.zico.shared.data.TraceRecordSearchQuery;
 import com.jitlogic.zico.shared.data.TraceInfo;
 import com.jitlogic.zico.shared.data.TraceRecordInfo;
 import com.jitlogic.zico.shared.data.TraceRecordSearchResult;
+import com.jitlogic.zico.widgets.client.*;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 

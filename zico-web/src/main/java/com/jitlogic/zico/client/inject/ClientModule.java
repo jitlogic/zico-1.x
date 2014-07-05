@@ -22,10 +22,10 @@ import com.google.gwt.inject.client.assistedinject.GinFactoryModuleBuilder;
 import com.google.inject.Provides;
 import com.google.web.bindery.event.shared.EventBus;
 import com.google.web.bindery.event.shared.SimpleEventBus;
-import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.api.*;
 import com.jitlogic.zico.client.views.Shell;
-import com.jitlogic.zico.client.views.StatusBar;
+import com.jitlogic.zico.widgets.client.MessageDisplay;
+import com.jitlogic.zico.widgets.client.StatusBar;
 import org.fusesource.restygwt.client.Resource;
 import org.fusesource.restygwt.client.RestServiceProxy;
 

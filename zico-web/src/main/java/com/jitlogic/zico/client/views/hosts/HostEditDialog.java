@@ -23,10 +23,10 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
 import com.jitlogic.zico.client.api.HostService;
-import com.jitlogic.zico.client.MessageDisplay;
-import com.jitlogic.zico.client.widgets.PopupWindow;
-import com.jitlogic.zico.client.widgets.WidgetResources;
 import com.jitlogic.zico.shared.data.HostInfo;
+import com.jitlogic.zico.widgets.client.MessageDisplay;
+import com.jitlogic.zico.widgets.client.PopupWindow;
+import com.jitlogic.zico.widgets.client.WidgetResources;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 

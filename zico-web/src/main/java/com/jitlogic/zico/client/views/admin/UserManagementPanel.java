@@ -38,14 +38,13 @@ import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
-import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.api.HostService;
 import com.jitlogic.zico.client.api.UserService;
-import com.jitlogic.zico.client.widgets.*;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zico.shared.data.UserInfo;
+import com.jitlogic.zico.widgets.client.*;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 
