@@ -171,7 +171,7 @@ public class UserManager {
 
     public void checkHostAccess(String hostname) {
         if (!userContext.isInRole("ADMIN")
-         && !find(User.class, userContext.getUser()).getAllowedHosts().contains(hostname)) {
+         && !userContext.getUser().getAllowedHosts().contains(hostname)) {
             throw new ZicoRuntimeException("Insufficient privileges");
         }
     }

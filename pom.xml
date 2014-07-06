@@ -21,6 +21,7 @@
         <gwt.plugin.version>2.6.1</gwt.plugin.version>
 
         <asm.version>5.0.2</asm.version>
+        <cas.client.version>3.3.1</cas.client.version>
         <dbcp.version>1.4</dbcp.version>
         <fest.version>2.0M7</fest.version>
         <fressian.version>0.6.5</fressian.version>

@@ -44,6 +44,11 @@
             <version>${jetty.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.jasig.cas.client</groupId>
+            <artifactId>cas-client-core</artifactId>
+            <version>${cas.client.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.fusesource.restygwt</groupId>
             <artifactId>restygwt</artifactId>
             <version>${restygwt.version}</version>

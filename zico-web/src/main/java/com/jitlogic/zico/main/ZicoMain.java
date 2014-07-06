@@ -22,15 +22,18 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.LoginService;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import javax.servlet.DispatcherType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.security.ProtectionDomain;
+import java.util.EnumSet;
 import java.util.Properties;
 
 public class ZicoMain {
@@ -40,6 +43,8 @@ public class ZicoMain {
 
     private Server server;
     private WebAppContext webapp;
+
+    private Properties props;
 
 
     public static void main(String[] args) throws Exception {
@@ -57,6 +62,7 @@ public class ZicoMain {
         server.join();
     }
 
+
     private void initServer() {
         server = new Server(port);
         ProtectionDomain domain = Server.class.getProtectionDomain();
@@ -72,7 +78,8 @@ public class ZicoMain {
         server.setHandler(webapp);
     }
 
-    private void initSecurity() {
+
+    private void initFormSecurity() {
         Constraint constraint = new Constraint();
         constraint.setName(Constraint.__FORM_AUTH);
         constraint.setRoles(new String[]{"VIEWER","ADMIN"});
@@ -95,6 +102,46 @@ public class ZicoMain {
         webapp.setSecurityHandler(handler);
     }
 
+
+    private void initCasSecurity() {
+        FilterHolder authFilter = webapp.addFilter(
+                "org.jasig.cas.client.authentication.AuthenticationFilter", "/*",
+                EnumSet.of(DispatcherType.REQUEST));
+
+        authFilter.setInitParameter("casServerLoginUrl", props.getProperty("auth.cas.url") + "/login");
+        authFilter.setInitParameter("service", props.getProperty("auth.slac.url"));
+
+        FilterHolder validationFilter = webapp.addFilter(
+                "org.jasig.cas.client.validation.Cas10TicketValidationFilter", "/*",
+                EnumSet.of(DispatcherType.REQUEST)
+        );
+
+        validationFilter.setInitParameter("casServerUrlPrefix", props.getProperty("auth.cas.url"));
+        validationFilter.setInitParameter("service", props.getProperty("auth.slac.url"));
+
+        webapp.addFilter(
+                "org.jasig.cas.client.util.HttpServletRequestWrapperFilter", "/*",
+                EnumSet.of(DispatcherType.REQUEST));
+
+    }
+
+
+    private void initSecurity() {
+        String auth = props.getProperty("auth", "form").trim();
+
+        if ("anonymous".equalsIgnoreCase(auth)) {
+            System.err.println("Starting SLAC without any authentication (fake user).");
+        } else if ("form".equalsIgnoreCase(auth)) {
+            System.err.println("Starting SLAC with FORM security.");
+            initFormSecurity();
+        } else if ("cas".equalsIgnoreCase(auth)) {
+            System.err.println("Starting SLAC with CAS security.");
+            initCasSecurity();
+        }
+
+    }
+
+
     private void configure() throws IOException {
 
         homeDir = System.getProperty("zico.home.dir");
@@ -106,7 +153,7 @@ public class ZicoMain {
 
         String strPort = System.getProperty("zico.http.port", "8642").trim();
 
-        Properties props = new Properties();
+        props = new Properties();
 
         InputStream fis = null;
         try {

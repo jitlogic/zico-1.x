@@ -16,8 +16,10 @@
 package com.jitlogic.zico.core;
 
 
+import com.jitlogic.zico.core.model.User;
+
 public interface UserContext {
-    String getUser();
+    User getUser();
 
     boolean isInRole(String role);
 

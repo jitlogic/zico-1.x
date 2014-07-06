@@ -54,7 +54,7 @@ public class HostService {
     @Produces(MediaType.APPLICATION_JSON)
     public List<HostInfo> list() {
         List<HostStore> hostList = hostStoreManager.list(userContext.isInRole("ADMIN") ? null
-                : userManager.find(User.class, userContext.getUser()).getAllowedHosts());
+                : userContext.getUser().getAllowedHosts());
 
         return hostList.stream()
                 .<HostInfo>map(HostService::toHostInfo)

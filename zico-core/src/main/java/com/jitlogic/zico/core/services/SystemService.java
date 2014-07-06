@@ -49,8 +49,7 @@ public class SystemService {
     @Path("/user/current")
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfo getUser() {
-        String username = userContext.getUser();
-        return UserService.toUserInfo(username != null ? userManager.find(User.class, username) : null);
+        return UserService.toUserInfo(userContext.getUser());
     }
 
 
@@ -64,8 +63,7 @@ public class SystemService {
             throw new ZicoRuntimeException("Insufficient privileges to reset other users password");
         }
 
-        User user = userManager.find (User.class,
-                (userName != null && userName.length() > 0) ? userName : userContext.getUser());
+        User user = userContext.getUser();
 
         if (!adminMode) {
             String chkHash = "MD5:" + ZorkaUtil.md5(pw.getOldPassword());
