@@ -18,9 +18,10 @@ package com.jitlogic.zico.shared.data;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class UserInfo {
+public class UserInfo implements Serializable {
 
     @JsonProperty
     String userName;

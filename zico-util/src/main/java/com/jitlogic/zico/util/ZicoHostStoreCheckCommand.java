@@ -72,7 +72,7 @@ public class ZicoHostStoreCheckCommand implements ZicoCommand {
         log.info("Index rebuild will be performed in " + nthreads + " threads.");
 
         if (hosts.size() == 0) {
-            log.warn("No suitable hosts to be migrated. Skipping.");
+            log.warn("No suitable hosts to be checked. Skipping.");
             return;
         }
 
@@ -87,7 +87,7 @@ public class ZicoHostStoreCheckCommand implements ZicoCommand {
                     try {
                         log.info("Starting host " + host);
                         long t1 = System.currentTimeMillis();
-                        HostStore hostStore = new HostStore(config, null, host);
+                        HostStore hostStore = new HostStore(null, config, null, host);  // TODO Host Check is now broken !!!
                         hostStore.rebuildIndex();
                         long t = System.currentTimeMillis() - t1;
                         cpuTime.addAndGet(t);

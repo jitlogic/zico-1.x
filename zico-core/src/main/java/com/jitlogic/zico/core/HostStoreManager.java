@@ -50,12 +50,14 @@ public class HostStoreManager implements Closeable, ZicoDataProcessorFactory {
 
     private ZicoConfig config;
     private TraceTemplateManager templater;
+    private DBFactory dbf;
 
     @Inject
-    public HostStoreManager(ZicoConfig config, TraceTemplateManager templater) {
+    public HostStoreManager(ZicoConfig config, TraceTemplateManager templater, DBFactory dbf) {
 
         this.config = config;
         this.templater = templater;
+        this.dbf = dbf;
 
         this.dataDir = config.stringCfg("zico.data.dir", null);
 
@@ -72,7 +74,7 @@ public class HostStoreManager implements Closeable, ZicoDataProcessorFactory {
         File hostPath = new File(dataDir, ZicoUtil.safePath(name));
 
         if (create || new File(hostPath, HostStore.HOST_PROPERTIES).exists()) {
-            HostStore host = new HostStore(config, templater, name);
+            HostStore host = new HostStore(dbf, config, templater, name);
             storesByName.put(name, host);
             return host;
         }

@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,10 +46,15 @@ public class TraceTemplateService {
     public List<TraceTemplateInfo> list() {
         userContext.checkAdmin();
 
-        return templateManager.listTemplates().stream()
-                .<TraceTemplateInfo>map(TraceTemplateService::toTemplateInfo)
-                .collect(Collectors.toList());
+        List<TraceTemplateInfo> lst = new ArrayList<>();
+
+        for (TraceTemplate tmpl : templateManager.listTemplates()) {
+            lst.add(TraceTemplateService.toTemplateInfo(tmpl));
+        }
+
+        return lst;
     }
+
 
     @GET
     @Path("/{id}")
@@ -56,6 +62,7 @@ public class TraceTemplateService {
     public TraceTemplateInfo get(@PathParam("id")int id) {
         return toTemplateInfo(templateManager.find(TraceTemplate.class, id));
     }
+
 
     @PUT
     @Path("/{id}")

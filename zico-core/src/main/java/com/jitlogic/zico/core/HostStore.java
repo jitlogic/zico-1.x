@@ -79,6 +79,8 @@ public class HostStore implements Closeable, RDSCleanupListener {
     private BTreeMap<Long, TraceInfoRecord> infos;
     private Map<Integer, String> tids;
 
+    private DBFactory dbf;
+
     private String name;
 
     private String addr = "";
@@ -93,12 +95,14 @@ public class HostStore implements Closeable, RDSCleanupListener {
     private static final long MAX_SEARCH_T2 = 5000000000L;
 
 
-    public HostStore(ZicoConfig config, TraceTemplateManager templater, String name) {
+    public HostStore(DBFactory dbf, ZicoConfig config, TraceTemplateManager templater, String name) {
 
         this.name = name;
         this.config = config;
 
         this.rootPath = ZorkaUtil.path(config.getDataDir(), ZicoUtil.safePath(name));
+
+        this.dbf = dbf;
 
         File hostDir = new File(rootPath);
 
@@ -134,8 +138,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
                 traceIndexStore = new TraceRecordStore(config, this, "tidx", 16);
             }
 
-            db = DBMaker.newFileDB(new File(rootPath, "traces.db"))
-                .mmapFileEnable().asyncWriteEnable().closeOnJvmShutdown().make();
+            db = dbf.openDB(ZorkaUtil.path(rootPath, "traces.db"));
             infos = db.getTreeMap(DB_INFO_MAP);
             tids = db.getTreeMap(DB_TIDS_MAP);
         } catch (IOException e) {
@@ -175,7 +178,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
         }
 
         if (db != null) {
-            db.close();
+            dbf.closeDB(db);
             db = null;
             infos = null;
         }

@@ -17,6 +17,7 @@ package com.jitlogic.zico.core;
 
 
 import com.jitlogic.zico.shared.data.UserInfo;
+import com.jitlogic.zorka.common.util.ZorkaUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,10 +59,14 @@ public class UserManager {
 
     private UserContext userContext;
 
+    private DBFactory dbf;
+
     @Inject
-    public UserManager(ZicoConfig config, UserContext userContext) {
+    public UserManager(ZicoConfig config, UserContext userContext, DBFactory dbf) {
+
         this.config = config;
         this.userContext = userContext;
+        this.dbf = dbf;
 
         try {
             Class<?> clazz = Class.forName("com.jitlogic.zico.main.ZicoLoginService");
@@ -85,7 +90,7 @@ public class UserManager {
             return;
         }
 
-        db = DBMaker.newFileDB(new File(config.getConfDir(), "users.db")).closeOnJvmShutdown().make();
+        db = dbf.openDB(ZorkaUtil.path(config.getConfDir(), "users.db"));
         users = db.getTreeMap("USERS");
 
         File jsonFile = new File(config.getConfDir(), "users.json");
@@ -141,7 +146,7 @@ public class UserManager {
 
     public synchronized void close() {
         if (db != null) {
-            db.close();
+            dbf.closeDB(db);
             db = null;
             users = null;
         }

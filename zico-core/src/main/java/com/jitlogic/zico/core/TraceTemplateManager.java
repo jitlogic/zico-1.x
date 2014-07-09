@@ -24,12 +24,12 @@ import com.jitlogic.zico.core.search.TraceRecordMatcher;
 import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
 import com.jitlogic.zorka.common.tracedata.TraceRecord;
 import com.jitlogic.zorka.common.util.ObjectInspector;
+import com.jitlogic.zorka.common.util.ZorkaUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +60,12 @@ public class TraceTemplateManager {
     private volatile List<TraceTemplate> orderedTemplates;
 
     private ZicoConfig config;
-
+    private DBFactory dbf;
 
     @Inject
-    public TraceTemplateManager(ZicoConfig config) {
+    public TraceTemplateManager(ZicoConfig config, DBFactory dbf) {
         this.config = config;
+        this.dbf = dbf;
         open();
     }
 
@@ -75,7 +76,7 @@ public class TraceTemplateManager {
             return;
         }
 
-        db = DBMaker.newFileDB(new File(config.getConfDir(), "templates.db")).closeOnJvmShutdown().make();
+        db = dbf.openDB(ZorkaUtil.path(config.getConfDir(), "templates.db"));
         templates = db.getTreeMap("TEMPLATES");
 
         File jsonFile = new File(config.getConfDir(), "templates.json");
@@ -110,7 +111,7 @@ public class TraceTemplateManager {
 
     public void close() {
         if (db != null) {
-            db.close();
+            dbf.closeDB(db);
             db = null;
             templates=  null;
             orderedTemplates = null;

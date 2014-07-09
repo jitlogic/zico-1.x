@@ -20,6 +20,7 @@ import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import com.jitlogic.zico.core.HostStoreManager;
 import com.jitlogic.zico.core.ZicoConfig;
 import com.jitlogic.zico.core.ZicoRequestContextFilter;

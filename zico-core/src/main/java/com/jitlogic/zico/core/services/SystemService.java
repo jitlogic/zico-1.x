@@ -26,7 +26,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -84,9 +86,14 @@ public class SystemService {
     @Produces(MediaType.APPLICATION_JSON)
     public List<SymbolInfo> getTidMap(@PathParam("hostname") String hostname) {
         userManager.checkHostAccess(hostname);
-        return hostStoreManager.getTids(hostname).entrySet().stream()
-                .map((e) -> new SymbolInfo(e.getKey(), e.getValue()))
-                .collect(Collectors.toList());
+
+        List<SymbolInfo> lst = new ArrayList<>();
+
+        for (Map.Entry<Integer,String> e : hostStoreManager.getTids(hostname).entrySet()) {
+            lst.add(new SymbolInfo(e.getKey(), e.getValue()));
+        }
+
+        return lst;
     }
 
     @POST
