@@ -17,7 +17,6 @@
 package com.jitlogic.zico.core.services;
 
 import com.jitlogic.zico.core.*;
-import com.jitlogic.zico.core.model.User;
 import com.jitlogic.zico.shared.data.PasswordInfo;
 import com.jitlogic.zico.shared.data.SymbolInfo;
 import com.jitlogic.zico.shared.data.UserInfo;
@@ -49,7 +48,7 @@ public class SystemService {
     @Path("/user/current")
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfo getUser() {
-        return UserService.toUserInfo(userContext.getUser());
+        return userContext.getUser();
     }
 
 
@@ -63,7 +62,7 @@ public class SystemService {
             throw new ZicoRuntimeException("Insufficient privileges to reset other users password");
         }
 
-        User user = userContext.getUser();
+        UserInfo user = userContext.getUser();
 
         if (!adminMode) {
             String chkHash = "MD5:" + ZorkaUtil.md5(pw.getOldPassword());

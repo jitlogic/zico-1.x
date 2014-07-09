@@ -16,7 +16,7 @@
 package com.jitlogic.zico.core;
 
 
-import com.jitlogic.zico.core.model.User;
+import com.jitlogic.zico.shared.data.UserInfo;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -46,7 +46,7 @@ public class UserManager {
     private final static Logger log = LoggerFactory.getLogger(UserManager.class);
 
     private DB db;
-    private ConcurrentNavigableMap<String,User> users;
+    private ConcurrentNavigableMap<String,UserInfo> users;
 
     private ZicoConfig config;
 
@@ -98,7 +98,7 @@ public class UserManager {
                 JSONObject json = new JSONObject(new JSONTokener(reader));
                 JSONArray names = json.names();
                 for (int i = 0; i < names.length(); i++) {
-                    User user = new User(json.getJSONObject(names.getString(i)));
+                    UserInfo user = fromJSON(json.getJSONObject(names.getString(i)));
                     users.put(user.getUserName(), user);
                 }
                 db.commit();
@@ -115,7 +115,7 @@ public class UserManager {
         }
 
         if (userRealm != null) {
-            for (User user : users.values()) {
+            for (UserInfo user : users.values()) {
                 updateRealm(user.getUserName(), user.getPassword(), user.isAdmin());
             }
 
@@ -153,8 +153,8 @@ public class UserManager {
         try {
             writer = new FileWriter(new File(config.getConfDir(), "users.json"));
             JSONObject obj = new JSONObject();
-            for (Map.Entry<String,User> e : users.entrySet()) {
-                obj.put(e.getKey().toString(), e.getValue().toJSONObject());
+            for (Map.Entry<String,UserInfo> e : users.entrySet()) {
+                obj.put(e.getKey(), toJSON(e.getValue()));
             }
             obj.write(writer);
         } catch (JSONException e) {
@@ -177,26 +177,26 @@ public class UserManager {
     }
 
 
-    public User create(Class<? extends User> aClass) {
-        return new User();
+    public UserInfo create() {
+        return new UserInfo();
     }
 
 
-    public User find(Class<? extends User> clazz, String username) {
+    public UserInfo find(String username) {
         return users.get(username);
     }
 
 
 
 
-    public List<User> findAll() {
-        List<User> lst = new ArrayList<User>(users.size());
+    public List<UserInfo> findAll() {
+        List<UserInfo> lst = new ArrayList<UserInfo>(users.size());
         lst.addAll(users.values());
         return lst;
     }
 
 
-    public void persist(User user) {
+    public void persist(UserInfo user) {
         users.put(user.getUserName(), user);
         db.commit();
 
@@ -204,7 +204,7 @@ public class UserManager {
     }
 
 
-    public void remove(User user) {
+    public void remove(UserInfo user) {
         if (userRealm != null && mRemove != null) {
             try {
                 mRemove.invoke(userRealm, user.getUserName());
@@ -216,4 +216,43 @@ public class UserManager {
         users.remove(user.getUserName());
         db.commit();
     }
+
+    public static UserInfo fromJSON(JSONObject obj)  throws JSONException {
+        UserInfo u = new UserInfo();
+        u.setUserName(obj.getString("username"));
+        u.setRealName(obj.getString("realname"));
+        u.setAdmin(obj.getBoolean("admin"));
+        u.setPassword(obj.optString("password"));
+
+        JSONArray hosts = obj.getJSONArray("hosts");
+
+        List<String> allowedHosts = new ArrayList<>();
+
+        for (int i = 0; i < hosts.length(); i++) {
+            allowedHosts.add(hosts.getString(i));
+        }
+
+        u.setAllowedHosts(allowedHosts);
+        return u;
+    }
+
+    public static JSONObject toJSON(UserInfo u) {
+        JSONObject json = new JSONObject();
+
+        json.put("username", u.getUserName());
+        json.put("realname", u.getRealName());
+        json.put("password", u.getPassword());
+        json.put("admin", u.isAdmin());
+
+        JSONArray hosts = new JSONArray();
+
+        for (String host : u.getAllowedHosts()) {
+            hosts.put(host);
+        }
+
+        json.put("hosts", hosts);
+
+        return json;
+    }
+
 }

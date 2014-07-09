@@ -18,11 +18,9 @@ package com.jitlogic.zico.test;
 
 import com.jitlogic.zico.core.UserManager;
 import com.jitlogic.zico.core.ZicoRuntimeException;
-import com.jitlogic.zico.core.model.User;
 import com.jitlogic.zico.core.services.UserService;
 import com.jitlogic.zico.shared.data.PasswordInfo;
 import com.jitlogic.zico.shared.data.UserInfo;
-import com.jitlogic.zico.test.support.UserTestContext;
 import com.jitlogic.zico.test.support.ZicoFixture;
 
 import org.junit.Before;
@@ -44,16 +42,16 @@ public class UserManagementUnitTest extends ZicoFixture {
     }
 
 
-    public static UserInfo mkuser(String userName, String realName, String passwd, int flags, String...hosts) {
-        User user = new User();
+    public static UserInfo mkuser(String userName, String realName, String passwd, boolean admin, String...hosts) {
+        UserInfo user = new UserInfo();
 
         user.setUserName(userName);
         user.setRealName(realName);
         user.setPassword(passwd);
-        user.setFlags(flags);
+        user.setAdmin(admin);
         user.setAllowedHosts(Arrays.asList(hosts));
 
-        return UserService.toUserInfo(user);
+        return user;
     }
 
     public static PasswordInfo mkpw(String username, String oldPw, String newPw) {
@@ -66,7 +64,7 @@ public class UserManagementUnitTest extends ZicoFixture {
 
     @Test
     public void testCreateCheckAndModifyUser() {
-        userService.create(mkuser("test", "Test User", "1qaz2wsx", User.ADMIN_USER, "host1", "host2", "host3", "host4"));
+        userService.create(mkuser("test", "Test User", "1qaz2wsx", true, "host1", "host2", "host3", "host4"));
 
         UserInfo user = userService.get("test");
 
@@ -79,7 +77,7 @@ public class UserManagementUnitTest extends ZicoFixture {
 
     @Test
     public void testManageAllowedHosts() {
-        userService.create(mkuser("test", "Test User", "1qaz2wsx", User.ADMIN_USER, "host1", "host2", "host3", "host4"));
+        userService.create(mkuser("test", "Test User", "1qaz2wsx", true, "host1", "host2", "host3", "host4"));
 
         assertEquals(4, userService.get("test").getAllowedHosts().size());
 
@@ -92,9 +90,9 @@ public class UserManagementUnitTest extends ZicoFixture {
 
     @Test
     public void testChangeUserPasswordAsAdminAndThenAsOrdinaryUser() {
-        userService.create(mkuser("test", "Test User", "noPass", User.ADMIN_USER, "host1", "host2", "host3", "host4"));
+        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
         systemService.resetPassword(mkpw("test", null, "somePass"));
-        assertTrue(userManager.find(User.class, "test").getPassword().startsWith("MD5:"));
+        assertTrue(userManager.find("test").getPassword().startsWith("MD5:"));
 
         userContext.isAdmin = false;
         systemService.resetPassword(mkpw(null, "somePass", "otherPass"));
@@ -102,9 +100,9 @@ public class UserManagementUnitTest extends ZicoFixture {
 
     @Test(expected = ZicoRuntimeException.class)
     public void testChangeUserPassWithInvalidPassword() {
-        userService.create(mkuser("test", "Test User", "noPass", User.ADMIN_USER, "host1", "host2", "host3", "host4"));
+        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
         systemService.resetPassword(mkpw("test", null, "somePass"));
-        assertTrue(userManager.find(User.class, "test").getPassword().startsWith("MD5:"));
+        assertTrue(userManager.find("test").getPassword().startsWith("MD5:"));
 
         userContext.isAdmin = false;
         systemService.resetPassword(mkpw(null, "wrongPass", "otherPass"));
@@ -112,7 +110,7 @@ public class UserManagementUnitTest extends ZicoFixture {
 
     @Test
     public void testAddUserCloseReopenAndCheckIfItsStillThere() {
-        userService.create(mkuser("test", "Test User", "noPass", User.ADMIN_USER, "host1", "host2", "host3", "host4"));
+        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
         UserManager uman = injector.getInstance(UserManager.class);
         uman.close(); uman.open();
         assertNotNull("User account should persist across restarts", userService.get("test"));
@@ -121,12 +119,12 @@ public class UserManagementUnitTest extends ZicoFixture {
 
     @Test
     public void testIfUserDbPersistsAcrossRestarts() {
-        userService.create(mkuser("test", "Test User", "noPass", User.ADMIN_USER, "host1", "host2", "host3", "host4"));
+        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
 
         userManager.close();
         userManager.open();
 
-        User user = userManager.find(User.class, "test");
+        UserInfo user = userManager.find("test");
         assertNotNull(user);
         //assertEquals("noPass", user.getPassword());
         assertEquals(Arrays.asList("host1", "host2", "host3", "host4"), user.getAllowedHosts());
@@ -135,7 +133,7 @@ public class UserManagementUnitTest extends ZicoFixture {
 
     @Test
     public void testExportImportUserDb() {
-        userService.create(mkuser("test", "Test User", "noPass", User.ADMIN_USER, "host1", "host2", "host3", "host4"));
+        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
         userManager.export();
         userManager.close();
 
@@ -147,7 +145,7 @@ public class UserManagementUnitTest extends ZicoFixture {
 
         userManager.open();
 
-        User user = userManager.find(User.class, "test");
+        UserInfo user = userManager.find("test");
         assertNotNull(user);
         assertEquals(Arrays.asList("host1", "host2", "host3", "host4"), user.getAllowedHosts());
     }

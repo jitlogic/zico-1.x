@@ -18,27 +18,27 @@ package com.jitlogic.zico.test.support;
 import com.google.inject.Singleton;
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.ZicoRuntimeException;
-import com.jitlogic.zico.core.model.User;
+import com.jitlogic.zico.shared.data.UserInfo;
 
 import javax.inject.Inject;
 
 @Singleton
 public class UserTestContext implements UserContext {
 
-    public User user;
+    public UserInfo user;
 
     public boolean isAdmin = true;
 
     @Inject
     public UserTestContext() {
-        user = new User();
+        user = new UserInfo();
         user.setAdmin(true);
         user.setUserName("test");
         user.setRealName("Test User");
     }
 
     @Override
-    public User getUser() {
+    public UserInfo getUser() {
         return user;
     }
 

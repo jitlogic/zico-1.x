@@ -20,7 +20,6 @@ import com.jitlogic.zico.core.HostStore;
 import com.jitlogic.zico.core.HostStoreManager;
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.UserManager;
-import com.jitlogic.zico.core.model.User;
 import com.jitlogic.zico.shared.data.HostInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

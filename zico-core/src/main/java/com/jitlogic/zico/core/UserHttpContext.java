@@ -15,18 +15,16 @@
  */
 package com.jitlogic.zico.core;
 
-import com.jitlogic.zico.core.model.User;
 import com.jitlogic.zico.shared.data.UserInfo;
 
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
 import javax.servlet.http.HttpServletRequest;
 
 @Singleton
 public class UserHttpContext implements UserContext {
 
-    private User anonymous;
+    private UserInfo anonymous;
     private UserManager userManager;
 
     @Inject
@@ -35,7 +33,7 @@ public class UserHttpContext implements UserContext {
         this.userManager = userManager;
 
         if ("anonymous".equals(mode)) {
-            anonymous = new User();
+            anonymous = new UserInfo();
             anonymous.setAdmin(true);
             anonymous.setUserName("anonymous");
             anonymous.setRealName("Anonymous");
@@ -44,7 +42,7 @@ public class UserHttpContext implements UserContext {
 
 
     @Override
-    public User getUser() {
+    public UserInfo getUser() {
         if (anonymous != null) { return anonymous; }
 
 
@@ -52,7 +50,7 @@ public class UserHttpContext implements UserContext {
             String username = ZicoRequestContextFilter.getRequest().getRemoteUser();
 
             if (username != null) {
-                User user = userManager.find(User.class, username);
+                UserInfo user = userManager.find(username);
                 if (user != null) {
                     return user;
                 }

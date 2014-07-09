@@ -34,10 +34,10 @@
         <json.version>20140107</json.version>
         <junit.version>4.11</junit.version>
         <logback.version>1.1.2</logback.version>
-        <mapdb.version>1.0.1</mapdb.version>
+        <mapdb.version>1.0.3</mapdb.version>
         <parboiled.version>1.1.6</parboiled.version>
         <resteasy.version>3.0.8.Final</resteasy.version>
-        <restygwt.version>1.4</restygwt.version>
+        <restygwt.version>1.3.1</restygwt.version> <!-- TODO bring back 1.4 -->
         <servlet.version>3.0.1</servlet.version>
         <slf4j.version>1.7.7</slf4j.version>
         <zico.widgets.version>0.0.1-SNAPSHOT</zico.widgets.version>
