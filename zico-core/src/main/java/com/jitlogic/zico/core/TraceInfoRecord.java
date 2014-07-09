@@ -13,11 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this software. If not, see <http://www.gnu.org/licenses/>.
  */
-package com.jitlogic.zico.core.model;
+package com.jitlogic.zico.core;
 
 
-import com.jitlogic.zico.core.TraceRecordStore;
-import com.jitlogic.zico.core.ZicoUtil;
 import com.jitlogic.zorka.common.tracedata.TraceMarker;
 import com.jitlogic.zorka.common.tracedata.TraceRecord;
 

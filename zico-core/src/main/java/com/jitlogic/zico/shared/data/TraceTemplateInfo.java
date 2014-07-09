@@ -18,7 +18,9 @@ package com.jitlogic.zico.shared.data;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
-public class TraceTemplateInfo {
+import java.io.Serializable;
+
+public class TraceTemplateInfo implements Serializable {
 
     @JsonProperty
     int id;

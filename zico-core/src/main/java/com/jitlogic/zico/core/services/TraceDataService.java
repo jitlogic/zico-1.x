@@ -21,7 +21,7 @@ import com.jitlogic.zico.core.*;
 import com.jitlogic.zico.core.eql.EqlException;
 import com.jitlogic.zico.core.eql.EqlParseException;
 import com.jitlogic.zico.core.eql.Parser;
-import com.jitlogic.zico.core.model.TraceInfoRecord;
+import com.jitlogic.zico.core.TraceInfoRecord;
 import com.jitlogic.zico.core.search.EqlTraceRecordMatcher;
 import com.jitlogic.zico.core.search.FullTextTraceRecordMatcher;
 import com.jitlogic.zico.core.search.TraceRecordMatcher;
