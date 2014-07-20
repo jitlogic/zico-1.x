@@ -24,4 +24,6 @@ public interface UserContext {
     boolean isInRole(String role);
 
     void checkAdmin();
+
+    public void checkHostAccess(String hostname);
 }

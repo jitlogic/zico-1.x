@@ -64,10 +64,10 @@ public class UserHttpContext implements UserContext {
     @Override
     public boolean isInRole(String role) {
         if (anonymous != null) { return true; }
-        HttpServletRequest r = ZicoRequestContextFilter.getRequest();
-        return r == null || r.isUserInRole(role);
+        UserInfo user = getUser();
+        return user != null && (!"ADMIN".equals(role) || user.isAdmin());
     }
-
+    
 
     @Override
     public void checkAdmin() {
@@ -75,6 +75,15 @@ public class UserHttpContext implements UserContext {
             throw new ZicoRuntimeException("Insufficient privileges.");
         }
     }
+
+
+    public void checkHostAccess(String hostname) {
+        if (!isInRole("ADMIN")
+                && !getUser().getAllowedHosts().contains(hostname)) {
+            throw new ZicoRuntimeException("Insufficient privileges");
+        }
+    }
+
 
 
 }

@@ -109,7 +109,7 @@ public class ZicoMain {
                 EnumSet.of(DispatcherType.REQUEST));
 
         authFilter.setInitParameter("casServerLoginUrl", props.getProperty("auth.cas.url") + "/login");
-        authFilter.setInitParameter("service", props.getProperty("auth.slac.url"));
+        authFilter.setInitParameter("service", props.getProperty("auth.zico.url"));
 
         FilterHolder validationFilter = webapp.addFilter(
                 "org.jasig.cas.client.validation.Cas10TicketValidationFilter", "/*",
@@ -117,7 +117,7 @@ public class ZicoMain {
         );
 
         validationFilter.setInitParameter("casServerUrlPrefix", props.getProperty("auth.cas.url"));
-        validationFilter.setInitParameter("service", props.getProperty("auth.slac.url"));
+        validationFilter.setInitParameter("service", props.getProperty("auth.zico.url"));
 
         webapp.addFilter(
                 "org.jasig.cas.client.util.HttpServletRequestWrapperFilter", "/*",

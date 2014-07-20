@@ -84,7 +84,7 @@ public class SystemService {
     @Path("/tidmap/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<SymbolInfo> getTidMap(@PathParam("hostname") String hostname) {
-        userManager.checkHostAccess(hostname);
+        userContext.checkHostAccess(hostname);
 
         List<SymbolInfo> lst = new ArrayList<>();
 

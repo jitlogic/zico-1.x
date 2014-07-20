@@ -53,4 +53,9 @@ public class UserTestContext implements UserContext {
             throw new ZicoRuntimeException("Insufficient privileges");
         }
     }
+
+    @Override
+    public void checkHostAccess(String hostname) {
+        //
+    }
 }

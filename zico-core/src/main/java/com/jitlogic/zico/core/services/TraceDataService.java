@@ -53,15 +53,14 @@ public class TraceDataService {
     private HostStoreManager storeManager;
 
     @Inject
-    private UserManager userManager;
-
+    private UserContext userContext;
 
     @POST
     @Path("/search")
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public TraceInfoSearchResult searchTraces(TraceInfoSearchQuery query) {
-        userManager.checkHostAccess(query.getHostName());
+        userContext.checkHostAccess(query.getHostName());
         try {
             HostStore host = storeManager.getHost(query.getHostName(), false);
             if (host == null) {
@@ -86,7 +85,7 @@ public class TraceDataService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public List<MethodRankInfo> traceMethodRank(TraceRecordRankQuery q) {
-        userManager.checkHostAccess(q.getHostname());
+        userContext.checkHostAccess(q.getHostname());
         try {
             HostStore host = storeManager.getHost(q.getHostname(), false);
             if (host != null) {
@@ -107,7 +106,7 @@ public class TraceDataService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public TraceRecordInfo getRecord(TraceRecordListQuery q) {
-        userManager.checkHostAccess(q.getHostName());
+        userContext.checkHostAccess(q.getHostName());
         try {
             HostStore host = storeManager.getHost(q.getHostName(), false);
             if (host != null) {
@@ -130,7 +129,7 @@ public class TraceDataService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public List<TraceRecordInfo> listRecords(TraceRecordListQuery q) {
-        userManager.checkHostAccess(q.getHostName());
+        userContext.checkHostAccess(q.getHostName());
         try {
             HostStore host = storeManager.getHost(q.getHostName(), false);
             if (host != null) {
@@ -165,7 +164,7 @@ public class TraceDataService {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public TraceRecordSearchResult searchRecords(TraceRecordSearchQuery q) {
-        userManager.checkHostAccess(q.getHostName());
+        userContext.checkHostAccess(q.getHostName());
         try {
             HostStore host = storeManager.getHost(q.getHostName(), false);
             if (host != null) {

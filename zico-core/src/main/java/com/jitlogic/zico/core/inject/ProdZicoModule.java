@@ -18,16 +18,10 @@ package com.jitlogic.zico.core.inject;
 import com.google.inject.Binder;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
-import com.google.inject.assistedinject.Assisted;
 import com.jitlogic.zico.core.*;
 import com.jitlogic.zorka.common.zico.ZicoDataProcessorFactory;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
 
-import javax.inject.Named;
 import java.io.File;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 
 public class ProdZicoModule extends AbstractZicoModule {

@@ -23,7 +23,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,15 +56,12 @@ public class UserManager {
 
     private boolean sumode;
 
-    private UserContext userContext;
-
     private DBFactory dbf;
 
     @Inject
-    public UserManager(ZicoConfig config, UserContext userContext, DBFactory dbf) {
+    public UserManager(ZicoConfig config, DBFactory dbf) {
 
         this.config = config;
-        this.userContext = userContext;
         this.dbf = dbf;
 
         try {
@@ -170,14 +166,6 @@ public class UserManager {
             if (writer != null) {
                 try { writer.close(); } catch (IOException e) { }
             }
-        }
-    }
-
-
-    public void checkHostAccess(String hostname) {
-        if (!userContext.isInRole("ADMIN")
-         && !userContext.getUser().getAllowedHosts().contains(hostname)) {
-            throw new ZicoRuntimeException("Insufficient privileges");
         }
     }
 

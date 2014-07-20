@@ -38,8 +38,6 @@ public class UserInfo implements Serializable {
     @JsonProperty
     List<String> allowedHosts;
 
-
-
     public String getUserName() {
         return userName;
     }

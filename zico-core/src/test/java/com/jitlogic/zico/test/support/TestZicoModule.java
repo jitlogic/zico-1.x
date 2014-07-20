@@ -18,17 +18,13 @@ package com.jitlogic.zico.test.support;
 
 import com.google.inject.Binder;
 import com.google.inject.Provides;
-import com.google.inject.assistedinject.Assisted;
 import com.jitlogic.zico.core.DBFactory;
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.ZicoConfig;
 import com.jitlogic.zico.core.inject.AbstractZicoModule;
 import com.jitlogic.zico.test.MemoryDBFactory;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
 
 import javax.inject.Singleton;
-import java.io.File;
 
 public class TestZicoModule extends AbstractZicoModule {
 
