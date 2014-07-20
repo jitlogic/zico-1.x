@@ -19,7 +19,6 @@ import com.jitlogic.zico.shared.data.UserInfo;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
 
 @Singleton
 public class UserHttpContext implements UserContext {
