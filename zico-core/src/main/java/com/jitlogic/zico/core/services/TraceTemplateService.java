@@ -18,15 +18,14 @@ package com.jitlogic.zico.core.services;
 
 import com.jitlogic.zico.core.TraceTemplateManager;
 import com.jitlogic.zico.core.UserContext;
-import com.jitlogic.zico.core.model.TraceTemplate;
 import com.jitlogic.zico.shared.data.TraceTemplateInfo;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Singleton
 @Path("/templates")
@@ -45,26 +44,23 @@ public class TraceTemplateService {
     public List<TraceTemplateInfo> list() {
         userContext.checkAdmin();
 
-        return templateManager.listTemplates().stream()
-                .<TraceTemplateInfo>map(TraceTemplateService::toTemplateInfo)
-                .collect(Collectors.toList());
+        return templateManager.listTemplates();
     }
+
 
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public TraceTemplateInfo get(@PathParam("id")int id) {
-        return toTemplateInfo(templateManager.find(TraceTemplate.class, id));
+        return templateManager.find(TraceTemplateInfo.class, id);
     }
+
 
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public void update(@PathParam("id") int id, TraceTemplateInfo ti) {
-        TraceTemplate t = templateManager.find(TraceTemplate.class, id);
-        if (t != null) {
-            templateManager.save(updateTemplate(t, ti));
-        }
+        templateManager.save(ti);
     }
 
 
@@ -72,37 +68,12 @@ public class TraceTemplateService {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public void create(TraceTemplateInfo ti) {
-        TraceTemplate t = templateManager.create(TraceTemplate.class);
-        templateManager.save(updateTemplate(t, ti));
+        templateManager.save(ti);
     }
 
 
     @DELETE @Path("/{id}")
     public void delete(@PathParam("id") int id) {
         templateManager.remove(id);
-    }
-
-
-    public static TraceTemplate updateTemplate(TraceTemplate t, TraceTemplateInfo ti) {
-        t.setOrder(ti.getOrder());
-        t.setFlags(ti.getFlags());
-        t.setCondition(ti.getCondition());
-        t.setTemplate(ti.getTemplate());
-        return t;
-    }
-
-
-    public static TraceTemplateInfo toTemplateInfo(TraceTemplate t) {
-        TraceTemplateInfo ti = new TraceTemplateInfo();
-
-        if (t != null) {
-            ti.setId(t.getId());
-            ti.setFlags(t.getFlags());
-            ti.setOrder(t.getOrder());
-            ti.setCondition(t.getCondition());
-            ti.setTemplate(t.getTemplate());
-        }
-
-        return ti;
     }
 }

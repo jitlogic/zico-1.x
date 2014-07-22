@@ -5,7 +5,7 @@
     <parent>
         <artifactId>zico</artifactId>
         <groupId>com.jitlogic.zico</groupId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -68,6 +68,8 @@
                                 <mkdir dir="${project.build.outputDirectory}/zico-${project.version}/templates"/>
                                 <copy file="src/Template_Zico_Collector.xml"
                                       toDir="${project.build.outputDirectory}/zico-${project.version}/templates"/>
+                                <copy file="src/zico-patch-105.py"
+                                      toDir="${project.build.outputDirectory}/zico-${project.version}"/>
                                 <zip destfile="${project.build.directory}/zico-${project.version}.zip">
                                     <fileset dir="${project.build.outputDirectory}" defaultexcludes="false">
                                         <include name="**"/>

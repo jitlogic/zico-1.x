@@ -18,15 +18,19 @@ package com.jitlogic.zico.shared.data;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class UserInfo {
+public class UserInfo implements Serializable {
 
     @JsonProperty
     String userName;
 
     @JsonProperty
     String realName;
+
+    @JsonProperty
+    String password;
 
     @JsonProperty
     boolean admin;
@@ -64,5 +68,13 @@ public class UserInfo {
 
     public void setAllowedHosts(List<String> allowedHosts) {
         this.allowedHosts = allowedHosts;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

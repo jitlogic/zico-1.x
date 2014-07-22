@@ -23,11 +23,11 @@ import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.ui.CheckBox;
-import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.api.UserService;
-import com.jitlogic.zico.client.widgets.IsPopupWindow;
-import com.jitlogic.zico.client.widgets.PopupWindow;
 import com.jitlogic.zico.shared.data.UserInfo;
+import com.jitlogic.zico.widgets.client.IsPopupWindow;
+import com.jitlogic.zico.widgets.client.MessageDisplay;
+import com.jitlogic.zico.widgets.client.PopupWindow;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 

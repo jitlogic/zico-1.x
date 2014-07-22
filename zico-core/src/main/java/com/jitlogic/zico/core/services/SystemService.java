@@ -17,7 +17,6 @@
 package com.jitlogic.zico.core.services;
 
 import com.jitlogic.zico.core.*;
-import com.jitlogic.zico.core.model.User;
 import com.jitlogic.zico.shared.data.PasswordInfo;
 import com.jitlogic.zico.shared.data.SymbolInfo;
 import com.jitlogic.zico.shared.data.UserInfo;
@@ -27,8 +26,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 @Singleton
 @Path("/system")
@@ -49,8 +49,7 @@ public class SystemService {
     @Path("/user/current")
     @Produces(MediaType.APPLICATION_JSON)
     public UserInfo getUser() {
-        String username = userContext.getUser();
-        return UserService.toUserInfo(username != null ? userManager.find(User.class, username) : null);
+        return userContext.getUser();
     }
 
 
@@ -64,8 +63,7 @@ public class SystemService {
             throw new ZicoRuntimeException("Insufficient privileges to reset other users password");
         }
 
-        User user = userManager.find (User.class,
-                (userName != null && userName.length() > 0) ? userName : userContext.getUser());
+        UserInfo user = userContext.getUser();
 
         if (!adminMode) {
             String chkHash = "MD5:" + ZorkaUtil.md5(pw.getOldPassword());
@@ -86,10 +84,15 @@ public class SystemService {
     @Path("/tidmap/{hostname}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<SymbolInfo> getTidMap(@PathParam("hostname") String hostname) {
-        userManager.checkHostAccess(hostname);
-        return hostStoreManager.getTids(hostname).entrySet().stream()
-                .map((e) -> new SymbolInfo(e.getKey(), e.getValue()))
-                .collect(Collectors.toList());
+        userContext.checkHostAccess(hostname);
+
+        List<SymbolInfo> lst = new ArrayList<>();
+
+        for (Map.Entry<Integer,String> e : hostStoreManager.getTids(hostname).entrySet()) {
+            lst.add(new SymbolInfo(e.getKey(), e.getValue()));
+        }
+
+        return lst;
     }
 
     @POST

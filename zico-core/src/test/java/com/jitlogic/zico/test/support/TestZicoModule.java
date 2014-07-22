@@ -18,9 +18,11 @@ package com.jitlogic.zico.test.support;
 
 import com.google.inject.Binder;
 import com.google.inject.Provides;
+import com.jitlogic.zico.core.DBFactory;
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.ZicoConfig;
 import com.jitlogic.zico.core.inject.AbstractZicoModule;
+import com.jitlogic.zico.test.MemoryDBFactory;
 
 import javax.inject.Singleton;
 
@@ -36,6 +38,7 @@ public class TestZicoModule extends AbstractZicoModule {
     public void configure(Binder binder) {
         super.configure(binder);
         binder.bind(UserContext.class).to(UserTestContext.class);
+        binder.bind(DBFactory.class).to(MemoryDBFactory.class);
     }
 
 
@@ -44,5 +47,6 @@ public class TestZicoModule extends AbstractZicoModule {
     public ZicoConfig provideConfig() {
         return config;
     }
+
 
 }

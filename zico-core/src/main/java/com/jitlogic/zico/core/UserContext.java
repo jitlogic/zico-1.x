@@ -16,10 +16,14 @@
 package com.jitlogic.zico.core;
 
 
+import com.jitlogic.zico.shared.data.UserInfo;
+
 public interface UserContext {
-    String getUser();
+    UserInfo getUser();
 
     boolean isInRole(String role);
 
     void checkAdmin();
+
+    public void checkHostAccess(String hostname);
 }

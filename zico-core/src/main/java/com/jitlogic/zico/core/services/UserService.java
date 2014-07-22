@@ -18,7 +18,6 @@ package com.jitlogic.zico.core.services;
 
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.UserManager;
-import com.jitlogic.zico.core.model.User;
 import com.jitlogic.zico.shared.data.UserInfo;
 
 import javax.inject.Inject;
@@ -26,7 +25,6 @@ import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Singleton
@@ -44,16 +42,15 @@ public class UserService {
     @Produces(MediaType.APPLICATION_JSON)
     public List<UserInfo> list() {
         userContext.checkAdmin();
-        return userManager.findAll().stream()
-                .<UserInfo>map(UserService::toUserInfo)
-                .collect(Collectors.toList());
+
+        return userManager.findAll();
     }
 
     @GET
     @Path("/{username}")
     public UserInfo get(@PathParam("username") String username) {
         userContext.checkAdmin();
-        return toUserInfo(userManager.find(User.class, username));
+        return userManager.find(username);
     }
 
     @PUT
@@ -61,10 +58,9 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     public void update(@PathParam("username") String username, UserInfo userInfo) {
         userContext.checkAdmin();
-        User user = userManager.find(User.class, username);
+        UserInfo user = userManager.find(username);
         if (user != null) {
-            updateUser(user, userInfo);
-            userManager.persist(user);
+            userManager.persist(userInfo);
         }
     }
 
@@ -73,9 +69,7 @@ public class UserService {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public void create(UserInfo userInfo) {
-        User user = userManager.create(User.class);
-        updateUser(user, userInfo);
-        userManager.persist(user);
+        userManager.persist(userInfo);
     }
 
 
@@ -83,29 +77,7 @@ public class UserService {
     @Path("/{username}")
     public void delete(@PathParam("username")String username) {
         userContext.checkAdmin();
-        userManager.remove(userManager.find(User.class, username));
+        userManager.remove(userManager.find(username));
     }
 
-
-    public static User updateUser(User user, UserInfo info) {
-        user.setUserName(info.getUserName());
-        user.setRealName(info.getRealName());
-        user.setAdmin(info.isAdmin());
-        user.setAllowedHosts(info.getAllowedHosts());
-        return user;
-    }
-
-
-    public static UserInfo toUserInfo(User user) {
-        UserInfo userInfo = new UserInfo();
-
-        if (user != null) {
-            userInfo.setUserName(user.getUserName());
-            userInfo.setRealName(user.getRealName());
-            userInfo.setAdmin(user.isAdmin());
-            userInfo.setAllowedHosts(user.getAllowedHosts());
-        }
-
-        return userInfo;
-    }
 }

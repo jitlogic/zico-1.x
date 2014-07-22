@@ -15,39 +15,58 @@
  */
 package com.jitlogic.zico.core;
 
+import com.jitlogic.zico.shared.data.UserInfo;
+
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.inject.Singleton;
-import javax.servlet.http.HttpServletRequest;
 
 @Singleton
 public class UserHttpContext implements UserContext {
 
-    private String anonymous;
-    private Provider<HttpServletRequest> req;
-
+    private UserInfo anonymous;
+    private UserManager userManager;
 
     @Inject
-    public UserHttpContext(Provider<HttpServletRequest> req, ZicoConfig config) {
-        this.anonymous = config.stringCfg("zico.anonymous", null);
-        this.req = req;
+    public UserHttpContext(ZicoConfig config, UserManager userManager) {
+        String mode = config.stringCfg("auth", "form");
+        this.userManager = userManager;
+
+        if ("anonymous".equals(mode)) {
+            anonymous = new UserInfo();
+            anonymous.setAdmin(true);
+            anonymous.setUserName("anonymous");
+            anonymous.setRealName("Anonymous");
+        }
     }
 
 
     @Override
-    public String getUser() {
+    public UserInfo getUser() {
         if (anonymous != null) { return anonymous; }
-        return req.get().getRemoteUser();
+
+
+        if (ZicoRequestContextFilter.getRequest() != null) {
+            String username = ZicoRequestContextFilter.getRequest().getRemoteUser();
+
+            if (username != null) {
+                UserInfo user = userManager.find(username);
+                if (user != null) {
+                    return user;
+                }
+            }
+        }
+
+        throw new ZicoRuntimeException("Cannot determine logged in user.");
     }
 
 
     @Override
     public boolean isInRole(String role) {
         if (anonymous != null) { return true; }
-        HttpServletRequest r = req.get();
-        return r == null || r.isUserInRole(role);
+        UserInfo user = getUser();
+        return user != null && (!"ADMIN".equals(role) || user.isAdmin());
     }
-
+    
 
     @Override
     public void checkAdmin() {
@@ -55,6 +74,15 @@ public class UserHttpContext implements UserContext {
             throw new ZicoRuntimeException("Insufficient privileges.");
         }
     }
+
+
+    public void checkHostAccess(String hostname) {
+        if (!isInRole("ADMIN")
+                && !getUser().getAllowedHosts().contains(hostname)) {
+            throw new ZicoRuntimeException("Insufficient privileges");
+        }
+    }
+
 
 
 }

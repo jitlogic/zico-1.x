@@ -1,7 +1,7 @@
 <ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:gc='urn:import:com.google.gwt.user.cellview.client'
-             xmlns:z="urn:import:com.jitlogic.zico.client.widgets">
+             xmlns:z="urn:import:com.jitlogic.zico.widgets.client">
     <ui:with field="resources" type="com.jitlogic.zico.client.resources.Resources"/>
     <ui:style>
         .toolbar {

@@ -18,18 +18,19 @@ package com.jitlogic.zico.core;
 
 import com.jitlogic.zico.core.eql.EqlException;
 import com.jitlogic.zico.core.eql.Parser;
-import com.jitlogic.zico.core.model.TraceTemplate;
+import com.jitlogic.zico.core.eql.ast.EqlExpr;
 import com.jitlogic.zico.core.search.EqlTraceRecordMatcher;
 import com.jitlogic.zico.core.search.TraceRecordMatcher;
+import com.jitlogic.zico.shared.data.TraceTemplateInfo;
 import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
 import com.jitlogic.zorka.common.tracedata.TraceRecord;
 import com.jitlogic.zorka.common.util.ObjectInspector;
+import com.jitlogic.zorka.common.util.ZorkaUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 public class TraceTemplateManager {
@@ -55,16 +57,19 @@ public class TraceTemplateManager {
 
     private DB db;
 
-    private NavigableMap<Integer,TraceTemplate> templates;
+    private NavigableMap<Integer,TraceTemplateInfo> templates;
 
-    private volatile List<TraceTemplate> orderedTemplates;
+    private volatile List<TraceTemplateInfo> orderedTemplates;
+
+    private Map<Integer,EqlExpr> exprs = new ConcurrentHashMap<>();
 
     private ZicoConfig config;
-
+    private DBFactory dbf;
 
     @Inject
-    public TraceTemplateManager(ZicoConfig config) {
+    public TraceTemplateManager(ZicoConfig config, DBFactory dbf) {
         this.config = config;
+        this.dbf = dbf;
         open();
     }
 
@@ -75,7 +80,7 @@ public class TraceTemplateManager {
             return;
         }
 
-        db = DBMaker.newFileDB(new File(config.getConfDir(), "templates.db")).closeOnJvmShutdown().make();
+        db = dbf.openDB(ZorkaUtil.path(config.getConfDir(), "templates.db"));
         templates = db.getTreeMap("TEMPLATES");
 
         File jsonFile = new File(config.getConfDir(), "templates.json");
@@ -88,7 +93,7 @@ public class TraceTemplateManager {
                 JSONObject json = new JSONObject(new JSONTokener(reader));
                 JSONArray names = json.names();
                 for (int i = 0; i < names.length(); i++) {
-                    TraceTemplate t = new TraceTemplate(json.getJSONObject(names.getString(i)));
+                    TraceTemplateInfo t = fromJSON(json.getJSONObject(names.getString(i)));
                     templates.put(t.getId(), t);
                 }
                 db.commit();
@@ -110,7 +115,7 @@ public class TraceTemplateManager {
 
     public void close() {
         if (db != null) {
-            db.close();
+            dbf.closeDB(db);
             db = null;
             templates=  null;
             orderedTemplates = null;
@@ -119,28 +124,25 @@ public class TraceTemplateManager {
 
 
     private void reorder() {
-        List<TraceTemplate> ttl = new ArrayList<TraceTemplate>(templates.size());
+        List<TraceTemplateInfo> ttl = new ArrayList<>(templates.size());
         ttl.addAll(templates.values());
-        Collections.sort(ttl, new Comparator<TraceTemplate>() {
+        Collections.sort(ttl, new Comparator<TraceTemplateInfo>() {
             @Override
-            public int compare(TraceTemplate o1, TraceTemplate o2) {
+            public int compare(TraceTemplateInfo o1, TraceTemplateInfo o2) {
                 return o1.getOrder()-o2.getOrder();
             }
         });
 
-        for (TraceTemplate tti : ttl) {
-            if (tti.getCondExpr() == null) {
-                try {
-                    tti.setCondExpr(Parser.expr(tti.getCondition()));
-                } catch (EqlException e) {
-                    log.error("Cannot parse expression '" + tti.getCondition()
-                            + "'. Please fix trace display templates configuration.", e);
-                }
+        for (TraceTemplateInfo tti : ttl) {
+            try {
+                exprs.put(tti.getId(), Parser.expr(tti.getCondition()));
+            } catch (EqlException e) {
+                log.error("Cannot parse expression '" + tti.getCondition()
+                        + "'. Please fix trace display templates configuration.", e);
             }
         }
 
         orderedTemplates = ttl;
-
     }
 
 
@@ -149,8 +151,8 @@ public class TraceTemplateManager {
         try {
             writer = new FileWriter(new File(config.getConfDir(), "templates.json"));
             JSONObject obj = new JSONObject();
-            for (Map.Entry<Integer,TraceTemplate> e : templates.entrySet()) {
-                obj.put(e.getKey().toString(), e.getValue().toJSONObject());
+            for (Map.Entry<Integer,TraceTemplateInfo> e : templates.entrySet()) {
+                obj.put(e.getKey().toString(), toJSON(e.getValue()));
             }
             obj.write(writer);
         } catch (JSONException e) {
@@ -167,11 +169,11 @@ public class TraceTemplateManager {
 
 
     public String templateDescription(SymbolRegistry symbolRegistry, String hostName, TraceRecord rec) {
-
-        for (TraceTemplate tti : orderedTemplates) {
+        for (TraceTemplateInfo tti : orderedTemplates) {
+            EqlExpr expr = exprs.get(tti.getId());
             TraceRecordMatcher matcher = new EqlTraceRecordMatcher(
-                    symbolRegistry, tti.getCondExpr(), 0, rec.getTime(), hostName);
-            if (tti.getCondExpr() != null && matcher.match(rec)) {
+                    symbolRegistry, expr, 0, rec.getTime(), hostName);
+            if (expr != null && matcher.match(rec)) {
                 return substitute(tti, symbolRegistry, hostName, rec);
             }
         }
@@ -180,7 +182,7 @@ public class TraceTemplateManager {
     }
 
 
-    private String substitute(TraceTemplate tti, SymbolRegistry symbolRegistry, String hostname, TraceRecord rec) {
+    private String substitute(TraceTemplateInfo tti, SymbolRegistry symbolRegistry, String hostname, TraceRecord rec) {
         Map<String, Object> attrs = new HashMap<String, Object>();
         if (rec.getAttrs() != null) {
             for (Map.Entry<Integer,Object> e : rec.getAttrs().entrySet()) {
@@ -215,16 +217,16 @@ public class TraceTemplateManager {
     }
 
 
-    public List<TraceTemplate> listTemplates() {
-        List<TraceTemplate> lst = new ArrayList<TraceTemplate>(templates.size());
+    public List<TraceTemplateInfo> listTemplates() {
+        List<TraceTemplateInfo> lst = new ArrayList<>(templates.size());
         lst.addAll(templates.values());
         return lst;
     }
 
 
-    public synchronized int save(TraceTemplate tti) {
+    public synchronized int save(TraceTemplateInfo tti) {
 
-        tti.setCondExpr(Parser.expr(tti.getCondition()));
+        exprs.put(tti.getId(), Parser.expr(tti.getCondition()));
 
         if (tti.getId() == 0) {
             tti.setId(templates.size() > 0 ? templates.lastKey()+1 : 1);
@@ -250,12 +252,38 @@ public class TraceTemplateManager {
     }
 
 
-    public TraceTemplate create(Class<? extends TraceTemplate> aClass) {
-        return new TraceTemplate();
+    public TraceTemplateInfo create(Class<? extends TraceTemplateInfo> aClass) {
+        return new TraceTemplateInfo();
     }
 
 
-    public TraceTemplate find(Class<? extends TraceTemplate> aClass, Integer templateId) {
+    public TraceTemplateInfo find(Class<? extends TraceTemplateInfo> aClass, Integer templateId) {
         return templates.get(templateId);
     }
+
+    public static TraceTemplateInfo fromJSON(JSONObject obj) {
+        TraceTemplateInfo tt = new TraceTemplateInfo();
+
+        tt.setId(obj.getInt("id"));
+        tt.setOrder(obj.getInt("order"));
+        tt.setFlags(obj.getInt("flags"));
+
+        tt.setCondition(obj.getString("condition"));
+        tt.setTemplate(obj.getString("template"));
+
+        return tt;
+    }
+
+    public static JSONObject toJSON(TraceTemplateInfo tt) {
+        JSONObject obj = new JSONObject();
+
+        obj.put("id", tt.getId());
+        obj.put("order", tt.getOrder());
+        obj.put("flags", tt.getFlags());
+        obj.put("condition", tt.getCondition());
+        obj.put("template", tt.getTemplate());
+
+        return obj;
+    }
+
 }

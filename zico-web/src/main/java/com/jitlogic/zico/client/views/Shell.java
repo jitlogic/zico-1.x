@@ -8,12 +8,13 @@ import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.inject.Inject;
-import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.api.SystemService;
 import com.jitlogic.zico.client.inject.PanelFactory;
 import com.jitlogic.zico.client.views.hosts.HostListPanel;
-import com.jitlogic.zico.client.widgets.CloseableTab;
 import com.jitlogic.zico.shared.data.UserInfo;
+import com.jitlogic.zico.widgets.client.CloseableTab;
+import com.jitlogic.zico.widgets.client.MessageDisplay;
+import com.jitlogic.zico.widgets.client.StatusBar;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 

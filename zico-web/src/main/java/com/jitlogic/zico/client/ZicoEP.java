@@ -23,9 +23,9 @@ import com.google.gwt.user.client.ui.RootLayoutPanel;
 
 import com.jitlogic.zico.client.inject.ClientGinjector;
 import com.jitlogic.zico.client.resources.Resources;
-import com.jitlogic.zico.client.widgets.ZicoDataGridResources;
 import com.jitlogic.zico.client.views.Shell;
-import com.jitlogic.zico.client.widgets.WidgetResources;
+import com.jitlogic.zico.widgets.client.WidgetResources;
+import com.jitlogic.zico.widgets.client.ZicoDataGridResources;
 
 
 public class ZicoEP implements EntryPoint {

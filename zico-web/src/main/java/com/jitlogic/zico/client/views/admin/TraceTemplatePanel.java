@@ -39,11 +39,10 @@ import com.google.gwt.view.client.ListDataProvider;
 import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.Inject;
-import com.jitlogic.zico.client.MessageDisplay;
 import com.jitlogic.zico.client.api.TraceTemplateService;
-import com.jitlogic.zico.client.widgets.*;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.shared.data.TraceTemplateInfo;
+import com.jitlogic.zico.widgets.client.*;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 

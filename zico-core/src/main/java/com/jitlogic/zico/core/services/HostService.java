@@ -20,7 +20,6 @@ import com.jitlogic.zico.core.HostStore;
 import com.jitlogic.zico.core.HostStoreManager;
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.UserManager;
-import com.jitlogic.zico.core.model.User;
 import com.jitlogic.zico.shared.data.HostInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,8 +29,8 @@ import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Singleton
 @Path("/hosts")
@@ -54,11 +53,15 @@ public class HostService {
     @Produces(MediaType.APPLICATION_JSON)
     public List<HostInfo> list() {
         List<HostStore> hostList = hostStoreManager.list(userContext.isInRole("ADMIN") ? null
-                : userManager.find(User.class, userContext.getUser()).getAllowedHosts());
+                : userContext.getUser().getAllowedHosts());
 
-        return hostList.stream()
-                .<HostInfo>map(HostService::toHostInfo)
-                .collect(Collectors.toList());
+        List<HostInfo> lst = new ArrayList<>();
+
+        for (HostStore h : hostList) {
+            lst.add(HostService.toHostInfo(h));
+        }
+
+        return lst;
     }
 
     @PUT @Path("/{hostname}")

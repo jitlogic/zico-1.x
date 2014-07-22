@@ -2,7 +2,7 @@
              xmlns:g='urn:import:com.google.gwt.user.client.ui'
              xmlns:gc='urn:import:com.google.gwt.user.cellview.client'>
 
-    <ui:with field="wres" type="com.jitlogic.zico.client.widgets.WidgetResources"/>
+    <ui:with field="wres" type="com.jitlogic.zico.widgets.client.WidgetResources"/>
 
     <ui:style>
         .attrname {

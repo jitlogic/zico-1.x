@@ -18,17 +18,28 @@ package com.jitlogic.zico.test.support;
 import com.google.inject.Singleton;
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.ZicoRuntimeException;
+import com.jitlogic.zico.shared.data.UserInfo;
+
+import javax.inject.Inject;
 
 @Singleton
 public class UserTestContext implements UserContext {
 
-    public String username = "test";
+    public UserInfo user;
 
     public boolean isAdmin = true;
 
+    @Inject
+    public UserTestContext() {
+        user = new UserInfo();
+        user.setAdmin(true);
+        user.setUserName("test");
+        user.setRealName("Test User");
+    }
+
     @Override
-    public String getUser() {
-        return username;
+    public UserInfo getUser() {
+        return user;
     }
 
     @Override
@@ -41,5 +52,10 @@ public class UserTestContext implements UserContext {
         if (!isAdmin) {
             throw new ZicoRuntimeException("Insufficient privileges");
         }
+    }
+
+    @Override
+    public void checkHostAccess(String hostname) {
+        //
     }
 }

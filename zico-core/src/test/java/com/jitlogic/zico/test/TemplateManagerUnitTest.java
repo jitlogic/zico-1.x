@@ -17,7 +17,6 @@ package com.jitlogic.zico.test;
 
 import com.jitlogic.zico.core.TraceTemplateManager;
 import com.jitlogic.zico.core.eql.EqlParseException;
-import com.jitlogic.zico.core.model.TraceTemplate;
 import com.jitlogic.zico.core.services.TraceTemplateService;
 import com.jitlogic.zico.shared.data.TraceTemplateInfo;
 import com.jitlogic.zico.test.support.ZicoFixture;
@@ -53,11 +52,11 @@ public class TemplateManagerUnitTest extends ZicoFixture {
 
 
     private TraceTemplateInfo tti(int order, String condition, String templ) {
-        TraceTemplate tti = new TraceTemplate();
+        TraceTemplateInfo tti = new TraceTemplateInfo();
         tti.setOrder(order);
         tti.setCondition(condition);
         tti.setTemplate(templ);
-        return TraceTemplateService.toTemplateInfo(tti);
+        return tti;
     }
 
 

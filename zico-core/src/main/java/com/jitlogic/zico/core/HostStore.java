@@ -19,7 +19,6 @@ import com.jitlogic.zico.core.eql.Parser;
 import com.jitlogic.zico.shared.data.KeyValuePair;
 import com.jitlogic.zico.shared.data.SymbolicExceptionInfo;
 import com.jitlogic.zico.shared.data.TraceInfo;
-import com.jitlogic.zico.core.model.TraceInfoRecord;
 import com.jitlogic.zico.shared.data.TraceInfoSearchQuery;
 import com.jitlogic.zico.shared.data.TraceInfoSearchResult;
 import com.jitlogic.zico.shared.data.TraceRecordSearchQuery;
@@ -42,7 +41,6 @@ import org.fressian.FressianReader;
 
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
-import org.mapdb.DBMaker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +77,8 @@ public class HostStore implements Closeable, RDSCleanupListener {
     private BTreeMap<Long, TraceInfoRecord> infos;
     private Map<Integer, String> tids;
 
+    private DBFactory dbf;
+
     private String name;
 
     private String addr = "";
@@ -93,12 +93,14 @@ public class HostStore implements Closeable, RDSCleanupListener {
     private static final long MAX_SEARCH_T2 = 5000000000L;
 
 
-    public HostStore(ZicoConfig config, TraceTemplateManager templater, String name) {
+    public HostStore(DBFactory dbf, ZicoConfig config, TraceTemplateManager templater, String name) {
 
         this.name = name;
         this.config = config;
 
         this.rootPath = ZorkaUtil.path(config.getDataDir(), ZicoUtil.safePath(name));
+
+        this.dbf = dbf;
 
         File hostDir = new File(rootPath);
 
@@ -134,8 +136,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
                 traceIndexStore = new TraceRecordStore(config, this, "tidx", 16);
             }
 
-            db = DBMaker.newFileDB(new File(rootPath, "traces.db"))
-                .mmapFileEnable().asyncWriteEnable().closeOnJvmShutdown().make();
+            db = dbf.openDB(ZorkaUtil.path(rootPath, "traces.db"));
             infos = db.getTreeMap(DB_INFO_MAP);
             tids = db.getTreeMap(DB_TIDS_MAP);
         } catch (IOException e) {
@@ -175,7 +176,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
         }
 
         if (db != null) {
-            db.close();
+            dbf.closeDB(db);
             db = null;
             infos = null;
         }

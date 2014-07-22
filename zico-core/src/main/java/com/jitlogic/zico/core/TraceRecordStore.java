@@ -17,7 +17,6 @@ package com.jitlogic.zico.core;
 
 
 import com.jitlogic.zico.shared.data.MethodRankInfo;
-import com.jitlogic.zico.core.model.TraceInfoRecord;
 import com.jitlogic.zico.shared.data.TraceRecordSearchQuery;
 import com.jitlogic.zico.shared.data.TraceRecordSearchResult;
 import com.jitlogic.zico.core.rds.RDSCleanupListener;

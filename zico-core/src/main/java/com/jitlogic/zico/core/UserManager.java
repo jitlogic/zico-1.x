@@ -16,13 +16,13 @@
 package com.jitlogic.zico.core;
 
 
-import com.jitlogic.zico.core.model.User;
+import com.jitlogic.zico.shared.data.UserInfo;
+import com.jitlogic.zorka.common.util.ZorkaUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import org.mapdb.DB;
-import org.mapdb.DBMaker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +46,7 @@ public class UserManager {
     private final static Logger log = LoggerFactory.getLogger(UserManager.class);
 
     private DB db;
-    private ConcurrentNavigableMap<String,User> users;
+    private ConcurrentNavigableMap<String,UserInfo> users;
 
     private ZicoConfig config;
 
@@ -56,12 +56,13 @@ public class UserManager {
 
     private boolean sumode;
 
-    private UserContext userContext;
+    private DBFactory dbf;
 
     @Inject
-    public UserManager(ZicoConfig config, UserContext userContext) {
+    public UserManager(ZicoConfig config, DBFactory dbf) {
+
         this.config = config;
-        this.userContext = userContext;
+        this.dbf = dbf;
 
         try {
             Class<?> clazz = Class.forName("com.jitlogic.zico.main.ZicoLoginService");
@@ -85,7 +86,7 @@ public class UserManager {
             return;
         }
 
-        db = DBMaker.newFileDB(new File(config.getConfDir(), "users.db")).closeOnJvmShutdown().make();
+        db = dbf.openDB(ZorkaUtil.path(config.getConfDir(), "users.db"));
         users = db.getTreeMap("USERS");
 
         File jsonFile = new File(config.getConfDir(), "users.json");
@@ -98,7 +99,7 @@ public class UserManager {
                 JSONObject json = new JSONObject(new JSONTokener(reader));
                 JSONArray names = json.names();
                 for (int i = 0; i < names.length(); i++) {
-                    User user = new User(json.getJSONObject(names.getString(i)));
+                    UserInfo user = fromJSON(json.getJSONObject(names.getString(i)));
                     users.put(user.getUserName(), user);
                 }
                 db.commit();
@@ -115,7 +116,7 @@ public class UserManager {
         }
 
         if (userRealm != null) {
-            for (User user : users.values()) {
+            for (UserInfo user : users.values()) {
                 updateRealm(user.getUserName(), user.getPassword(), user.isAdmin());
             }
 
@@ -141,7 +142,7 @@ public class UserManager {
 
     public synchronized void close() {
         if (db != null) {
-            db.close();
+            dbf.closeDB(db);
             db = null;
             users = null;
         }
@@ -153,8 +154,8 @@ public class UserManager {
         try {
             writer = new FileWriter(new File(config.getConfDir(), "users.json"));
             JSONObject obj = new JSONObject();
-            for (Map.Entry<String,User> e : users.entrySet()) {
-                obj.put(e.getKey().toString(), e.getValue().toJSONObject());
+            for (Map.Entry<String,UserInfo> e : users.entrySet()) {
+                obj.put(e.getKey(), toJSON(e.getValue()));
             }
             obj.write(writer);
         } catch (JSONException e) {
@@ -169,34 +170,26 @@ public class UserManager {
     }
 
 
-    public void checkHostAccess(String hostname) {
-        if (!userContext.isInRole("ADMIN")
-         && !find(User.class, userContext.getUser()).getAllowedHosts().contains(hostname)) {
-            throw new ZicoRuntimeException("Insufficient privileges");
-        }
+    public UserInfo create() {
+        return new UserInfo();
     }
 
 
-    public User create(Class<? extends User> aClass) {
-        return new User();
-    }
-
-
-    public User find(Class<? extends User> clazz, String username) {
+    public UserInfo find(String username) {
         return users.get(username);
     }
 
 
 
 
-    public List<User> findAll() {
-        List<User> lst = new ArrayList<User>(users.size());
+    public List<UserInfo> findAll() {
+        List<UserInfo> lst = new ArrayList<UserInfo>(users.size());
         lst.addAll(users.values());
         return lst;
     }
 
 
-    public void persist(User user) {
+    public void persist(UserInfo user) {
         users.put(user.getUserName(), user);
         db.commit();
 
@@ -204,7 +197,7 @@ public class UserManager {
     }
 
 
-    public void remove(User user) {
+    public void remove(UserInfo user) {
         if (userRealm != null && mRemove != null) {
             try {
                 mRemove.invoke(userRealm, user.getUserName());
@@ -216,4 +209,43 @@ public class UserManager {
         users.remove(user.getUserName());
         db.commit();
     }
+
+    public static UserInfo fromJSON(JSONObject obj)  throws JSONException {
+        UserInfo u = new UserInfo();
+        u.setUserName(obj.getString("username"));
+        u.setRealName(obj.getString("realname"));
+        u.setAdmin(obj.getBoolean("admin"));
+        u.setPassword(obj.optString("password"));
+
+        JSONArray hosts = obj.getJSONArray("hosts");
+
+        List<String> allowedHosts = new ArrayList<>();
+
+        for (int i = 0; i < hosts.length(); i++) {
+            allowedHosts.add(hosts.getString(i));
+        }
+
+        u.setAllowedHosts(allowedHosts);
+        return u;
+    }
+
+    public static JSONObject toJSON(UserInfo u) {
+        JSONObject json = new JSONObject();
+
+        json.put("username", u.getUserName());
+        json.put("realname", u.getRealName());
+        json.put("password", u.getPassword());
+        json.put("admin", u.isAdmin());
+
+        JSONArray hosts = new JSONArray();
+
+        for (String host : u.getAllowedHosts()) {
+            hosts.put(host);
+        }
+
+        json.put("hosts", hosts);
+
+        return json;
+    }
+
 }

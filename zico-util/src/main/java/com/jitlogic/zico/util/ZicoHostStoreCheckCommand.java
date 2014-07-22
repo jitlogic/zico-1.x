@@ -16,6 +16,7 @@
 package com.jitlogic.zico.util;
 
 
+import com.jitlogic.zico.core.FileDBFactory;
 import com.jitlogic.zico.core.HostStore;
 import com.jitlogic.zico.core.ZicoConfig;
 import com.jitlogic.zorka.common.util.ZorkaConfig;
@@ -72,7 +73,7 @@ public class ZicoHostStoreCheckCommand implements ZicoCommand {
         log.info("Index rebuild will be performed in " + nthreads + " threads.");
 
         if (hosts.size() == 0) {
-            log.warn("No suitable hosts to be migrated. Skipping.");
+            log.warn("No suitable hosts to be checked. Skipping.");
             return;
         }
 
@@ -87,7 +88,7 @@ public class ZicoHostStoreCheckCommand implements ZicoCommand {
                     try {
                         log.info("Starting host " + host);
                         long t1 = System.currentTimeMillis();
-                        HostStore hostStore = new HostStore(config, null, host);
+                        HostStore hostStore = new HostStore(new FileDBFactory(), config, null, host);
                         hostStore.rebuildIndex();
                         long t = System.currentTimeMillis() - t1;
                         cpuTime.addAndGet(t);
