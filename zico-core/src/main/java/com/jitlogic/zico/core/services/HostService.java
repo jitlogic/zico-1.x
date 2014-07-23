@@ -69,8 +69,16 @@ public class HostService {
     public void update(@PathParam("hostname")String hostname, HostInfo hi) {
         HostStore host = hostStoreManager.find(HostStore.class, hostname);
         if (host != null) {
-            host.update(hi);
-            hostStoreManager.persist(host);
+            host.setAddr(hi.getAddr());
+            host.setComment(hi.getComment());
+            host.setMaxSize(hi.getMaxSize());
+            host.setGroup(hi.getGroup());
+            host.setComment(hi.getComment());
+            host.save();
+
+            if (hi.isEnabled() != host.isEnabled()) {
+                host.setEnabled(hi.isEnabled());
+            }
         }
     }
 

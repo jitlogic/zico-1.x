@@ -203,11 +203,6 @@ public class HostStoreManager implements Closeable, ZicoDataProcessorFactory {
     }
 
 
-    public void persist(HostStore host) {
-        host.save();
-    }
-
-
     public void remove(HostStore host) {
         try {
             delete(host.getName());
