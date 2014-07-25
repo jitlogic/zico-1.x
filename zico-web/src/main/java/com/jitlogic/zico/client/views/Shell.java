@@ -1,20 +1,23 @@
 package com.jitlogic.zico.client.views;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.ui.Composite;
+import com.google.gwt.user.client.ui.Hyperlink;
+import com.google.gwt.user.client.ui.TabLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.jitlogic.zico.client.api.SystemService;
 import com.jitlogic.zico.client.inject.PanelFactory;
+import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.views.hosts.HostListPanel;
 import com.jitlogic.zico.shared.data.UserInfo;
-import com.jitlogic.zico.widgets.client.CloseableTab;
-import com.jitlogic.zico.widgets.client.MessageDisplay;
-import com.jitlogic.zico.widgets.client.StatusBar;
+import com.jitlogic.zico.widgets.client.*;
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 
@@ -43,6 +46,9 @@ public class Shell extends Composite {
     @UiField
     Hyperlink lnkTraceTemplates;
 
+    @UiField
+    Hyperlink lnkLogout;
+
     @UiField(provided = true)
     StatusBar statusBar;
 
@@ -50,6 +56,9 @@ public class Shell extends Composite {
     private PanelFactory panelFactory;
 
     private final String SRC = "Shell";
+
+    private PopupMenu userMenu;
+    private PopupMenu adminMenu;
 
     @Inject
     public Shell(final HostListPanel hostListPanel,
@@ -90,8 +99,34 @@ public class Shell extends Composite {
                     lnkTraceTemplates.setVisible(false);
                 }
                 statusBar.clear(SRC);
+
+                lnkLogout.setText(user.getUserName() + " (" + user.getRealName() + ") " +
+                        (user.isAdmin() ? "ADMIN" : "VIEWER"));
             }
         });
+    }
+
+
+    private void createUserMenu() {
+        userMenu = new PopupMenu();
+
+        userMenu.addItem(new MenuItem("Change password", Resources.INSTANCE.keyIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        panelFactory.passwordChangeView("", false).asPopupWindow().show();
+                    }
+                }));
+
+        userMenu.addSeparator();
+
+        userMenu.addItem(new MenuItem("Logout", Resources.INSTANCE.ligtningGo(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        Window.Location.assign(GWT.getHostPageBaseURL() + "logout");
+                    }
+                }));
     }
 
 
@@ -126,6 +161,13 @@ public class Shell extends Composite {
     @UiHandler("lnkChangePassword")
     void changePassword(ClickEvent e) {
         panelFactory.passwordChangeView("", false).asPopupWindow().show();
+    }
+
+    @UiHandler("lnkLogout")
+    void doLogout(ClickEvent e) {
+        //Window.Location.assign(GWT.getHostPageBaseURL() + "logout");
+        //userMenu.set
+        userMenu.show();
     }
 
 }
