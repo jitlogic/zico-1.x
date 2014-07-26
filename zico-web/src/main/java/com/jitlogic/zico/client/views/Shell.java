@@ -100,26 +100,22 @@ public class Shell extends Composite {
 
     private void createAdminMenu() {
         adminMenu = new PopupMenu();
-
-        adminMenu.addItem(new MenuItem("Manage users", Resources.INSTANCE.editIcon(),
+        adminMenu.addItem(new MenuItem("Manage users", Resources.INSTANCE.usersIcon(),
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
                         addView(panelFactory.userManagementPanel(), "User Management");
                     }
                 }));
-
-        adminMenu.addItem(new MenuItem("Templates", Resources.INSTANCE.editIcon(),
+        adminMenu.addItem(new MenuItem("Templates", Resources.INSTANCE.listColumnsIcon(),
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
                         addView(panelFactory.traceTemplatePanel(), "Templates");
                     }
                 }));
-
         adminMenu.addSeparator();
-
-        adminMenu.addItem(new MenuItem("Backup configuration", Resources.INSTANCE.editIcon(),
+        adminMenu.addItem(new MenuItem("Backup configuration", Resources.INSTANCE.backupIcon(),
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
@@ -131,7 +127,6 @@ public class Shell extends Composite {
 
     private void createUserMenu() {
         userMenu = new PopupMenu();
-
         userMenu.addItem(new MenuItem("Change password", Resources.INSTANCE.keyIcon(),
                 new Scheduler.ScheduledCommand() {
                     @Override
@@ -139,10 +134,8 @@ public class Shell extends Composite {
                         panelFactory.passwordChangeView("", false).asPopupWindow().show();
                     }
                 }));
-
         userMenu.addSeparator();
-
-        userMenu.addItem(new MenuItem("Logout", Resources.INSTANCE.ligtningGo(),
+        userMenu.addItem(new MenuItem("Logout", Resources.INSTANCE.logoutIcon(),
                 new Scheduler.ScheduledCommand() {
                     @Override
                     public void execute() {
@@ -169,18 +162,18 @@ public class Shell extends Composite {
 
     @UiHandler("lnkAdmin")
     void doAdmin(ClickEvent e) {
-        userMenu.setPopupPosition(
-                e.getNativeEvent().getClientX(),
-                e.getNativeEvent().getClientY());
-        userMenu.show();
+        adminMenu.setPopupPosition(
+                Math.max(5, e.getNativeEvent().getClientX()-25),
+                Math.max(0, e.getNativeEvent().getClientY()-10));
+        adminMenu.show();
     }
 
 
     @UiHandler("lnkUser")
     void doLogout(ClickEvent e) {
         userMenu.setPopupPosition(
-                Math.min(e.getNativeEvent().getClientX(), Window.getClientWidth()-250),
-                e.getNativeEvent().getClientY());
+                Math.min(e.getNativeEvent().getClientX()-25, Window.getClientWidth()-160),
+                Math.max(0, e.getNativeEvent().getClientY()-10));
         userMenu.show();
     }
 
