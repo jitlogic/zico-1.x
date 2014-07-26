@@ -35,19 +35,10 @@ public class Shell extends Composite {
     WelcomeView welcomeView;
 
     @UiField
-    Hyperlink lnkManageUsers;
+    Hyperlink lnkAdmin;
 
     @UiField
-    Hyperlink lnkChangePassword;
-
-    @UiField
-    Hyperlink lnkBackupConfig;
-
-    @UiField
-    Hyperlink lnkTraceTemplates;
-
-    @UiField
-    Hyperlink lnkLogout;
+    Hyperlink lnkUser;
 
     @UiField(provided = true)
     StatusBar statusBar;
@@ -60,6 +51,7 @@ public class Shell extends Composite {
     private PopupMenu userMenu;
     private PopupMenu adminMenu;
 
+
     @Inject
     public Shell(final HostListPanel hostListPanel,
                  SystemService systemService, WelcomeView welcomeView,
@@ -71,7 +63,10 @@ public class Shell extends Composite {
         this.statusBar = (StatusBar)md;
 
         initWidget(ourUiBinder.createAndBindUi(this));
+
         checkAdminRole();
+        createUserMenu();
+        createAdminMenu();
     }
 
 
@@ -93,17 +88,44 @@ public class Shell extends Composite {
             @Override
             public void onSuccess(Method method, UserInfo user) {
                 hostListPanel.setAdminMode(user.isAdmin());
-                if (!user.isAdmin()) {
-                    lnkManageUsers.setVisible(false);
-                    lnkBackupConfig.setVisible(false);
-                    lnkTraceTemplates.setVisible(false);
-                }
+                lnkAdmin.setVisible(user.isAdmin());
                 statusBar.clear(SRC);
 
-                lnkLogout.setText(user.getUserName() + " (" + user.getRealName() + ") " +
+                lnkUser.setText(user.getUserName() + " (" + user.getRealName() + ") " +
                         (user.isAdmin() ? "ADMIN" : "VIEWER"));
             }
         });
+    }
+
+
+    private void createAdminMenu() {
+        adminMenu = new PopupMenu();
+
+        adminMenu.addItem(new MenuItem("Manage users", Resources.INSTANCE.editIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        addView(panelFactory.userManagementPanel(), "User Management");
+                    }
+                }));
+
+        adminMenu.addItem(new MenuItem("Templates", Resources.INSTANCE.editIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        addView(panelFactory.traceTemplatePanel(), "Templates");
+                    }
+                }));
+
+        adminMenu.addSeparator();
+
+        adminMenu.addItem(new MenuItem("Backup configuration", Resources.INSTANCE.editIcon(),
+                new Scheduler.ScheduledCommand() {
+                    @Override
+                    public void execute() {
+                        doBackup();
+                    }
+                }));
     }
 
 
@@ -130,14 +152,7 @@ public class Shell extends Composite {
     }
 
 
-    @UiHandler("lnkManageUsers")
-    void openUserManager(ClickEvent e) {
-        addView(panelFactory.userManagementPanel(), "User Management");
-    }
-
-
-    @UiHandler("lnkBackupConfig")
-    void openUserManagementPanel(ClickEvent e) {
+    private void doBackup() {
         systemService.backup(new MethodCallback<Void>() {
             @Override
             public void onFailure(Method method, Throwable e) {
@@ -152,21 +167,20 @@ public class Shell extends Composite {
     }
 
 
-    @UiHandler("lnkTraceTemplates")
-    void openTemplatePanel(ClickEvent e) {
-        addView(panelFactory.traceTemplatePanel(), "Templates");
+    @UiHandler("lnkAdmin")
+    void doAdmin(ClickEvent e) {
+        userMenu.setPopupPosition(
+                e.getNativeEvent().getClientX(),
+                e.getNativeEvent().getClientY());
+        userMenu.show();
     }
 
 
-    @UiHandler("lnkChangePassword")
-    void changePassword(ClickEvent e) {
-        panelFactory.passwordChangeView("", false).asPopupWindow().show();
-    }
-
-    @UiHandler("lnkLogout")
+    @UiHandler("lnkUser")
     void doLogout(ClickEvent e) {
-        //Window.Location.assign(GWT.getHostPageBaseURL() + "logout");
-        //userMenu.set
+        userMenu.setPopupPosition(
+                Math.min(e.getNativeEvent().getClientX(), Window.getClientWidth()-250),
+                e.getNativeEvent().getClientY());
         userMenu.show();
     }
 
