@@ -50,22 +50,13 @@
             <g:HTMLPanel>
                 <div class="{style.toolbar}">
                     <div class="{style.toolitem}">
-                        <g:Hyperlink ui:field="lnkManageUsers">Manage Users</g:Hyperlink>
-                    </div>
-                    <div class="{style.toolitem}">
-                        <g:Hyperlink ui:field="lnkBackupConfig">Backup Config</g:Hyperlink>
-                    </div>
-                    <div class="{style.toolitem}">
-                        <g:Hyperlink ui:field="lnkTraceTemplates">Trace Display Templates</g:Hyperlink>
+                        <g:Hyperlink ui:field="lnkAdmin" visible="false">Admin</g:Hyperlink>
                     </div>
                     <div class="{style.toolfill}">
-                        <g:Label>ZICO 1.0.4</g:Label>
+                        <g:Label>ZICO 1.0.6</g:Label>
                     </div>
                     <div class="{style.toolitem}">
-                        <g:Hyperlink ui:field="lnkChangePassword">Change password</g:Hyperlink>
-                    </div>
-                    <div class="{style.toolitem}">
-                        <a href="logout">Log out</a>
+                        <g:Hyperlink ui:field="lnkUser">Logout</g:Hyperlink>
                     </div>
                 </div>
             </g:HTMLPanel>

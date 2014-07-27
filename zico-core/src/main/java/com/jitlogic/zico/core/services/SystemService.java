@@ -19,6 +19,7 @@ package com.jitlogic.zico.core.services;
 import com.jitlogic.zico.core.*;
 import com.jitlogic.zico.shared.data.PasswordInfo;
 import com.jitlogic.zico.shared.data.SymbolInfo;
+import com.jitlogic.zico.shared.data.SystemInfo;
 import com.jitlogic.zico.shared.data.UserInfo;
 import com.jitlogic.zorka.common.util.ZorkaUtil;
 
@@ -26,6 +27,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -107,4 +110,21 @@ public class SystemService {
 
     }
 
+    @GET
+    @Path("/info")
+    public SystemInfo systemInfo() {
+        SystemInfo info = new SystemInfo();
+
+        MemoryMXBean mem = ManagementFactory.getMemoryMXBean();
+
+        info.setTotalHeapMem(mem.getHeapMemoryUsage().getMax());
+        info.setUsedHeapMem(mem.getHeapMemoryUsage().getUsed());
+
+        info.setTotalNonHeapMem(mem.getNonHeapMemoryUsage().getMax());
+        info.setUsedNonHeapMem(mem.getNonHeapMemoryUsage().getUsed());
+
+        info.setUptime(ManagementFactory.getRuntimeMXBean().getUptime());
+
+        return info;
+    }
 }

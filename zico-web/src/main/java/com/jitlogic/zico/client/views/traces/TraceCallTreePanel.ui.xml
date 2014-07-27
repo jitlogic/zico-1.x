@@ -29,7 +29,7 @@
                 <z:ToolButton upIcon="{resources.goDownIcon}" ui:field="btnSlowestMethod"
                               addStyleNames="{style.item}" width="16px" height="16px"
                               title="Go to slowest method in call subtree (starting from selected method)."/>
-                <z:ToolButton upIcon="{resources.ligtningGo}" ui:field="btnErrorMethod"
+                <z:ToolButton upIcon="{resources.lightningGoIcon}" ui:field="btnErrorMethod"
                               addStyleNames="{style.item}" width="16px" height="16px"
                               title="Go to nearest error."/>
                 <z:ToolSeparator height="20px"/>

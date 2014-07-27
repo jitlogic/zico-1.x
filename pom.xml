@@ -3,7 +3,7 @@
     <groupId>com.jitlogic.zico</groupId>
     <artifactId>zico</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <name>zorka: parent aggregator</name>
     <url>http://zorka.io</url>
 
@@ -22,7 +22,6 @@
 
         <asm.version>5.0.2</asm.version>
         <cas.client.version>3.3.1</cas.client.version>
-        <dbcp.version>1.4</dbcp.version>
         <fest.version>2.0M7</fest.version>
         <fressian.version>0.6.5</fressian.version>
         <gin.version>2.1.2</gin.version>
@@ -30,14 +29,14 @@
         <guice.version>3.0</guice.version>
         <gwt.version>2.6.1</gwt.version>
         <gwtest.version>0.47</gwtest.version>
-        <jetty.version>9.1.5.v20140505</jetty.version>
+        <jetty.version>9.2.2.v20140723</jetty.version>
         <json.version>20140107</json.version>
         <junit.version>4.11</junit.version>
         <logback.version>1.1.2</logback.version>
-        <mapdb.version>1.0.3</mapdb.version>
+        <mapdb.version>1.0.5</mapdb.version>
         <parboiled.version>1.1.6</parboiled.version>
         <resteasy.version>3.0.8.Final</resteasy.version>
-        <restygwt.version>1.3.1</restygwt.version> <!-- TODO bring back 1.4 -->
+        <restygwt.version>1.4</restygwt.version>
         <servlet.version>3.0.1</servlet.version>
         <slf4j.version>1.7.7</slf4j.version>
         <zico.widgets.version>0.0.1</zico.widgets.version>

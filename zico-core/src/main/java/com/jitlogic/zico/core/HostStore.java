@@ -740,11 +740,11 @@ public class HostStore implements Closeable, RDSCleanupListener {
         }
     }
 
-    public String getGroup() {
+    public synchronized String getGroup() {
         return group;
     }
 
-    public void setGroup(String group) {
+    public synchronized void setGroup(String group) {
         this.group = group;
     }
 
@@ -776,14 +776,14 @@ public class HostStore implements Closeable, RDSCleanupListener {
         }
     }
 
-    public synchronized void update(HostInfo hi) {
-        setAddr(hi.getAddr());
-        setComment(hi.getComment());
-        setMaxSize(hi.getMaxSize());
-        setGroup(hi.getGroup());
-        setComment(hi.getComment());
-        setEnabled(hi.isEnabled());
-    }
+//    public synchronized void update(HostInfo hi) {
+//        setAddr(hi.getAddr());
+//        setComment(hi.getComment());
+//        setMaxSize(hi.getMaxSize());
+//        setGroup(hi.getGroup());
+//        setComment(hi.getComment());
+//        setEnabled(hi.isEnabled());
+//    }
 
 }
 

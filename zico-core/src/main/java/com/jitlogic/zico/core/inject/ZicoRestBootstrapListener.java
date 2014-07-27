@@ -19,11 +19,13 @@ package com.jitlogic.zico.core.inject;
 import com.google.inject.Injector;
 import com.jitlogic.zico.core.HostStoreManager;
 import com.jitlogic.zico.core.ZicoService;
+import com.jitlogic.zico.core.rds.RAGZOutputStream;
 import org.jboss.resteasy.plugins.guice.GuiceResteasyBootstrapServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 
 public class ZicoRestBootstrapListener extends GuiceResteasyBootstrapServletContextListener {
 
@@ -31,6 +33,13 @@ public class ZicoRestBootstrapListener extends GuiceResteasyBootstrapServletCont
 
     @Override
     public void withInjector(final Injector injector) {
+        String osname = ManagementFactory.getOperatingSystemMXBean().getName();
+
+        if (osname.toLowerCase().contains("windows")) {
+            log.info("Disabling RDS locking on Windows platform.");
+            RAGZOutputStream.useLock(false);
+        }
+
         injector.getInstance(ZicoService.class).start();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {

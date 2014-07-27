@@ -12,8 +12,13 @@
             align-items: center;
             justify-content: space-around;
         }
-        .footer {
+        .first {
             padding-top: 40px;
+            color: #777;
+            text-align: center;
+            cursor: default;
+        }
+        .line {
             color: #777;
             text-align: center;
             cursor: default;
@@ -24,7 +29,9 @@
             <div>
                 <img draggable="false" src="ZORKA_LOGO.png"/>
             </div>
-            <div class="{style.footer}">
+            <g:Label ui:field="lblSystemStatus1" addStyleNames="{style.first}">...</g:Label>
+            <g:Label ui:field="lblSystemStatus2" addStyleNames="{style.line}">...</g:Label>
+            <div class="{style.first}">
                 Double click on a host on left pane to open trace list.
             </div>
         </div>

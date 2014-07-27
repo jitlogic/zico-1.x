@@ -19,12 +19,15 @@ package com.jitlogic.zico.client;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 
+
 import java.util.Date;
 
 public class ClientUtil {
 
     private static final NumberFormat DURATION_SFORMAT = NumberFormat.getFormat("#####");
     private static final NumberFormat DURATION_MFORMAT = NumberFormat.getFormat("###.00");
+
+    private static final NumberFormat ZZ_FORMAT = NumberFormat.getFormat("00");
 
     public static final DateTimeFormat TSTAMP_FORMAT0 = DateTimeFormat.getFormat("yyyy-MM-dd");
     public static final DateTimeFormat TSTAMP_FORMAT1 = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
@@ -34,6 +37,7 @@ public class ClientUtil {
     public static String formatTimestamp(Long clock) {
         return TSTAMP_FORMAT2.format(new Date(clock));
     }
+
 
     public static String formatDuration(Long time) {
         double t = 1.0 * time / 1000000.0;
@@ -46,6 +50,23 @@ public class ClientUtil {
 
         return t > 10 ? DURATION_SFORMAT.format(t) + u : DURATION_MFORMAT.format(t) + u;
     }
+
+
+    public static String formatSecDuration(long t) {
+        long s = t % 60;
+        t = (t-s)/60;
+
+        long m = t % 60;
+        t = (t-m)/60;
+
+        long h = t % 24;
+        long d = (t-h)/24;
+
+        return "" + d + "d " + ClientUtil.ZZ_FORMAT.format(h)
+                + ":" + ClientUtil.ZZ_FORMAT.format(m)
+                + ":" + ClientUtil.ZZ_FORMAT.format(s);
+    }
+
 
     public static long parseTimestamp(String tstamp, String hms) {
         if (tstamp == null || tstamp.trim().length() == 0) {

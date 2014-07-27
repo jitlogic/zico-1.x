@@ -36,6 +36,9 @@ public interface Resources extends ClientBundle {
     @Source("../images/attachment.png")
     ImageResource attachment();
 
+    @Source("../images/backup.png")
+    ImageResource backupIcon();
+
     @Source("../images/cancel.png")
     ImageResource cancel();
 
@@ -94,10 +97,13 @@ public interface Resources extends ClientBundle {
     ImageResource keyIcon();
 
     @Source("../images/lightning-go.png")
-    ImageResource ligtningGo();
+    ImageResource lightningGoIcon();
 
     @Source("../images/list-columns.png")
     ImageResource listColumnsIcon();
+
+    @Source("../images/logout.png")
+    ImageResource logoutIcon();
 
     @Source("../images/method-attrs.png")
     ImageResource methodAttrsIcon();
@@ -137,6 +143,9 @@ public interface Resources extends ClientBundle {
 
     @Source("../images/treePlusSlim.png")
     ImageResource treePlusSlimIcon();
+
+    @Source("../images/users.png")
+    ImageResource usersIcon();
 
     @Source("../images/zoom-in-5.png")
     ImageResource zoomIn();

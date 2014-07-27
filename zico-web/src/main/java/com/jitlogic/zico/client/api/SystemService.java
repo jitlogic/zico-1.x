@@ -18,6 +18,7 @@ package com.jitlogic.zico.client.api;
 
 import com.jitlogic.zico.shared.data.PasswordInfo;
 import com.jitlogic.zico.shared.data.SymbolInfo;
+import com.jitlogic.zico.shared.data.SystemInfo;
 import com.jitlogic.zico.shared.data.UserInfo;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
@@ -35,6 +36,9 @@ public interface SystemService extends RestService {
 
     @POST @Path("system/user/password")
     void resetPassword(PasswordInfo info, MethodCallback<Void> cb);
+
+    @GET @Path("system/info")
+    void systemInfo(MethodCallback<SystemInfo> cb);
 
     @GET @Path("system/tidmap/{hostname}")
     void getTidMap(@PathParam("hostname") String hostname, MethodCallback<List<SymbolInfo>> cb);
