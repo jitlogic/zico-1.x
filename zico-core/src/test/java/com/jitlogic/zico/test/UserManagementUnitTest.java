@@ -88,25 +88,25 @@ public class UserManagementUnitTest extends ZicoFixture {
     }
 
 
-    @Test
-    public void testChangeUserPasswordAsAdminAndThenAsOrdinaryUser() {
-        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
-        systemService.resetPassword(mkpw("test", null, "somePass"));
-        assertTrue(userManager.find("test").getPassword().startsWith("MD5:"));
+//    @Test
+//    public void testChangeUserPasswordAsAdminAndThenAsOrdinaryUser() {
+//        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
+//        systemService.resetPassword(mkpw("test", null, "somePass"));
+//        assertTrue(userManager.find("test").getPassword().startsWith("MD5:"));
+//
+//        userContext.isAdmin = false;
+//        systemService.resetPassword(mkpw(null, "somePass", "otherPass"));
+//    }
 
-        userContext.isAdmin = false;
-        systemService.resetPassword(mkpw(null, "somePass", "otherPass"));
-    }
-
-    @Test(expected = ZicoRuntimeException.class)
-    public void testChangeUserPassWithInvalidPassword() {
-        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
-        systemService.resetPassword(mkpw("test", null, "somePass"));
-        assertTrue(userManager.find("test").getPassword().startsWith("MD5:"));
-
-        userContext.isAdmin = false;
-        systemService.resetPassword(mkpw(null, "wrongPass", "otherPass"));
-    }
+//    @Test(expected = ZicoRuntimeException.class)
+//    public void testChangeUserPassWithInvalidPassword() {
+//        userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
+//        systemService.resetPassword(mkpw("test", null, "somePass"));
+//        assertTrue(userManager.find("test").getPassword().startsWith("MD5:"));
+//
+//        userContext.isAdmin = false;
+//        systemService.resetPassword(mkpw(null, "wrongPass", "otherPass"));
+//    }
 
     @Test
     public void testAddUserCloseReopenAndCheckIfItsStillThere() {

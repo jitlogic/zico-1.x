@@ -142,6 +142,7 @@ public class UserEditDialog implements IsPopupWindow {
         };
 
         if (newUser) {
+            editedUser.setPassword("changeme");
             userService.create(editedUser, cb);
         } else {
             userService.update(editedUser.getUserName(), editedUser, cb);
