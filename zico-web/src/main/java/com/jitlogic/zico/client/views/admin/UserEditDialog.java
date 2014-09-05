@@ -54,8 +54,6 @@ public class UserEditDialog implements IsPopupWindow {
     private boolean newUser;
     public UserManagementPanel panel;
 
-    private List<String> availableHosts;
-
     private Map<String,CheckBox> selectedHosts = new HashMap<String, CheckBox>();
 
     private PopupWindow window;
@@ -66,12 +64,11 @@ public class UserEditDialog implements IsPopupWindow {
                           List<String> availableHosts, MessageDisplay md) {
         window = new PopupWindow(ourUiBinder.createAndBindUi(this));
 
+        this.userService = userService;
         this.editedUser = user != null ? user : new UserInfo();
         this.newUser = user == null;
         this.panel = panel;
         this.md = md;
-
-        this.availableHosts = availableHosts;
 
         window.setCaption(user != null ? "Edit user: " + user.getUserName() : "New user");
 
@@ -145,6 +142,7 @@ public class UserEditDialog implements IsPopupWindow {
         };
 
         if (newUser) {
+            editedUser.setPassword("changeme");
             userService.create(editedUser, cb);
         } else {
             userService.update(editedUser.getUserName(), editedUser, cb);

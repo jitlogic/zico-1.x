@@ -16,12 +16,16 @@
 package com.jitlogic.zico.core;
 
 import com.jitlogic.zico.shared.data.UserInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public class UserHttpContext implements UserContext {
+
+    private final static Logger log = LoggerFactory.getLogger(UserHttpContext.class);
 
     private UserInfo anonymous;
     private UserManager userManager;
@@ -54,6 +58,8 @@ public class UserHttpContext implements UserContext {
                     return user;
                 }
             }
+
+            log.error("Cannot find user in local database: " + username);
         }
 
         throw new ZicoRuntimeException("Cannot determine logged in user.");

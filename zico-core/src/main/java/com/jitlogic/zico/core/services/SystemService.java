@@ -66,7 +66,7 @@ public class SystemService {
             throw new ZicoRuntimeException("Insufficient privileges to reset other users password");
         }
 
-        UserInfo user = userContext.getUser();
+        UserInfo user = userManager.find(userName);
 
         if (!adminMode) {
             String chkHash = "MD5:" + ZorkaUtil.md5(pw.getOldPassword());
