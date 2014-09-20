@@ -50,8 +50,10 @@ public class TraceInfoSearchQuery {
     private String searchExpr;
 
     @JsonProperty
-    private long sinceDate;
+    private long startDate;
 
+    @JsonProperty
+    private long endDate;
 
     public int getSeq() {
         return seq;
@@ -137,13 +139,22 @@ public class TraceInfoSearchQuery {
     }
 
 
-    public long getSinceDate() {
-        return sinceDate;
+    public long getStartDate() {
+        return startDate;
     }
 
 
-    public void setSinceDate(long sinceDate) {
-        this.sinceDate = sinceDate;
+    public void setStartDate(long startDate) {
+        this.startDate = startDate;
     }
 
+
+    public long getEndDate() {
+        return endDate;
+    }
+
+
+    public void setEndDate(long endDate) {
+        this.endDate = endDate;
+    }
 }

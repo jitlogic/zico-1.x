@@ -33,7 +33,7 @@
         <json.version>20140107</json.version>
         <junit.version>4.11</junit.version>
         <logback.version>1.1.2</logback.version>
-        <mapdb.version>1.0.5</mapdb.version>
+        <mapdb.version>1.0.6</mapdb.version>
         <parboiled.version>1.1.6</parboiled.version>
         <resteasy.version>3.0.8.Final</resteasy.version>
         <restygwt.version>1.4</restygwt.version>
