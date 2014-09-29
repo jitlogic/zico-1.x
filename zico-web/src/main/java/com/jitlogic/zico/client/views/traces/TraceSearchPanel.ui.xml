@@ -44,8 +44,10 @@
                               title="EQL query (instead of full text search)"/>
                 <g:TextBox height="18px" title="Type search phrase (or EQL query)"
                            addStyleNames="{style.filter}" ui:field="txtFilter"/>
-                <g:TextBox height="18px" width="130px" title="Search traces older than this date"
-                           addStyleNames="{style.item}" ui:field="txtSinceDate"/>
+                <g:TextBox height="18px" width="130px" title="Start timestamp"
+                           addStyleNames="{style.item}" ui:field="txtStartDate"/>
+                <g:TextBox height="18px" width="130px" title="End timestamp"
+                           addStyleNames="{style.item}" ui:field="txtEndDate"/>
                 <z:ToolButton width="16px" height="16px" upIcon="{resources.searchIcon}"
                               addStyleNames="{style.item}" ui:field="btnRunSearch"
                               title="Run search."/>

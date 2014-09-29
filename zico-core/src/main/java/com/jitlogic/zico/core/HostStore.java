@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.regex.Pattern;
 
 /**
  * Represents performance data store for a single agent.
@@ -390,6 +391,9 @@ public class HostStore implements Closeable, RDSCleanupListener {
                 matcher = new EqlTraceRecordMatcher(symbolRegistry,
                         Parser.expr(query.getSearchExpr()),
                         0, 0, getName());
+            } else if (query.getSearchExpr().length() > 0 && query.getSearchExpr().startsWith("~")) {
+                matcher = new FullTextTraceRecordMatcher(symbolRegistry,
+                        TraceRecordSearchQuery.SEARCH_ALL, Pattern.compile(query.getSearchExpr().substring(1)));
             } else {
                 matcher = new FullTextTraceRecordMatcher(symbolRegistry,
                         TraceRecordSearchQuery.SEARCH_ALL, query.getSearchExpr());
@@ -425,7 +429,11 @@ public class HostStore implements Closeable, RDSCleanupListener {
                 continue;
             }
 
-            if (query.getSinceDate() != 0 && tir.getClock() > query.getSinceDate()) {
+            if (query.getStartDate() != 0 && tir.getClock() < query.getStartDate()) {
+                continue;
+            }
+
+            if (query.getEndDate() != 0 && tir.getClock() > query.getEndDate()) {
                 continue;
             }
 

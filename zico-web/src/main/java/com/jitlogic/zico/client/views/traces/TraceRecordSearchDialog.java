@@ -135,6 +135,10 @@ public class TraceRecordSearchDialog implements IsPopupWindow {
                 }
             }
         });
+
+        chkClass.setValue(true);
+        chkMethod.setValue(true);
+        chkAttribs.setValue(true);
         chkIgnoreCase.setValue(true);
     }
 

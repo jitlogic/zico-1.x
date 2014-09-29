@@ -93,7 +93,10 @@ public class TraceSearchPanel extends Composite {
     TextBox txtFilter;
 
     @UiField
-    TextBox txtSinceDate;
+    TextBox txtStartDate;
+
+    @UiField
+    TextBox txtEndDate;
 
     @UiField
     ToolButton btnRunSearch;
@@ -173,7 +176,7 @@ public class TraceSearchPanel extends Composite {
         refresh();
     }
 
-    @UiHandler({"txtDuration", "txtFilter", "txtSinceDate"})
+    @UiHandler({"txtDuration", "txtFilter", "txtStartDate"})
     void onTapEnter(KeyDownEvent e) {
         if (e.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
             refresh();
@@ -423,8 +426,12 @@ public class TraceSearchPanel extends Composite {
         }
 
 
-        if (txtSinceDate.getText() != null) {
-            q.setSinceDate(ClientUtil.parseTimestamp(txtSinceDate.getText(), null));
+        if (txtStartDate.getText() != null) {
+            q.setStartDate(ClientUtil.parseTimestamp(txtStartDate.getText(), null));
+        }
+
+        if (txtEndDate.getText() != null) {
+            q.setEndDate(ClientUtil.parseTimestamp(txtEndDate.getText(), null));
         }
 
         if (txtDuration.getText() != null && txtDuration.getText().length() > 0) {
@@ -451,6 +458,8 @@ public class TraceSearchPanel extends Composite {
                     }
                     md.info(MDS, "Found: " + results.size() + " traces " +
                             (moreResults ? "(more to come - click 'Find More' button)." : "."));
+                } else {
+                    intoSearchMode(false, false, "No more records found.");
                 }
             }
         });

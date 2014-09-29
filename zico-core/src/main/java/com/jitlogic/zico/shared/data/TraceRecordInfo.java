@@ -24,6 +24,9 @@ import java.util.List;
 public class TraceRecordInfo {
 
     @JsonProperty
+    long clock;
+
+    @JsonProperty
     long calls;
 
     @JsonProperty
@@ -48,6 +51,14 @@ public class TraceRecordInfo {
     List<KeyValuePair> attributes;
 
     SymbolicExceptionInfo exceptionInfo;
+
+    public long getClock() {
+        return clock;
+    }
+
+    public void setClock(long clock) {
+        this.clock = clock;
+    }
 
     public long getCalls() {
         return calls;

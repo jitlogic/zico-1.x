@@ -231,6 +231,7 @@ public class ZicoUtil {
     public static TraceRecordInfo packTraceRecord(SymbolRegistry symbolRegistry, TraceRecord tr, String path, Integer attrLimit) {
         TraceRecordInfo info = new TraceRecordInfo();
 
+        info.setClock(tr.getClock());
         info.setCalls(tr.getCalls());
         info.setErrors(tr.getErrors());
         info.setTime(tr.getTime());

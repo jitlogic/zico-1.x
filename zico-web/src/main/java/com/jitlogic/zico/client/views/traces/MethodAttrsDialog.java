@@ -32,6 +32,7 @@ import com.google.gwt.view.client.ProvidesKey;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.inject.assistedinject.Assisted;
+import com.jitlogic.zico.client.ClientUtil;
 import com.jitlogic.zico.client.api.TraceDataService;
 import com.jitlogic.zico.shared.data.KeyValuePair;
 import com.jitlogic.zico.shared.data.SymbolicExceptionInfo;
@@ -45,10 +46,7 @@ import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 public class MethodAttrsDialog implements IsPopupWindow {
     interface MethodAttrsDialogUiBinder extends UiBinder<Widget, MethodAttrsDialog> { };
@@ -125,7 +123,15 @@ public class MethodAttrsDialog implements IsPopupWindow {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append(tr.getMethod() + "\n\n");
+        if (tr.getClock() != 0) {
+            sb.append("Timestamp: ");
+            sb.append(ClientUtil.TSTAMP_FORMAT2.format(new Date(tr.getClock())));
+            sb.append("\n\n");
+        }
+
+        sb.append(tr.getMethod());
+        sb.append("\n\n");
+
 
         if (tr.getAttributes() != null) {
             for (KeyValuePair e : tr.getAttributes()) {
