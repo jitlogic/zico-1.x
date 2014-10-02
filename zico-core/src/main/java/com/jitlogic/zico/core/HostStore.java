@@ -106,7 +106,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
         File hostDir = new File(rootPath);
 
         if (!hostDir.exists()) {
-            this.maxSize = config.longCfg("rds.max.size", 1024L * 1024L * 1024L);
+            this.maxSize = config.kiloCfg("rds.max.size", 1024L * 1024L * 1024L);
             hostDir.mkdirs();
             save();
         } else {
