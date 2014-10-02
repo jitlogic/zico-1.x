@@ -25,6 +25,8 @@ import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
@@ -34,6 +36,7 @@ import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.cellview.client.DataGrid;
 import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
 import com.google.gwt.user.cellview.client.IdentityColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
@@ -54,11 +57,7 @@ import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class TraceSearchPanel extends Composite {
@@ -394,6 +393,57 @@ public class TraceSearchPanel extends Composite {
         loadMore();
     }
 
+    @UiHandler("btnStartDate")
+    void setStartDate(ClickEvent e) {
+        final DateTimePicker dtp = new DateTimePicker(true);
+
+        if (txtStartDate.getText().length() > 0) {
+            dtp.setValue(ClientUtil.parseDate(txtStartDate.getValue()));
+        } else {
+            Date dt = new Date();
+            dt.setTime(dt.getTime()-86400000L);
+            dtp.setValue(dt);
+        }
+
+        dtp.setPopupPosition(Window.getClientWidth()-384, e.getClientY());
+
+        dtp.addValueChangeHandler(new ValueChangeHandler<Date>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Date> event) {
+                txtStartDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(event.getValue()));
+                dtp.hide();
+                refresh();
+            }
+        });
+
+        dtp.show();
+    }
+
+    @UiHandler("btnEndDate")
+    void setEndDate(ClickEvent e) {
+        final DateTimePicker dtp = new DateTimePicker(true);
+
+        if (txtEndDate.getText().length() > 0) {
+            dtp.setValue(ClientUtil.parseDate(txtEndDate.getValue()));
+        } else {
+            Date dt = new Date();
+            dtp.setValue(dt);
+        }
+
+        dtp.setPopupPosition(Window.getClientWidth()-256, e.getClientY());
+
+        dtp.addValueChangeHandler(new ValueChangeHandler<Date>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Date> event) {
+                txtEndDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(event.getValue()));
+                dtp.hide();
+                refresh();
+            }
+        });
+
+        dtp.show();
+    }
+
     private void loadMore() {
         loadMore(50);
     }
@@ -427,11 +477,11 @@ public class TraceSearchPanel extends Composite {
 
 
         if (txtStartDate.getText() != null) {
-            q.setStartDate(ClientUtil.parseTimestamp(txtStartDate.getText(), null));
+            q.setStartDate(ClientUtil.parseTimestamp(txtStartDate.getText()));
         }
 
         if (txtEndDate.getText() != null) {
-            q.setEndDate(ClientUtil.parseTimestamp(txtEndDate.getText(), null));
+            q.setEndDate(ClientUtil.parseTimestamp(txtEndDate.getText()));
         }
 
         if (txtDuration.getText() != null && txtDuration.getText().length() > 0) {
