@@ -28,6 +28,8 @@ public interface PanelFactory {
 
     public TraceSearchPanel traceSearchPanel(HostInfo host);
 
+    public TraceStatsPanel traceStatsPanel(HostInfo host);
+
     public TraceCallTreePanel traceCallTreePanel(TraceInfo traceInfo);
 
     public TraceTemplatePanel traceTemplatePanel();

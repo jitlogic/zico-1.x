@@ -22,7 +22,6 @@ import com.jitlogic.zico.core.DBFactory;
 import com.jitlogic.zico.core.UserContext;
 import com.jitlogic.zico.core.ZicoConfig;
 import com.jitlogic.zico.core.inject.AbstractZicoModule;
-import com.jitlogic.zico.test.MemoryDBFactory;
 
 import javax.inject.Singleton;
 

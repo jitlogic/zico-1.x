@@ -16,12 +16,7 @@
 package com.jitlogic.zico.core;
 
 import com.jitlogic.zico.core.eql.Parser;
-import com.jitlogic.zico.shared.data.KeyValuePair;
-import com.jitlogic.zico.shared.data.SymbolicExceptionInfo;
-import com.jitlogic.zico.shared.data.TraceInfo;
-import com.jitlogic.zico.shared.data.TraceInfoSearchQuery;
-import com.jitlogic.zico.shared.data.TraceInfoSearchResult;
-import com.jitlogic.zico.shared.data.TraceRecordSearchQuery;
+import com.jitlogic.zico.shared.data.*;
 import com.jitlogic.zico.core.rds.RAGZInputStream;
 import com.jitlogic.zico.core.rds.RAGZSegment;
 import com.jitlogic.zico.core.rds.RDSCleanupListener;
@@ -29,7 +24,6 @@ import com.jitlogic.zico.core.rds.RDSStore;
 import com.jitlogic.zico.core.search.EqlTraceRecordMatcher;
 import com.jitlogic.zico.core.search.FullTextTraceRecordMatcher;
 import com.jitlogic.zico.core.search.TraceRecordMatcher;
-import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zorka.common.tracedata.FressianTraceFormat;
 import com.jitlogic.zorka.common.tracedata.SymbolRegistry;
 import com.jitlogic.zorka.common.tracedata.SymbolicException;
@@ -227,7 +221,8 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
         TraceInfoRecord tir = new TraceInfoRecord(rec,numRecords,
                 dchunk.getOffset(), dchunk.getLength(),
-                ichunk.getOffset(), ichunk.getLength());
+                ichunk.getOffset(), ichunk.getLength(),
+                rec.getAttrs() != null ? ZicoUtil.toHashSet(rec.getAttrs().keySet()) : null);
 
         infos.put(tir.getDataOffs(), tir);
 
@@ -331,7 +326,8 @@ public class HostStore implements Closeable, RDSCleanupListener {
                     tr.setChildren(null);
                     TraceRecordStore.ChunkInfo idxChunk = traceIndexStore.write(tr);
                     TraceInfoRecord tir = new TraceInfoRecord(tr, numRecords,
-                            lastPos, (int)dataLen, idxChunk.getOffset(), idxChunk.getLength());
+                            lastPos, (int)dataLen, idxChunk.getOffset(), idxChunk.getLength(),
+                            tr.getAttrs() != null ? ZicoUtil.toHashSet(tr.getAttrs().keySet()) : null);
                     infos.put(lastPos, tir);
                     int traceId = tir.getTraceId();
                     if (!tids.containsKey(traceId)) {
@@ -365,6 +361,100 @@ public class HostStore implements Closeable, RDSCleanupListener {
         return infos;
     }
 
+    public Map<Integer,Set<Integer>> getTraceAttrIds() {
+
+        Map<Integer,Set<Integer>> rslt = new HashMap<>();
+
+        for (Long key  = infos.lastKey(); key != null; key = infos.lowerKey(key)) {
+            TraceInfoRecord tir = infos.get(key);
+
+            int tid = tir.getTraceId();
+
+            if (!rslt.containsKey(tid)) {
+                rslt.put(tid, new HashSet<Integer>());
+            }
+
+            if (tir.getAttrs() != null) {
+                rslt.get(tid).addAll(tir.getAttrs());
+            }
+        }
+
+        return rslt;
+    }
+
+    public Map<Integer,Map<String,Integer>> getTraceAttrNames() {
+        Map<Integer,Map<String,Integer>> rslt = new HashMap<>();
+
+        for (Map.Entry<Integer,Set<Integer>> e : getTraceAttrIds().entrySet()) {
+            if (!rslt.containsKey(e.getKey())) {
+                Map<String,Integer> m = new HashMap<>();
+                rslt.put(e.getKey(), m);
+                for (Integer id : e.getValue()) {
+                    m.put(symbolRegistry.symbolName(id), id);
+                }
+            }
+        }
+
+        return rslt;
+    }
+
+    // TODO factor out stats() functionality into separate class
+    public List<TraceInfoStatsResult> stats(TraceInfoStatsQuery query) throws IOException {
+
+        Map<String,TraceInfoStatsResult> acc = new HashMap<>();
+
+        TraceRecordStore traceIndexStore = getTraceIndexStore();
+
+        for (Long key = infos.lastKey(); key != null; key = infos.lowerKey(key)) {
+            TraceInfoRecord tir = infos.get(key);
+
+            if (tir.getClock() < query.getStartClock()) {
+                break;
+            }
+
+            if (tir.getClock() > query.getEndClock()) {
+                continue;
+            }
+
+            if (tir.getTraceId() == query.getTraceId() && tir.getAttrs() != null
+                    && tir.getAttrs().contains(query.getAttrId())) {
+
+                TraceRecord idxtr = traceIndexStore.read(tir.getIndexChunk());
+
+                Object av = idxtr.getAttr(query.getAttrId());
+
+                if (av != null) {
+                    String attr = av.toString();
+                    TraceInfoStatsResult rslt;
+                    if (!acc.containsKey(attr)) {
+                        rslt = new TraceInfoStatsResult();
+                        rslt.setAttr(attr);
+                        rslt.setMinTime(Long.MAX_VALUE);
+                        rslt.setMaxTime(Long.MIN_VALUE);
+                        acc.put(attr, rslt);
+                    } else {
+                        rslt = acc.get(attr);
+                    }
+
+                    rslt.setCalls(rslt.getCalls()+1);
+                    if (idxtr.getMarker() != null && idxtr.getMarker().hasFlag(TraceMarker.ERROR_MARK)) {
+                        rslt.setErrors(rslt.getErrors()+1);
+                    }
+
+                    rslt.setMinTime(Math.min(rslt.getMinTime(), idxtr.getTime()));
+                    rslt.setMaxTime(Math.max(rslt.getMaxTime(), idxtr.getTime()));
+                    rslt.setSumTime(rslt.getSumTime() + idxtr.getTime());
+                }
+            }
+        }
+
+        List<TraceInfoStatsResult> rslt = new ArrayList<>(acc.size()+1);
+        rslt.addAll(acc.values());
+
+        return rslt;
+    }
+
+    // TODO factor out search() functionality into separate class
     public TraceInfoSearchResult search(TraceInfoSearchQuery query) throws IOException {
 
         SymbolRegistry symbolRegistry = getSymbolRegistry();

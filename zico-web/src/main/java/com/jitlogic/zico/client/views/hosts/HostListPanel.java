@@ -93,6 +93,9 @@ public class HostListPanel extends Composite {
     @UiField
     ToolButton btnListTraces;
 
+    @UiField
+    ToolButton btnStatTraces;
+
     @UiField(provided = true)
     DataGrid<HostListObject> hostGrid;
 
@@ -106,7 +109,8 @@ public class HostListPanel extends Composite {
 
     private Map<String,HostGroup> hostGroups = new TreeMap<String,HostGroup>();
 
-    private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces, mnuDisableHost, mnuEnableHost;
+    private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces,
+            mnuDisableHost, mnuEnableHost, mnuStatTraces;
 
     private boolean selectionDependentControlsEnabled = true;
 
@@ -153,9 +157,11 @@ public class HostListPanel extends Composite {
             btnRemoveHost.setEnabled(enabled && adminMode);
             btnEditHost.setEnabled(enabled && adminMode);
             btnListTraces.setEnabled(enabled);
+            btnStatTraces.setEnabled(enabled);
             mnuRemoveHost.setEnabled(enabled && adminMode);
             mnuEditHost.setEnabled(enabled && adminMode);
             mnuListTraces.setEnabled(enabled);
+            mnuStatTraces.setEnabled(enabled);
             selectionDependentControlsEnabled = enabled;
         }
 
@@ -409,6 +415,14 @@ public class HostListPanel extends Composite {
             }
         });
         contextMenu.addItem(mnuListTraces);
+
+        mnuStatTraces = new MenuItem("Pivot view", Resources.INSTANCE.filterIcon(), new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                statTraces(null);
+            }
+        });
+        contextMenu.addItem(mnuStatTraces);
     }
 
 
@@ -517,6 +531,17 @@ public class HostListPanel extends Composite {
 
         if (hostInfo instanceof HostInfo && 0 == (((HostInfo)hostInfo).getFlags() & HostInfo.DISABLED)) {
             shell.get().addView(panelFactory.traceSearchPanel((HostInfo)hostInfo), hostInfo.getName() + ": traces");
+        }
+    }
+
+
+    @UiHandler("btnStatTraces")
+    void statTraces(ClickEvent e) {
+        HostListObject hostInfo = selectionModel.getSelectedObject();
+        GWT.log("Selected host: " + hostInfo);
+
+        if (hostInfo instanceof HostInfo && 0 == (((HostInfo)hostInfo).getFlags() & HostInfo.DISABLED)) {
+            shell.get().addView(panelFactory.traceStatsPanel((HostInfo)hostInfo), hostInfo.getName() + ": traces");
         }
     }
 }

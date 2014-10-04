@@ -291,7 +291,6 @@ public class TraceSearchPanel extends Composite {
     private void createContextMenu() {
         contextMenu = new PopupMenu();
 
-
         MenuItem mnuMethodTree = new MenuItem("Method call tree", Resources.INSTANCE.methodTreeIcon(),
                 new Scheduler.ScheduledCommand() {
                     @Override

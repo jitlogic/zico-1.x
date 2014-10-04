@@ -20,15 +20,21 @@ import com.jitlogic.zico.shared.data.*;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import java.util.List;
+import java.util.Map;
 
 public interface TraceDataService extends RestService {
 
     @POST
     @Path("traces/search")
     void search(TraceInfoSearchQuery query, MethodCallback<TraceInfoSearchResult> result);
+
+    @GET @Path("traces/attrs/{host}")
+    void attrNames(@PathParam("host") String host, MethodCallback<Map<Integer,Map<String,Integer>>> cb);
+
+    @POST @Path("traces/stats")
+    void statTraces(TraceInfoStatsQuery query, MethodCallback<List<TraceInfoStatsResult>> cb);
 
     @POST @Path("traces/records/rank")
     void rankRecords(TraceRecordRankQuery query, MethodCallback<List<MethodRankInfo>> cb);

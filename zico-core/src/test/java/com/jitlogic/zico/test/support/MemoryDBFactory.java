@@ -1,4 +1,4 @@
-package com.jitlogic.zico.test;
+package com.jitlogic.zico.test.support;
 
 import com.jitlogic.zico.core.DBFactory;
 import org.mapdb.DB;

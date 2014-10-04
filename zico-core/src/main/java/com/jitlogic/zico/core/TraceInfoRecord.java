@@ -20,6 +20,7 @@ import com.jitlogic.zorka.common.tracedata.TraceMarker;
 import com.jitlogic.zorka.common.tracedata.TraceRecord;
 
 import java.io.Serializable;
+import java.util.Set;
 
 public class TraceInfoRecord implements Serializable {
 
@@ -47,12 +48,13 @@ public class TraceInfoRecord implements Serializable {
 
     private int rflags;
 
+    private Set<Integer> attrs;
 
     public TraceInfoRecord() {
     }
 
 
-    public TraceInfoRecord(TraceRecord tr, int numRecords, long dataOffs, int dataLen, long indexOffs, int indexLen) {
+    public TraceInfoRecord(TraceRecord tr, int numRecords, long dataOffs, int dataLen, long indexOffs, int indexLen, Set<Integer> attrs) {
         this.dataOffs = dataOffs;
         this.dataLen = dataLen;
         this.indexOffs = indexOffs;
@@ -65,6 +67,7 @@ public class TraceInfoRecord implements Serializable {
         this.records = numRecords;
         this.tflags = tr.getMarker().getFlags();
         this.rflags = tr.getFlags();
+        this.attrs = attrs;
 
         if (tr.getException() != null || tr.hasFlag(TraceRecord.EXCEPTION_PASS)) {
             this.tflags |= TraceMarker.ERROR_MARK;
@@ -118,6 +121,10 @@ public class TraceInfoRecord implements Serializable {
 
     public int getRflags() {
         return rflags;
+    }
+
+    public Set<Integer> getAttrs() {
+        return attrs;
     }
 
     @Override

@@ -33,14 +33,12 @@ import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 @Singleton
@@ -54,6 +52,7 @@ public class TraceDataService {
 
     @Inject
     private UserContext userContext;
+
 
     @POST
     @Path("/search")
@@ -80,6 +79,32 @@ public class TraceDataService {
     }
 
 
+    @GET
+    @Path("/attrs/{host}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Map<Integer,Map<String,Integer>> attrNames(@PathParam("host") String hostName) {
+        userContext.checkHostAccess(hostName);
+        HostStore host = storeManager.getHost(hostName, false);
+        return host.getTraceAttrNames();
+    }
+
+
+    @POST
+    @Path("/stats")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public List<TraceInfoStatsResult> statTraces(TraceInfoStatsQuery query) {
+        userContext.checkHostAccess(query.getHostName());
+        try {
+            HostStore host = storeManager.getHost(query.getHostName(), false);
+            return host.stats(query);
+        } catch (Exception e) {
+            log.error("Error aggregating trace stats for query " + query, e);
+            throw new ZicoRuntimeException("Error aggregating stats for query " + query + ": " + e, e);
+        }
+    }
+
+
     @POST
     @Path("/records/rank")
     @Produces(MediaType.APPLICATION_JSON)
@@ -100,6 +125,7 @@ public class TraceDataService {
             throw new ZicoRuntimeException("Error while calling MethodRank", e);
         }
     }
+
 
     @POST
     @Path("/records/get")

@@ -44,6 +44,9 @@ public class ZicoTestUtil {
         return new KeyValuePair(name, val);
     }
 
+    public static int sym(String name) {
+        return symbols.symbolId(name);
+    }
 
     public static TraceRecord trace(Object...args) {
         return traceP(

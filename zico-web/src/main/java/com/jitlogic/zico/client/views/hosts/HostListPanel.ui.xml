@@ -34,6 +34,8 @@
                 <z:ToolSeparator height="20px"/>
                 <z:ToolButton width="16px" height="16px" upIcon="{resources.listColumnsIcon}" ui:field="btnListTraces"
                         title="Open trace list for selected host."/>
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.filterIcon}" ui:field="btnStatTraces"
+                        title="Open trace pivot view."/>
             </g:HorizontalPanel>
         </g:north>
         <g:center>
