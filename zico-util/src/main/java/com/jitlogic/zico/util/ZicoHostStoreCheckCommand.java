@@ -19,14 +19,14 @@ package com.jitlogic.zico.util;
 import com.jitlogic.zico.core.FileDBFactory;
 import com.jitlogic.zico.core.HostStore;
 import com.jitlogic.zico.core.ZicoConfig;
+import com.jitlogic.zico.core.rds.RDSStore;
 import com.jitlogic.zorka.common.util.ZorkaConfig;
+import com.jitlogic.zorka.common.util.ZorkaUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -37,6 +37,25 @@ public class ZicoHostStoreCheckCommand implements ZicoCommand {
     private final static Logger log = LoggerFactory.getLogger(ZicoHostStoreCheckCommand.class);
 
     private ZicoConfig config;
+
+
+    private QueuedHost queuedHost(String name) {
+        long size = 0;
+
+        File d = new File(ZorkaUtil.path(config.getDataDir(), name, "tdat"));
+
+        if (d.isDirectory()) {
+            for (String fname : d.list()) {
+                File f = new File(d, fname);
+                if (f.isFile() && RDSStore.RGZ_FILE.matcher(fname).matches()) {
+                    size += f.length();
+                }
+            }
+        }
+
+        return new QueuedHost(name, size);
+    }
+
 
     @Override
     public void run(String[] args) throws Exception {
@@ -51,12 +70,12 @@ public class ZicoHostStoreCheckCommand implements ZicoCommand {
         config = new ZicoConfig(props);
 
         int nthreads = Runtime.getRuntime().availableProcessors() * 2;
-        List<String> hosts = new ArrayList<String>(args.length);
+        List<QueuedHost> hosts = new ArrayList<QueuedHost>(args.length);
 
         if (args.length > 2) {
             for (int i = 2; i < args.length; i++) {
                 if (new File(config.getDataDir(), args[i]).isDirectory()) {
-                    hosts.add(args[i]);
+                    hosts.add(queuedHost(args[i]));
                 } else {
                     log.error("Host " + args[i] + " does not exist. Skipping.");
                 }
@@ -64,8 +83,7 @@ public class ZicoHostStoreCheckCommand implements ZicoCommand {
         } else {
             for (String host : new File(config.getDataDir()).list()) {
                 if (new File(config.getDataDir(), host).isDirectory()) {
-                    log.info("Adding host to rebuild: " + host);
-                    hosts.add(host);
+                    hosts.add(queuedHost(host));
                 }
             }
         }
@@ -77,18 +95,27 @@ public class ZicoHostStoreCheckCommand implements ZicoCommand {
             return;
         }
 
+        Collections.sort(hosts, new Comparator<QueuedHost>() {
+            @Override
+            public int compare(QueuedHost o1, QueuedHost o2) {
+                return (int)(o2.getSize()-o1.getSize());
+            }
+        });
+
+        log.info("Hosts to be processed (sorted by size): " + hosts);
+
         final CountDownLatch toBeProcessed = new CountDownLatch(hosts.size());
         final AtomicLong cpuTime = new AtomicLong(0);
         Executor executor = Executors.newFixedThreadPool(nthreads);
 
-        for (final String host : hosts) {
+        for (final QueuedHost host : hosts) {
             executor.execute(new Runnable() {
                 @Override
                 public void run() {
                     try {
                         log.info("Starting host " + host);
                         long t1 = System.currentTimeMillis();
-                        HostStore hostStore = new HostStore(new FileDBFactory(), config, null, host);
+                        HostStore hostStore = new HostStore(new FileDBFactory(), config, null, host.getName());
                         hostStore.rebuildIndex();
                         long t = System.currentTimeMillis() - t1;
                         cpuTime.addAndGet(t);
