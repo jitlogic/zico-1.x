@@ -32,10 +32,7 @@ import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
-import com.google.gwt.user.cellview.client.IdentityColumn;
+import com.google.gwt.user.cellview.client.*;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
@@ -122,6 +119,8 @@ public class TraceSearchPanel extends Composite {
 
     private ListDataProvider<TraceInfo> data;
     private SingleSelectionModel<TraceInfo> selection;
+    private ColumnSortEvent.ListHandler<TraceInfo> sortHandler;
+
     private TraceSearchTableBuilder rowBuilder;
     private Set<Long> expandedDetails = new HashSet<Long>();
 
@@ -201,6 +200,12 @@ public class TraceSearchPanel extends Composite {
         selection = new SingleSelectionModel<TraceInfo>(KEY_PROVIDER);
         grid.setSelectionModel(selection);
 
+        data = new ListDataProvider<TraceInfo>();
+        data.addDataDisplay(grid);
+
+        sortHandler = new ColumnSortEvent.ListHandler<TraceInfo>(data.getList());
+        grid.addColumnSortHandler(sortHandler);
+
         Column<TraceInfo, TraceInfo> colExpander
                 = new IdentityColumn<TraceInfo>(DETAIL_EXPANDER_CELL);
         grid.addColumn(colExpander, "#");
@@ -210,6 +215,14 @@ public class TraceSearchPanel extends Composite {
                 = new IdentityColumn<TraceInfo>(TRACE_CLOCK_CELL);
         grid.addColumn(colTraceClock, new ResizableHeader<TraceInfo>("Clock", grid, colTraceClock));
         grid.setColumnWidth(colTraceClock, 140, Style.Unit.PX);
+
+        colTraceClock.setSortable(true);
+        sortHandler.setComparator(colTraceClock, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)(o1.getClock()-o2.getClock());
+            }
+        });
 
         Column<TraceInfo, TraceInfo> colTraceType
                 = new IdentityColumn<TraceInfo>(TRACE_TYPE_CELL);
@@ -221,20 +234,52 @@ public class TraceSearchPanel extends Composite {
         grid.addColumn(colTraceDuration, new ResizableHeader<TraceInfo>("Time", grid, colTraceDuration));
         grid.setColumnWidth(colTraceDuration, 64, Style.Unit.PX);
 
+        colTraceDuration.setSortable(true);
+        sortHandler.setComparator(colTraceDuration, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)((o1.getExecutionTime()-o2.getExecutionTime())/1000000L);
+            }
+        });
+
         Column<TraceInfo, TraceInfo> colTraceCalls
                 = new IdentityColumn<TraceInfo>(TRACE_CALLS_CELL);
         grid.addColumn(colTraceCalls, new ResizableHeader<TraceInfo>("Calls", grid, colTraceCalls));
         grid.setColumnWidth(colTraceCalls, 50, Style.Unit.PX);
+
+        colTraceCalls.setSortable(true);
+        sortHandler.setComparator(colTraceCalls, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)(o1.getCalls()-o2.getCalls());
+            }
+        });
 
         Column<TraceInfo, TraceInfo> colTraceErrors
                 = new IdentityColumn<TraceInfo>(TRACE_ERRORS_CELL);
         grid.addColumn(colTraceErrors, new ResizableHeader<TraceInfo>("Errs", grid, colTraceErrors));
         grid.setColumnWidth(colTraceErrors, 50, Style.Unit.PX);
 
+        colTraceErrors.setSortable(true);
+        sortHandler.setComparator(colTraceErrors, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)(o1.getErrors()-o2.getErrors());
+            }
+        });
+
         Column<TraceInfo, TraceInfo> colTraceRecords
                 = new IdentityColumn<TraceInfo>(TRACE_RECORDS_CELL);
         grid.addColumn(colTraceRecords, new ResizableHeader<TraceInfo>("Recs", grid, colTraceRecords));
         grid.setColumnWidth(colTraceRecords, 50, Style.Unit.PX);
+
+        colTraceRecords.setSortable(true);
+        sortHandler.setComparator(colTraceRecords, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)(o1.getRecords()-o2.getRecords());
+            }
+        });
 
         Column<TraceInfo, TraceInfo> colTraceDesc
                 = new IdentityColumn<TraceInfo>(TRACE_NAME_CELL);
@@ -248,9 +293,6 @@ public class TraceSearchPanel extends Composite {
         grid.setSkipRowHoverFloatElementCheck(true);
         grid.setSkipRowHoverCheck(true);
         grid.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
-
-        data = new ListDataProvider<TraceInfo>();
-        data.addDataDisplay(grid);
 
         grid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceInfo>() {
             @Override
