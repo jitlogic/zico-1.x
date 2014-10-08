@@ -124,8 +124,6 @@ public class TraceSearchPanel extends Composite {
     private TraceSearchTableBuilder rowBuilder;
     private Set<Long> expandedDetails = new HashSet<Long>();
 
-    private Map<Integer, String> traceTypes;
-
     private int seqnum = 0;
 
     private PopupMenu contextMenu;
@@ -139,7 +137,8 @@ public class TraceSearchPanel extends Composite {
 
     @Inject
     public TraceSearchPanel(Provider<Shell> shell, TraceDataService traceDataService, SystemService systemService,
-                            PanelFactory pf, @Assisted HostInfo host, MessageDisplay md) {
+                            PanelFactory pf, @Assisted HostInfo host, MessageDisplay md,
+                            @Assisted String traceName) {
         this.shell = shell;
         this.traceDataService = traceDataService;
         this.systemService = systemService;
@@ -150,8 +149,6 @@ public class TraceSearchPanel extends Composite {
 
         this.resources = Resources.INSTANCE;
 
-        traceTypes = new HashMap<Integer, String>();
-        traceTypes.put(0, "<all>");
 
         createTraceGrid();
 
@@ -161,10 +158,17 @@ public class TraceSearchPanel extends Composite {
 
         initWidget(panel);
 
-        loadTraceTypes();
         btnReverse.setToggled(true);
         btnFindMore.setEnabled(false);
-        refresh();
+
+        if (traceName != null) {
+            lstTraceType.addItem(traceName);
+            lstTraceType.setSelectedIndex(0);
+        } else {
+            loadTraceTypes();
+        }
+
+
     }
 
 
@@ -423,10 +427,17 @@ public class TraceSearchPanel extends Composite {
         }
     }
 
-    private void refresh() {
+    public void refresh() {
         data.getList().clear();
         expandedDetails.clear();
         loadMore();
+    }
+
+    public void runSearch(String attrName, String filter, Date startDate, Date endDate) {
+        txtFilter.setValue(filter, false);
+        txtStartDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(startDate), false);
+        txtEndDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(endDate), false);
+        refresh();
     }
 
     @UiHandler("btnFindMore")

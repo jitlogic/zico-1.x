@@ -343,7 +343,7 @@ public class TraceStatsPanel extends Composite {
 
     @UiHandler("btnStartDate")
     void setStartDate(ClickEvent e) {
-        final DateTimePicker dtp = new DateTimePicker(true);
+        final DateTimePicker dtp = new DateTimePicker(false);
 
         if (txtStartDate.getText().length() > 0) {
             dtp.setValue(ClientUtil.parseDate(txtStartDate.getValue()));
@@ -370,7 +370,7 @@ public class TraceStatsPanel extends Composite {
 
     @UiHandler("btnEndDate")
     void setEndDate(ClickEvent e) {
-        final DateTimePicker dtp = new DateTimePicker(true);
+        final DateTimePicker dtp = new DateTimePicker(false);
 
         if (txtEndDate.getText().length() > 0) {
             dtp.setValue(ClientUtil.parseDate(txtEndDate.getValue()));
@@ -395,8 +395,16 @@ public class TraceStatsPanel extends Composite {
 
 
     private void openSearchView() {
-        // TODO open search view and run search with appropriate arguments
+        TraceSearchPanel searchPanel = pf.traceSearchPanel(host, lstTraceAttr.getItemText(lstTraceAttr.getSelectedIndex()));
+        shell.get().addView(searchPanel, host.getName() + ": subset");
+
+        searchPanel.runSearch(
+            lstTraceAttr.getItemText(lstTraceAttr.getSelectedIndex()),
+            selection.getSelectedObject().getAttr(),
+            ClientUtil.parseDate(txtStartDate.getValue()),
+            ClientUtil.parseDate(txtEndDate.getValue()));
     }
+
 
     private void loadTraceTypes() {
         systemService.getTidMap(host.getName(), new MethodCallback<List<SymbolInfo>>() {

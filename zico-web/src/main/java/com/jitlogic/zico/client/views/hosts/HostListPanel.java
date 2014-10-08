@@ -46,6 +46,7 @@ import com.jitlogic.zico.client.api.HostService;
 import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
+import com.jitlogic.zico.client.views.traces.TraceSearchPanel;
 import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.widgets.client.*;
@@ -530,7 +531,9 @@ public class HostListPanel extends Composite {
         GWT.log("Selected host: " + hostInfo);
 
         if (hostInfo instanceof HostInfo && 0 == (((HostInfo)hostInfo).getFlags() & HostInfo.DISABLED)) {
-            shell.get().addView(panelFactory.traceSearchPanel((HostInfo)hostInfo), hostInfo.getName() + ": traces");
+            TraceSearchPanel searchPanel = panelFactory.traceSearchPanel((HostInfo) hostInfo, null);
+            shell.get().addView(searchPanel, hostInfo.getName() + ": traces");
+            searchPanel.refresh();
         }
     }
 
