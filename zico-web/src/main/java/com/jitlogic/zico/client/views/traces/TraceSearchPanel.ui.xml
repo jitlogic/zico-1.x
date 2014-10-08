@@ -31,9 +31,6 @@
                 <z:ToolButton width="16px" height="16px" upIcon="{resources.errorMarkIcon}" toggleMode="true"
                               addStyleNames="{style.item}" ui:field="btnErrors"
                               title="Search only error traces"/>
-                <z:ToolButton width="16px" height="16px" upIcon="{resources.sort}" toggleMode="true"
-                              addStyleNames="{style.item}" ui:field="btnReverse"
-                              title="Reverse order"/>
                 <g:ListBox height="21px" width="80px" multipleSelect="false"
                            addStyleNames="{style.item}" ui:field="lstTraceType"
                            title="Choose trace type"/>

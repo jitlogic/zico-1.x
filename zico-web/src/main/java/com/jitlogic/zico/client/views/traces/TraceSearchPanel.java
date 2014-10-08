@@ -74,9 +74,6 @@ public class TraceSearchPanel extends Composite {
     ToolButton btnErrors;
 
     @UiField
-    ToolButton btnReverse;
-
-    @UiField
     ListBox lstTraceType;
 
     @UiField
@@ -158,7 +155,6 @@ public class TraceSearchPanel extends Composite {
 
         initWidget(panel);
 
-        btnReverse.setToggled(true);
         btnFindMore.setEnabled(false);
 
         if (traceName != null) {
@@ -509,7 +505,6 @@ public class TraceSearchPanel extends Composite {
 
         q.setFlags(
                 (btnErrors.isToggled() ? TraceInfoSearchQuery.ERRORS_ONLY : 0)
-              | (btnReverse.isToggled() ? TraceInfoSearchQuery.ORDER_DESC : 0)
               | (btnDeepSearch.isToggled() ? TraceInfoSearchQuery.DEEP_SEARCH : 0)
               | (btnEnableEql.isToggled() ? TraceInfoSearchQuery.EQL_QUERY : 0)
         );
