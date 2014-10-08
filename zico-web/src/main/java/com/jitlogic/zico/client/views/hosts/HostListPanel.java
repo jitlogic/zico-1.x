@@ -275,7 +275,14 @@ public class HostListPanel extends Composite {
                     selectionModel.setSelected(event.getValue(), true);
 
                     enableSelectionDependentControls(event.getValue());
-                    listTraces(null);
+
+                    if (event.getValue() instanceof HostInfo) {
+                        listTraces(null);
+                    } else {
+                        HostGroup hg = (HostGroup)event.getValue();
+                        hg.toggleExpanded();
+                        redrawHostList();
+                    }
                 }
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
@@ -322,7 +329,11 @@ public class HostListPanel extends Composite {
         for (HostInfo host : hlist) {
             String groupName = host.getGroup().length() > 0 ? host.getGroup() : "(default)";
             if (!hostGroups.containsKey(groupName)) {
-                hostGroups.put(groupName, new HostGroup(groupName));
+                HostGroup hg = new HostGroup(groupName);
+                if (host.getGroup().length() == 0) {
+                    hg.toggleExpanded();
+                }
+                hostGroups.put(groupName, hg);
             }
             hostGroups.get(groupName).addHost(host);
         }
