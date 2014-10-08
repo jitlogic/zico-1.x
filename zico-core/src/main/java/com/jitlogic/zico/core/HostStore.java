@@ -451,7 +451,14 @@ public class HostStore implements Closeable, RDSCleanupListener {
         List<TraceInfoStatsResult> rslt = new ArrayList<>(acc.size()+1);
         rslt.addAll(acc.values());
 
-        return rslt;
+        Collections.sort(rslt, new Comparator<TraceInfoStatsResult>() {
+            @Override
+            public int compare(TraceInfoStatsResult o1, TraceInfoStatsResult o2) {
+                return (int)((o2.getSumTime()-o1.getSumTime())/1000000L);
+            }
+        });
+
+        return rslt.size() > query.getMaxResults() ? rslt.subList(0, query.getMaxResults()) : rslt;
     }
 
     // TODO factor out search() functionality into separate class
@@ -873,15 +880,6 @@ public class HostStore implements Closeable, RDSCleanupListener {
             flags |= HostInfo.DISABLED;
         }
     }
-
-//    public synchronized void update(HostInfo hi) {
-//        setAddr(hi.getAddr());
-//        setComment(hi.getComment());
-//        setMaxSize(hi.getMaxSize());
-//        setGroup(hi.getGroup());
-//        setComment(hi.getComment());
-//        setEnabled(hi.isEnabled());
-//    }
 
 }
 

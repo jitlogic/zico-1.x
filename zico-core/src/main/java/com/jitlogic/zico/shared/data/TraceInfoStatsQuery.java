@@ -36,6 +36,9 @@ public class TraceInfoStatsQuery {
     @JsonProperty
     private long endClock;
 
+    @JsonProperty
+    private int maxResults = 100;
+
     public String getHostName() {
         return hostName;
     }
@@ -74,6 +77,14 @@ public class TraceInfoStatsQuery {
 
     public void setEndClock(long endClock) {
         this.endClock = endClock;
+    }
+
+    public int getMaxResults() {
+        return maxResults;
+    }
+
+    public void setMaxResults(int maxResults) {
+        this.maxResults = maxResults;
     }
 
     @Override

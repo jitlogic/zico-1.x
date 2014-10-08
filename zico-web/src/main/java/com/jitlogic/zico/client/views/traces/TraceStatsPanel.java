@@ -76,6 +76,9 @@ public class TraceStatsPanel extends Composite {
     ListBox lstTraceAttr;
 
     @UiField
+    TextBox txtMaxResults;
+
+    @UiField
     TextBox txtStartDate;
 
     @UiField
@@ -129,6 +132,8 @@ public class TraceStatsPanel extends Composite {
         initWidget(panel);
 
         loadTraceTypes();
+
+        txtMaxResults.setText("50");
 
         txtStartDate.setText(ClientUtil.TSTAMP_FORMAT0.format(new Date()) + " 00:00:00");
 
@@ -282,6 +287,14 @@ public class TraceStatsPanel extends Composite {
     }
 
 
+    @UiHandler({"txtMaxResults", "txtStartDate", "txtEndDate"})
+    void onTapEnter(KeyDownEvent e) {
+        if (e.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+            refresh(null);
+        }
+    }
+
+
     @UiHandler("lstTraceType")
     void onTraceTypeChange(ChangeEvent ev) {
         lstTraceAttr.clear();
@@ -298,10 +311,12 @@ public class TraceStatsPanel extends Composite {
         }
     }
 
+
     @UiHandler("lstTraceAttr")
     void onTraceAttrChange(ChangeEvent ev) {
         refresh(null);
     }
+
 
     @UiHandler("btnRefresh")
     void refresh(ClickEvent e) {
@@ -321,6 +336,7 @@ public class TraceStatsPanel extends Composite {
             q.setHostName(host.getName());
             q.setTraceId(traceId);
             q.setAttrId(attrId);
+            q.setMaxResults(Integer.parseInt(txtMaxResults.getValue()));
             q.setStartClock(startDate.getTime());
             q.setEndClock(endDate.getTime());
 

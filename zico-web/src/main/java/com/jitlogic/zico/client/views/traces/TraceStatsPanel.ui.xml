@@ -33,11 +33,16 @@
                            addStyleNames="{style.item}" ui:field="lstTraceAttr"
                            enabled="false" title="Choose trace attribute"/>
                 <g:Label addStyleNames="{style.filter}"/>
+                <g:Label addStyleNames="{style.item}">Max results:</g:Label>
+                <g:TextBox height="18px" width="64px" title="Max results"
+                           addStyleNames="{style.item}" ui:field="txtMaxResults"/>
+                <g:Label addStyleNames="{style.item}">Start:</g:Label>
                 <g:TextBox height="18px" width="136px" title="Start timestamp"
                            addStyleNames="{style.item}" ui:field="txtStartDate"/>
                 <z:ToolButton upIcon="{resources.datePrev}" width="16px" height="16px"
                               addStyleNames="{style.item}" ui:field="btnStartDate"
                               title="Select start timestamp."/>
+                <g:Label addStyleNames="{style.item}">End:</g:Label>
                 <g:TextBox height="18px" width="136px" title="End timestamp"
                            addStyleNames="{style.item}" ui:field="txtEndDate"/>
                 <z:ToolButton upIcon="{resources.dateNext}" width="16px" height="16px"
