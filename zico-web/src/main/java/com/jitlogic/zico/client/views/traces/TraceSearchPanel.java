@@ -503,7 +503,7 @@ public class TraceSearchPanel extends Composite {
         q.setHostName(host.getName());
         q.setSeq(seqnum);
 
-        q.setFlags(
+        q.setFlags(TraceInfoSearchQuery.ORDER_DESC |
                 (btnErrors.isToggled() ? TraceInfoSearchQuery.ERRORS_ONLY : 0)
               | (btnDeepSearch.isToggled() ? TraceInfoSearchQuery.DEEP_SEARCH : 0)
               | (btnEnableEql.isToggled() ? TraceInfoSearchQuery.EQL_QUERY : 0)
