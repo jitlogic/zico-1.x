@@ -68,22 +68,29 @@ public class ClientUtil {
     }
 
 
-    public static long parseTimestamp(String tstamp, String hms) {
+    public static Date parseDate(String tstamp) {
         if (tstamp == null || tstamp.trim().length() == 0) {
-            return 0;
+            return null;
         }
 
         String tst = tstamp.trim();
 
 
         if (tst.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}\\.\\d{3}")) {
-            return TSTAMP_FORMAT2.parseStrict(tst).getTime();
+            return TSTAMP_FORMAT2.parseStrict(tst);
         } else if (tst.matches("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}")) {
-            return TSTAMP_FORMAT1.parseStrict(tst).getTime();
+            return TSTAMP_FORMAT1.parseStrict(tst);
         } else if (tst.matches("\\d{4}-\\d{2}-\\d{2}")) {
-            return TSTAMP_FORMAT0.parseStrict(tst).getTime();
+            return TSTAMP_FORMAT0.parseStrict(tst);
         }
 
-        return 0;
+        return null;
+    }
+
+
+    public static long parseTimestamp(String tstamp) {
+        Date dt = parseDate(tstamp);
+
+        return dt != null ? dt.getTime() : 0L;
     }
 }

@@ -53,7 +53,7 @@
                         <g:Hyperlink ui:field="lnkAdmin" visible="false">Admin</g:Hyperlink>
                     </div>
                     <div class="{style.toolfill}">
-                        <g:Label>ZICO 1.0.8</g:Label>
+                        <g:Label>ZICO 1.0.9</g:Label>
                     </div>
                     <div class="{style.toolitem}">
                         <g:Hyperlink ui:field="lnkUser">Logout</g:Hyperlink>

@@ -26,7 +26,9 @@ import com.jitlogic.zico.shared.data.TraceInfo;
 
 public interface PanelFactory {
 
-    public TraceSearchPanel traceSearchPanel(HostInfo host);
+    public TraceSearchPanel traceSearchPanel(HostInfo host, String traceName);
+
+    public TraceStatsPanel traceStatsPanel(HostInfo host);
 
     public TraceCallTreePanel traceCallTreePanel(TraceInfo traceInfo);
 

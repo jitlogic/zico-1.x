@@ -3,7 +3,7 @@
     <groupId>com.jitlogic.zico</groupId>
     <artifactId>zico</artifactId>
     <packaging>pom</packaging>
-    <version>1.0.8</version>
+    <version>1.0.9</version>
     <name>zorka: parent aggregator</name>
     <url>http://zorka.io</url>
 
@@ -39,7 +39,7 @@
         <restygwt.version>1.4</restygwt.version>
         <servlet.version>3.0.1</servlet.version>
         <slf4j.version>1.7.7</slf4j.version>
-        <zico.widgets.version>0.0.1</zico.widgets.version>
+        <zico.widgets.version>0.0.2-SNAPSHOT</zico.widgets.version>
     </properties>
 
     <repositories>

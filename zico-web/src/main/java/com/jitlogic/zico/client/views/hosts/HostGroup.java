@@ -28,7 +28,7 @@ import java.util.Set;
 
 public class HostGroup implements HostListObject {
 
-    private boolean expanded = true;
+    private boolean expanded = false;
     private String name;
 
     private Set<HostInfo> hosts = new HashSet<HostInfo>();

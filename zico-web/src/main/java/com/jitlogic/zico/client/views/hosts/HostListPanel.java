@@ -46,6 +46,7 @@ import com.jitlogic.zico.client.api.HostService;
 import com.jitlogic.zico.client.views.Shell;
 import com.jitlogic.zico.client.resources.Resources;
 import com.jitlogic.zico.client.inject.PanelFactory;
+import com.jitlogic.zico.client.views.traces.TraceSearchPanel;
 import com.jitlogic.zico.shared.data.HostInfo;
 import com.jitlogic.zico.shared.data.HostListObject;
 import com.jitlogic.zico.widgets.client.*;
@@ -93,6 +94,9 @@ public class HostListPanel extends Composite {
     @UiField
     ToolButton btnListTraces;
 
+    @UiField
+    ToolButton btnStatTraces;
+
     @UiField(provided = true)
     DataGrid<HostListObject> hostGrid;
 
@@ -106,7 +110,8 @@ public class HostListPanel extends Composite {
 
     private Map<String,HostGroup> hostGroups = new TreeMap<String,HostGroup>();
 
-    private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces, mnuDisableHost, mnuEnableHost;
+    private MenuItem mnuRefresh, mnuAddHost, mnuRemoveHost, mnuEditHost, mnuListTraces,
+            mnuDisableHost, mnuEnableHost, mnuStatTraces;
 
     private boolean selectionDependentControlsEnabled = true;
 
@@ -153,9 +158,11 @@ public class HostListPanel extends Composite {
             btnRemoveHost.setEnabled(enabled && adminMode);
             btnEditHost.setEnabled(enabled && adminMode);
             btnListTraces.setEnabled(enabled);
+            btnStatTraces.setEnabled(enabled);
             mnuRemoveHost.setEnabled(enabled && adminMode);
             mnuEditHost.setEnabled(enabled && adminMode);
             mnuListTraces.setEnabled(enabled);
+            mnuStatTraces.setEnabled(enabled);
             selectionDependentControlsEnabled = enabled;
         }
 
@@ -268,7 +275,14 @@ public class HostListPanel extends Composite {
                     selectionModel.setSelected(event.getValue(), true);
 
                     enableSelectionDependentControls(event.getValue());
-                    listTraces(null);
+
+                    if (event.getValue() instanceof HostInfo) {
+                        listTraces(null);
+                    } else {
+                        HostGroup hg = (HostGroup)event.getValue();
+                        hg.toggleExpanded();
+                        redrawHostList();
+                    }
                 }
                 if (BrowserEvents.CONTEXTMENU.equals(eventType)) {
                     selectionModel.setSelected(event.getValue(), true);
@@ -315,7 +329,11 @@ public class HostListPanel extends Composite {
         for (HostInfo host : hlist) {
             String groupName = host.getGroup().length() > 0 ? host.getGroup() : "(default)";
             if (!hostGroups.containsKey(groupName)) {
-                hostGroups.put(groupName, new HostGroup(groupName));
+                HostGroup hg = new HostGroup(groupName);
+                if (host.getGroup().length() == 0) {
+                    hg.toggleExpanded();
+                }
+                hostGroups.put(groupName, hg);
             }
             hostGroups.get(groupName).addHost(host);
         }
@@ -409,6 +427,14 @@ public class HostListPanel extends Composite {
             }
         });
         contextMenu.addItem(mnuListTraces);
+
+        mnuStatTraces = new MenuItem("Pivot view", Resources.INSTANCE.filterIcon(), new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                statTraces(null);
+            }
+        });
+        contextMenu.addItem(mnuStatTraces);
     }
 
 
@@ -516,7 +542,20 @@ public class HostListPanel extends Composite {
         GWT.log("Selected host: " + hostInfo);
 
         if (hostInfo instanceof HostInfo && 0 == (((HostInfo)hostInfo).getFlags() & HostInfo.DISABLED)) {
-            shell.get().addView(panelFactory.traceSearchPanel((HostInfo)hostInfo), hostInfo.getName() + ": traces");
+            TraceSearchPanel searchPanel = panelFactory.traceSearchPanel((HostInfo) hostInfo, null);
+            shell.get().addView(searchPanel, hostInfo.getName() + ": traces");
+            searchPanel.refresh();
+        }
+    }
+
+
+    @UiHandler("btnStatTraces")
+    void statTraces(ClickEvent e) {
+        HostListObject hostInfo = selectionModel.getSelectedObject();
+        GWT.log("Selected host: " + hostInfo);
+
+        if (hostInfo instanceof HostInfo && 0 == (((HostInfo)hostInfo).getFlags() & HostInfo.DISABLED)) {
+            shell.get().addView(panelFactory.traceStatsPanel((HostInfo)hostInfo), hostInfo.getName() + ": traces");
         }
     }
 }

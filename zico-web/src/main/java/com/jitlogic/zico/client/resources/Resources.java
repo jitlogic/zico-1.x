@@ -48,6 +48,12 @@ public interface Resources extends ClientBundle {
     @Source("../images/clock.png")
     ImageResource clockIcon();
 
+    @Source("../images/date-next.png")
+    ImageResource dateNext();
+
+    @Source("../images/date-previous.png")
+    ImageResource datePrev();
+
     @Source("../images/disable.png")
     ImageResource disableIcon();
 

@@ -1,0 +1,57 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'
+             xmlns:gc='urn:import:com.google.gwt.user.cellview.client'
+             xmlns:z="urn:import:com.jitlogic.zico.widgets.client">
+    <ui:with field="resources" type="com.jitlogic.zico.client.resources.Resources"/>
+    <ui:with field="wres" type="com.jitlogic.zico.widgets.client.WidgetResources"/>
+    <ui:style>
+        .toolbar {
+            display: flex;
+            padding: 3px;
+            align-items: center;
+        }
+        .filter {
+            flex: 10;
+            margin-left: 4px;
+            margin-right: 4px;
+        }
+        .item {
+            flex: 0 1 auto;
+            margin-left: 2px;
+            margin-right: 2px;
+        }
+    </ui:style>
+    <g:DockLayoutPanel unit="PX" ui:field="panel">
+        <g:north size="32">
+            <g:HTMLPanel addStyleNames="{style.toolbar} {wres.formCss.form}">
+                <z:ToolButton width="16px" height="16px" upIcon="{resources.refreshIcon}"
+                              ui:field="btnRefresh" title="Refresh data."/>
+                <g:ListBox height="21px" width="80px" multipleSelect="false"
+                           addStyleNames="{style.item}" ui:field="lstTraceType"
+                           enabled="false" title="Choose trace type"/>
+                <g:ListBox height="21px" width="240px" multipleSelect="false"
+                           addStyleNames="{style.item}" ui:field="lstTraceAttr"
+                           enabled="false" title="Choose trace attribute"/>
+                <g:Label addStyleNames="{style.filter}"/>
+                <g:Label addStyleNames="{style.item}">Max results:</g:Label>
+                <g:TextBox height="18px" width="64px" title="Max results"
+                           addStyleNames="{style.item}" ui:field="txtMaxResults"/>
+                <g:Label addStyleNames="{style.item}">Start:</g:Label>
+                <g:TextBox height="18px" width="136px" title="Start timestamp"
+                           addStyleNames="{style.item}" ui:field="txtStartDate"/>
+                <z:ToolButton upIcon="{resources.datePrev}" width="16px" height="16px"
+                              addStyleNames="{style.item}" ui:field="btnStartDate"
+                              title="Select start timestamp."/>
+                <g:Label addStyleNames="{style.item}">End:</g:Label>
+                <g:TextBox height="18px" width="136px" title="End timestamp"
+                           addStyleNames="{style.item}" ui:field="txtEndDate"/>
+                <z:ToolButton upIcon="{resources.dateNext}" width="16px" height="16px"
+                              addStyleNames="{style.item}" ui:field="btnEndDate"
+                              title="Select end timestamp."/>
+            </g:HTMLPanel>
+        </g:north>
+        <g:center>
+            <gc:DataGrid ui:field="grid"/>
+        </g:center>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

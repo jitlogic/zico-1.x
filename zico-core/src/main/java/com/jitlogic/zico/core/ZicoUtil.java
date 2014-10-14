@@ -29,11 +29,7 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class ZicoUtil {
@@ -289,5 +285,11 @@ public class ZicoUtil {
         }
 
         return ret;
+    }
+
+    public static <T> Set<T> toHashSet(Set<T> inp) {
+        Set<T> rslt = new HashSet<>();
+        rslt.addAll(inp);
+        return rslt;
     }
 }

@@ -25,15 +25,15 @@ import com.google.gwt.dom.client.BrowserEvents;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.uibinder.client.UiBinder;
 import com.google.gwt.uibinder.client.UiField;
 import com.google.gwt.uibinder.client.UiHandler;
-import com.google.gwt.user.cellview.client.Column;
-import com.google.gwt.user.cellview.client.DataGrid;
-import com.google.gwt.user.cellview.client.HasKeyboardSelectionPolicy;
-import com.google.gwt.user.cellview.client.IdentityColumn;
+import com.google.gwt.user.cellview.client.*;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.view.client.CellPreviewEvent;
 import com.google.gwt.view.client.ListDataProvider;
@@ -54,11 +54,7 @@ import org.fusesource.restygwt.client.MethodCallback;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 public class TraceSearchPanel extends Composite {
@@ -76,9 +72,6 @@ public class TraceSearchPanel extends Composite {
 
     @UiField
     ToolButton btnErrors;
-
-    @UiField
-    ToolButton btnReverse;
 
     @UiField
     ListBox lstTraceType;
@@ -123,10 +116,10 @@ public class TraceSearchPanel extends Composite {
 
     private ListDataProvider<TraceInfo> data;
     private SingleSelectionModel<TraceInfo> selection;
+    private ColumnSortEvent.ListHandler<TraceInfo> sortHandler;
+
     private TraceSearchTableBuilder rowBuilder;
     private Set<Long> expandedDetails = new HashSet<Long>();
-
-    private Map<Integer, String> traceTypes;
 
     private int seqnum = 0;
 
@@ -141,7 +134,8 @@ public class TraceSearchPanel extends Composite {
 
     @Inject
     public TraceSearchPanel(Provider<Shell> shell, TraceDataService traceDataService, SystemService systemService,
-                            PanelFactory pf, @Assisted HostInfo host, MessageDisplay md) {
+                            PanelFactory pf, @Assisted HostInfo host, MessageDisplay md,
+                            @Assisted String traceName) {
         this.shell = shell;
         this.traceDataService = traceDataService;
         this.systemService = systemService;
@@ -152,8 +146,6 @@ public class TraceSearchPanel extends Composite {
 
         this.resources = Resources.INSTANCE;
 
-        traceTypes = new HashMap<Integer, String>();
-        traceTypes.put(0, "<all>");
 
         createTraceGrid();
 
@@ -163,10 +155,16 @@ public class TraceSearchPanel extends Composite {
 
         initWidget(panel);
 
-        loadTraceTypes();
-        btnReverse.setToggled(true);
         btnFindMore.setEnabled(false);
-        refresh();
+
+        if (traceName != null) {
+            lstTraceType.addItem(traceName);
+            lstTraceType.setSelectedIndex(0);
+        } else {
+            loadTraceTypes();
+        }
+
+
     }
 
 
@@ -202,6 +200,12 @@ public class TraceSearchPanel extends Composite {
         selection = new SingleSelectionModel<TraceInfo>(KEY_PROVIDER);
         grid.setSelectionModel(selection);
 
+        data = new ListDataProvider<TraceInfo>();
+        data.addDataDisplay(grid);
+
+        sortHandler = new ColumnSortEvent.ListHandler<TraceInfo>(data.getList());
+        grid.addColumnSortHandler(sortHandler);
+
         Column<TraceInfo, TraceInfo> colExpander
                 = new IdentityColumn<TraceInfo>(DETAIL_EXPANDER_CELL);
         grid.addColumn(colExpander, "#");
@@ -211,6 +215,14 @@ public class TraceSearchPanel extends Composite {
                 = new IdentityColumn<TraceInfo>(TRACE_CLOCK_CELL);
         grid.addColumn(colTraceClock, new ResizableHeader<TraceInfo>("Clock", grid, colTraceClock));
         grid.setColumnWidth(colTraceClock, 140, Style.Unit.PX);
+
+        colTraceClock.setSortable(true);
+        sortHandler.setComparator(colTraceClock, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)(o1.getClock()-o2.getClock());
+            }
+        });
 
         Column<TraceInfo, TraceInfo> colTraceType
                 = new IdentityColumn<TraceInfo>(TRACE_TYPE_CELL);
@@ -222,20 +234,52 @@ public class TraceSearchPanel extends Composite {
         grid.addColumn(colTraceDuration, new ResizableHeader<TraceInfo>("Time", grid, colTraceDuration));
         grid.setColumnWidth(colTraceDuration, 64, Style.Unit.PX);
 
+        colTraceDuration.setSortable(true);
+        sortHandler.setComparator(colTraceDuration, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)((o1.getExecutionTime()-o2.getExecutionTime())/1000000L);
+            }
+        });
+
         Column<TraceInfo, TraceInfo> colTraceCalls
                 = new IdentityColumn<TraceInfo>(TRACE_CALLS_CELL);
         grid.addColumn(colTraceCalls, new ResizableHeader<TraceInfo>("Calls", grid, colTraceCalls));
         grid.setColumnWidth(colTraceCalls, 50, Style.Unit.PX);
+
+        colTraceCalls.setSortable(true);
+        sortHandler.setComparator(colTraceCalls, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)(o1.getCalls()-o2.getCalls());
+            }
+        });
 
         Column<TraceInfo, TraceInfo> colTraceErrors
                 = new IdentityColumn<TraceInfo>(TRACE_ERRORS_CELL);
         grid.addColumn(colTraceErrors, new ResizableHeader<TraceInfo>("Errs", grid, colTraceErrors));
         grid.setColumnWidth(colTraceErrors, 50, Style.Unit.PX);
 
+        colTraceErrors.setSortable(true);
+        sortHandler.setComparator(colTraceErrors, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)(o1.getErrors()-o2.getErrors());
+            }
+        });
+
         Column<TraceInfo, TraceInfo> colTraceRecords
                 = new IdentityColumn<TraceInfo>(TRACE_RECORDS_CELL);
         grid.addColumn(colTraceRecords, new ResizableHeader<TraceInfo>("Recs", grid, colTraceRecords));
         grid.setColumnWidth(colTraceRecords, 50, Style.Unit.PX);
+
+        colTraceRecords.setSortable(true);
+        sortHandler.setComparator(colTraceRecords, new Comparator<TraceInfo>() {
+            @Override
+            public int compare(TraceInfo o1, TraceInfo o2) {
+                return (int)(o1.getRecords()-o2.getRecords());
+            }
+        });
 
         Column<TraceInfo, TraceInfo> colTraceDesc
                 = new IdentityColumn<TraceInfo>(TRACE_NAME_CELL);
@@ -249,9 +293,6 @@ public class TraceSearchPanel extends Composite {
         grid.setSkipRowHoverFloatElementCheck(true);
         grid.setSkipRowHoverCheck(true);
         grid.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
-
-        data = new ListDataProvider<TraceInfo>();
-        data.addDataDisplay(grid);
 
         grid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceInfo>() {
             @Override
@@ -291,7 +332,6 @@ public class TraceSearchPanel extends Composite {
 
     private void createContextMenu() {
         contextMenu = new PopupMenu();
-
 
         MenuItem mnuMethodTree = new MenuItem("Method call tree", Resources.INSTANCE.methodTreeIcon(),
                 new Scheduler.ScheduledCommand() {
@@ -383,15 +423,73 @@ public class TraceSearchPanel extends Composite {
         }
     }
 
-    private void refresh() {
+    public void refresh() {
         data.getList().clear();
         expandedDetails.clear();
         loadMore();
     }
 
+    public void runSearch(String attrName, String filter, Date startDate, Date endDate) {
+        txtFilter.setValue(filter, false);
+        txtStartDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(startDate), false);
+        txtEndDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(endDate), false);
+        refresh();
+    }
+
     @UiHandler("btnFindMore")
     void findMoreClicked(ClickEvent e) {
         loadMore();
+    }
+
+    @UiHandler("btnStartDate")
+    void setStartDate(ClickEvent e) {
+        final DateTimePicker dtp = new DateTimePicker(true);
+
+        if (txtStartDate.getText().length() > 0) {
+            dtp.setValue(ClientUtil.parseDate(txtStartDate.getValue()));
+        } else {
+            Date dt = new Date();
+            dt.setTime(dt.getTime()-86400000L);
+            dtp.setValue(dt);
+        }
+
+        dtp.setPopupPosition(Window.getClientWidth()-384, e.getClientY());
+
+        dtp.addValueChangeHandler(new ValueChangeHandler<Date>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Date> event) {
+                txtStartDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(event.getValue()));
+                dtp.hide();
+                refresh();
+            }
+        });
+
+        dtp.show();
+    }
+
+    @UiHandler("btnEndDate")
+    void setEndDate(ClickEvent e) {
+        final DateTimePicker dtp = new DateTimePicker(true);
+
+        if (txtEndDate.getText().length() > 0) {
+            dtp.setValue(ClientUtil.parseDate(txtEndDate.getValue()));
+        } else {
+            Date dt = new Date();
+            dtp.setValue(dt);
+        }
+
+        dtp.setPopupPosition(Window.getClientWidth()-256, e.getClientY());
+
+        dtp.addValueChangeHandler(new ValueChangeHandler<Date>() {
+            @Override
+            public void onValueChange(ValueChangeEvent<Date> event) {
+                txtEndDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(event.getValue()));
+                dtp.hide();
+                refresh();
+            }
+        });
+
+        dtp.show();
     }
 
     private void loadMore() {
@@ -407,7 +505,6 @@ public class TraceSearchPanel extends Composite {
 
         q.setFlags(
                 (btnErrors.isToggled() ? TraceInfoSearchQuery.ERRORS_ONLY : 0)
-              | (btnReverse.isToggled() ? TraceInfoSearchQuery.ORDER_DESC : 0)
               | (btnDeepSearch.isToggled() ? TraceInfoSearchQuery.DEEP_SEARCH : 0)
               | (btnEnableEql.isToggled() ? TraceInfoSearchQuery.EQL_QUERY : 0)
         );
@@ -427,11 +524,11 @@ public class TraceSearchPanel extends Composite {
 
 
         if (txtStartDate.getText() != null) {
-            q.setStartDate(ClientUtil.parseTimestamp(txtStartDate.getText(), null));
+            q.setStartDate(ClientUtil.parseTimestamp(txtStartDate.getText()));
         }
 
         if (txtEndDate.getText() != null) {
-            q.setEndDate(ClientUtil.parseTimestamp(txtEndDate.getText(), null));
+            q.setEndDate(ClientUtil.parseTimestamp(txtEndDate.getText()));
         }
 
         if (txtDuration.getText() != null && txtDuration.getText().length() > 0) {

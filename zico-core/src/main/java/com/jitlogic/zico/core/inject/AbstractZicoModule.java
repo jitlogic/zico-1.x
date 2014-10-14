@@ -49,10 +49,10 @@ public abstract class AbstractZicoModule implements Module {
     @Singleton
     public ZicoService provideZicoService(ZicoDataProcessorFactory zcf, ZicoConfig config) {
         return new ZicoService(zcf,
-                config.stringCfg("zico.listen.addr", "0.0.0.0"),
-                config.intCfg("zico.listen.port", ZicoService.COLLECTOR_PORT),
-                config.intCfg("zico.threads.max", 32),
-                config.intCfg("zico.socket.timeout", 30000));
+                config.stringCfg("zico.listen.addr", null),
+                config.intCfg("zico.listen.port", null),
+                config.intCfg("zico.threads.max", null),
+                config.intCfg("zico.socket.timeout", null));
     }
 
     @Provides
