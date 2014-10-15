@@ -53,8 +53,9 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
     public final static String HOST_PROPERTIES = "host.properties";
 
-    private final String DB_INFO_MAP = "INFOS";
-    private final String DB_TIDS_MAP = "TIDS";
+    private final static String DB_INFO_MAP = "INFOS";
+    private final static String DB_TIDS_MAP = "TIDS";
+    private final static String DB_ATTR_MAP = "ATTR";
 
     private PersistentSymbolRegistry symbolRegistry;
 
@@ -70,6 +71,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
     private DB db;
     private BTreeMap<Long, TraceInfoRecord> infos;
+    private BTreeMap<Integer,Set<Integer>> attrs;
     private Map<Integer, String> tids;
 
     private DBFactory dbf;
@@ -134,6 +136,8 @@ public class HostStore implements Closeable, RDSCleanupListener {
             db = dbf.openDB(ZorkaUtil.path(rootPath, "traces.db"));
             infos = db.getTreeMap(DB_INFO_MAP);
             tids = db.getTreeMap(DB_TIDS_MAP);
+            attrs = db.getTreeMap(DB_ATTR_MAP);
+
         } catch (IOException e) {
             log.error("Cannot open host store " + name, e);
         }
@@ -223,6 +227,8 @@ public class HostStore implements Closeable, RDSCleanupListener {
                 dchunk.getOffset(), dchunk.getLength(),
                 ichunk.getOffset(), ichunk.getLength(),
                 rec.getAttrs() != null ? ZicoUtil.toHashSet(rec.getAttrs().keySet()) : null);
+
+        checkAttrs(tir);
 
         infos.put(tir.getDataOffs(), tir);
 
@@ -328,6 +334,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
                     TraceInfoRecord tir = new TraceInfoRecord(tr, numRecords,
                             lastPos, (int)dataLen, idxChunk.getOffset(), idxChunk.getLength(),
                             tr.getAttrs() != null ? ZicoUtil.toHashSet(tr.getAttrs().keySet()) : null);
+                    checkAttrs(tir);
                     infos.put(lastPos, tir);
                     int traceId = tir.getTraceId();
                     if (!tids.containsKey(traceId)) {
@@ -339,6 +346,20 @@ public class HostStore implements Closeable, RDSCleanupListener {
             } catch (EOFException e) {
                 // This is normal.
             }
+        }
+    }
+
+    private void checkAttrs(TraceInfoRecord tir) {
+        Set<Integer> ta = attrs.get(tir.getTraceId());
+        if (ta == null || tir.getAttrs() != null && !ta.containsAll(tir.getAttrs())) {
+            Set<Integer> nta = new HashSet<>();
+            if (ta != null) {
+                nta.addAll(ta);
+            }
+            if (tir.getAttrs() != null) {
+                nta.addAll(tir.getAttrs());
+            }
+            attrs.put(tir.getTraceId(), nta);
         }
     }
 
@@ -361,7 +382,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
         return infos;
     }
 
-    public Map<Integer,Set<Integer>> getTraceAttrIds() {
+    public Map<Integer,Set<Integer>> scanTraceAttrIds() {
 
         Map<Integer,Set<Integer>> rslt = new HashMap<>();
 
@@ -379,6 +400,13 @@ public class HostStore implements Closeable, RDSCleanupListener {
             }
         }
 
+        return rslt;
+    }
+
+    // To be used later
+    public Map<Integer,Set<Integer>> getTraceAttrIds() {
+        Map<Integer,Set<Integer>> rslt = new HashMap<>();
+        rslt.putAll(attrs);
         return rslt;
     }
 
