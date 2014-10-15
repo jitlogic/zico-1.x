@@ -298,10 +298,10 @@ public class HostStore implements Closeable, RDSCleanupListener {
                 } catch (Exception e) {
                     log.error("Error processing file " + f + " ; all traces saved in this file will be dropped.", e);
                 }
-                db.commit();
             }
         }
 
+        db.commit();
         close();
 
         flags &= ~HostInfo.CHK_IN_PROGRESS;
