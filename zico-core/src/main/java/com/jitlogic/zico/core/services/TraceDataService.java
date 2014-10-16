@@ -80,12 +80,12 @@ public class TraceDataService {
 
 
     @GET
-    @Path("/attrs/{host}")
+    @Path("/attrs/{host}/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Map<Integer,Map<String,Integer>> attrNames(@PathParam("host") String hostName) {
+    public List<SymbolInfo> attrNames(@PathParam("host") String hostName, @PathParam("id") int traceId) {
         userContext.checkHostAccess(hostName);
         HostStore host = storeManager.getHost(hostName, false);
-        return host.getTraceAttrNames();
+        return host.getTraceAttrNames(traceId);
     }
 
 

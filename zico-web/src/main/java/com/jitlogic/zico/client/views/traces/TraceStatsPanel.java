@@ -98,8 +98,6 @@ public class TraceStatsPanel extends Composite {
 
     private MessageDisplay md;
 
-    private Map<Integer,Map<String,Integer>> traceAttrs;
-
     private SingleSelectionModel<TraceInfoStatsResult> selection;
     private ListDataProvider<TraceInfoStatsResult> data;
     private ColumnSortEvent.ListHandler<TraceInfoStatsResult> sortHandler;
@@ -120,8 +118,6 @@ public class TraceStatsPanel extends Composite {
 
         this.resources = Resources.INSTANCE;
         this.MDS = "TraceStats:" + host.getName();
-
-        traceAttrs = new HashMap<Integer,Map<String,Integer>>();
 
         createTraceGrid();
 
@@ -298,17 +294,26 @@ public class TraceStatsPanel extends Composite {
     @UiHandler("lstTraceType")
     void onTraceTypeChange(ChangeEvent ev) {
         lstTraceAttr.clear();
-        int id = Integer.parseInt(lstTraceType.getValue(lstTraceType.getSelectedIndex()));
-        Map<String,Integer> attrs = traceAttrs.get(id);
-        if (attrs != null) {
-            List<String> names = new ArrayList<String>();
-            names.addAll(attrs.keySet());
-            Collections.sort(names);
-            lstTraceAttr.addItem("<select attribute>", "0");
-            for (String name : names) {
-                lstTraceAttr.addItem(name, attrs.get(name).toString());
-            }
-        }
+        lstTraceAttr.setEnabled(false);
+        final int id = Integer.parseInt(lstTraceType.getValue(lstTraceType.getSelectedIndex()));
+        traceDataService.attrNames(host.getName(), id,
+            new MethodCallback<List<SymbolInfo>>() {
+                @Override
+                public void onFailure(Method method, Throwable e) {
+                    md.error(MDS, "Cannot load attribute names for host " + host.getName()
+                            + " and trace " + lstTraceType.getItemText(lstTraceType.getSelectedIndex())
+                            + " (id=" + id + ")", e);
+                }
+
+                @Override
+                public void onSuccess(Method method, List<SymbolInfo> response) {
+                    lstTraceAttr.addItem("<select attribute>", "0");
+                    for (SymbolInfo sym : response) {
+                        lstTraceAttr.addItem(sym.getName(), ""+sym.getId());
+                    }
+                    lstTraceAttr.setEnabled(true);
+                }
+            });
     }
 
 
@@ -437,18 +442,6 @@ public class TraceStatsPanel extends Composite {
                     lstTraceType.addItem(e.getName(), "" + e.getId());
                 }
                 lstTraceType.setEnabled(true);
-            }
-        });
-        traceDataService.attrNames(host.getName(), new MethodCallback<Map<Integer, Map<String,Integer>>>() {
-            @Override
-            public void onFailure(Method method, Throwable e) {
-                md.error(MDS, "Error loading attribute names", e);
-            }
-
-            @Override
-            public void onSuccess(Method method, Map<Integer, Map<String,Integer>> response) {
-                traceAttrs = response;
-                lstTraceAttr.setEnabled(true);
             }
         });
     }

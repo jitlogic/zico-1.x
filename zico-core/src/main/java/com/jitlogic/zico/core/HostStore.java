@@ -426,6 +426,28 @@ public class HostStore implements Closeable, RDSCleanupListener {
         return rslt;
     }
 
+    public List<SymbolInfo> getTraceAttrNames(int traceId) {
+        List<SymbolInfo> lst = new ArrayList<>(attrs.size());
+
+        if (attrs.containsKey(traceId)) {
+            for (Integer id : attrs.get(traceId)) {
+                String name = symbolRegistry.symbolName(id);
+                if (name != null) {
+                    lst.add(new SymbolInfo(id, name));
+                }
+            }
+        }
+
+        Collections.sort(lst, new Comparator<SymbolInfo>() {
+            @Override
+            public int compare(SymbolInfo o1, SymbolInfo o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
+        return lst;
+    }
+
     // TODO factor out stats() functionality into separate class
     public List<TraceInfoStatsResult> stats(TraceInfoStatsQuery query) throws IOException {
 
