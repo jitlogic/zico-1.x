@@ -50,7 +50,7 @@ public class UserService {
     @Path("/{username}")
     public UserInfo get(@PathParam("username") String username) {
         userContext.checkAdmin();
-        return userManager.find(username);
+        return userManager.find(username.toUpperCase());
     }
 
     @PUT
@@ -58,7 +58,7 @@ public class UserService {
     @Consumes(MediaType.APPLICATION_JSON)
     public void update(@PathParam("username") String username, UserInfo userInfo) {
         userContext.checkAdmin();
-        UserInfo user = userManager.find(username);
+        UserInfo user = userManager.find(username.toUpperCase());
         if (user != null) {
             userManager.persist(userInfo);
         }
