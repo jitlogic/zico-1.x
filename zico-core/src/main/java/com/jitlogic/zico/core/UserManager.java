@@ -58,6 +58,7 @@ public class UserManager {
 
     private DBFactory dbf;
 
+
     @Inject
     public UserManager(ZicoConfig config, DBFactory dbf) {
 
@@ -100,7 +101,7 @@ public class UserManager {
                 JSONArray names = json.names();
                 for (int i = 0; i < names.length(); i++) {
                     UserInfo user = fromJSON(json.getJSONObject(names.getString(i)));
-                    users.put(user.getUserName(), user);
+                    users.put(user.getUserName().toUpperCase(), user);
                 }
                 db.commit();
                 log.info("User DB import finished successfully.");
@@ -130,6 +131,7 @@ public class UserManager {
 
     }
 
+
     private void updateRealm(String username, String password, boolean isAdmin) {
         if (userRealm != null && mUpdate != null) {
             try {
@@ -139,6 +141,7 @@ public class UserManager {
             }
         }
     }
+
 
     public synchronized void close() {
         if (db != null) {
@@ -180,8 +183,6 @@ public class UserManager {
     }
 
 
-
-
     public List<UserInfo> findAll() {
         List<UserInfo> lst = new ArrayList<UserInfo>(users.size());
         lst.addAll(users.values());
@@ -190,7 +191,7 @@ public class UserManager {
 
 
     public void persist(UserInfo user) {
-        users.put(user.getUserName(), user);
+        users.put(user.getUserName().toUpperCase(), user);
         db.commit();
 
         updateRealm(user.getUserName(), user.getPassword(), user.isAdmin());
@@ -206,9 +207,10 @@ public class UserManager {
             }
         }
 
-        users.remove(user.getUserName());
+        users.remove(user.getUserName().toUpperCase());
         db.commit();
     }
+
 
     public static UserInfo fromJSON(JSONObject obj)  throws JSONException {
         UserInfo u = new UserInfo();
@@ -228,6 +230,7 @@ public class UserManager {
         u.setAllowedHosts(allowedHosts);
         return u;
     }
+
 
     public static JSONObject toJSON(UserInfo u) {
         JSONObject json = new JSONObject();
