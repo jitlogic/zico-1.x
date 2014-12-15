@@ -233,6 +233,7 @@ public class TraceSearchPanel extends Composite {
                 = new IdentityColumn<TraceInfo>(TRACE_DURATION_CELL);
         grid.addColumn(colTraceDuration, new ResizableHeader<TraceInfo>("Time", grid, colTraceDuration));
         grid.setColumnWidth(colTraceDuration, 64, Style.Unit.PX);
+        colTraceDuration.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
 
         colTraceDuration.setSortable(true);
         sortHandler.setComparator(colTraceDuration, new Comparator<TraceInfo>() {
@@ -598,6 +599,7 @@ public class TraceSearchPanel extends Composite {
     };
 
     private final static String SMALL_CELL_CSS = Resources.INSTANCE.zicoCssResources().traceSmallCell();
+    private final static String SMALL_CELL_CSS_R = Resources.INSTANCE.zicoCssResources().traceSmallCellR();
     private static final String EXPANDER_EXPAND = AbstractImagePrototype.create(Resources.INSTANCE.expanderExpand()).getHTML();
     private static final String EXPANDER_COLLAPSE = AbstractImagePrototype.create(Resources.INSTANCE.expanderCollapse()).getHTML();
 
@@ -649,7 +651,7 @@ public class TraceSearchPanel extends Composite {
     private AbstractCell<TraceInfo> TRACE_DURATION_CELL = new AbstractCell<TraceInfo>() {
         @Override
         public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
-            sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
+            sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS_R + "\">");
             sb.append(SafeHtmlUtils.fromString(ClientUtil.formatDuration(rec.getExecutionTime())));
             sb.appendHtmlConstant("</div>");
         }
@@ -658,7 +660,7 @@ public class TraceSearchPanel extends Composite {
     private AbstractCell<TraceInfo> TRACE_CALLS_CELL = new AbstractCell<TraceInfo>() {
         @Override
         public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
-            sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
+            sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS_R + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getCalls()));
             sb.appendHtmlConstant("</div>");
         }
@@ -667,7 +669,7 @@ public class TraceSearchPanel extends Composite {
     private AbstractCell<TraceInfo> TRACE_RECORDS_CELL = new AbstractCell<TraceInfo>() {
         @Override
         public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
-            sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
+            sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS_R + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getRecords()));
             sb.appendHtmlConstant("</div>");
         }
@@ -676,7 +678,7 @@ public class TraceSearchPanel extends Composite {
     private AbstractCell<TraceInfo> TRACE_ERRORS_CELL = new AbstractCell<TraceInfo>() {
         @Override
         public void render(Context context, TraceInfo rec, SafeHtmlBuilder sb) {
-            sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS + "\">");
+            sb.appendHtmlConstant("<div class=\"" + SMALL_CELL_CSS_R + "\">");
             sb.append(SafeHtmlUtils.fromString("" + rec.getErrors()));
             sb.appendHtmlConstant("</div>");
         }

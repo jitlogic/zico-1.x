@@ -1,7 +1,7 @@
 
 
 .methodDetailCell, .methodAttributeKey, .methodAttributeVal, .methodErrorClassName,
-.methodErrorMessage, .methodErrorStack, .traceSmallCell {
+.methodErrorMessage, .methodErrorStack, .traceSmallCell .traceSmallCellR {
     font-family: tahoma,arial,verdana,sans-serif;
     font-size: 11px;
     -moz-user-select: none;
@@ -11,6 +11,7 @@
     -ms-user-select: none;
 
 }
+
 
 .methodDetailCell {
     white-space: nowrap;
@@ -43,3 +44,7 @@
     margin-top: 3px;
 }
 
+.traceSmallCellR {
+    text-align: right;
+    margin-top: 3px;
+}

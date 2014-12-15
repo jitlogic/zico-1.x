@@ -38,8 +38,14 @@ public class ClientUtil {
         return TSTAMP_FORMAT2.format(new Date(clock));
     }
 
-
     public static String formatDuration(Long time) {
+        long t = time / 1000000L;
+
+        return NumberFormat.getFormat("#,##0").format(t);
+    }
+
+
+    public static String formatDurationOld(Long time) {
         double t = 1.0 * time / 1000000.0;
         String u = "ms";
 

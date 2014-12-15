@@ -243,16 +243,22 @@ public class TraceDataService {
 
     }
 
-    private void packRecords(SymbolRegistry symbolRegistry, String path, TraceRecordStore ctx, TraceRecord tr,
+    private long packRecords(SymbolRegistry symbolRegistry, String path,
+                             TraceRecordStore ctx, TraceRecord tr,
                              List<TraceRecordInfo> lst, boolean recursive) {
+        long ctime = 0;
         for (int i = 0; i < tr.numChildren(); i++) {
             TraceRecord child = tr.getChild(i);
+            ctime += child.getTime();
             String childPath = path.length() > 0 ? (path + "/" + i) : "" + i;
-            lst.add(ZicoUtil.packTraceRecord(symbolRegistry, child, childPath, 250));
+            TraceRecordInfo tri = ZicoUtil.packTraceRecord(symbolRegistry, child, childPath, 250);
+            lst.add(tri);
             if (recursive && child.numChildren() > 0) {
-                packRecords(symbolRegistry, childPath, ctx, child, lst, recursive);
+                tri.setCtime(child.getTime()-packRecords(symbolRegistry, childPath, ctx, child, lst, recursive));
             }
         }
+
+        return ctime;
     }
 
 }
