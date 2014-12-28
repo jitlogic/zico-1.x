@@ -48,13 +48,13 @@ public class TraceInfoRecord implements Serializable {
 
     private int rflags;
 
-    private Set<Integer> attrs;
+    private int[] attrs;
 
     public TraceInfoRecord() {
     }
 
 
-    public TraceInfoRecord(TraceRecord tr, int numRecords, long dataOffs, int dataLen, long indexOffs, int indexLen, Set<Integer> attrs) {
+    public TraceInfoRecord(TraceRecord tr, int numRecords, long dataOffs, int dataLen, long indexOffs, int indexLen, int[] attrs) {
         this.dataOffs = dataOffs;
         this.dataLen = dataLen;
         this.indexOffs = indexOffs;
@@ -123,7 +123,7 @@ public class TraceInfoRecord implements Serializable {
         return rflags;
     }
 
-    public Set<Integer> getAttrs() {
+    public int[] getAttrs() {
         return attrs;
     }
 

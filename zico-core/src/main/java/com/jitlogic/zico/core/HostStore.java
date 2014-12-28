@@ -130,7 +130,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
             }
 
             if (traceIndexStore == null) {
-                traceIndexStore = new TraceRecordStore(config, this, "tidx", 16);
+                traceIndexStore = new TraceRecordStore(config, this, "tidx", 4);
             }
 
             db = dbf.openDB(ZorkaUtil.path(rootPath, "traces.db"));
@@ -226,7 +226,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
         TraceInfoRecord tir = new TraceInfoRecord(rec,numRecords,
                 dchunk.getOffset(), dchunk.getLength(),
                 ichunk.getOffset(), ichunk.getLength(),
-                rec.getAttrs() != null ? ZicoUtil.toHashSet(rec.getAttrs().keySet()) : null);
+                rec.getAttrs() != null ? ZicoUtil.toIntArray(rec.getAttrs().keySet()) : null);
 
         checkAttrs(tir);
 
@@ -333,7 +333,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
                     TraceRecordStore.ChunkInfo idxChunk = traceIndexStore.write(tr);
                     TraceInfoRecord tir = new TraceInfoRecord(tr, numRecords,
                             lastPos, (int)dataLen, idxChunk.getOffset(), idxChunk.getLength(),
-                            tr.getAttrs() != null ? ZicoUtil.toHashSet(tr.getAttrs().keySet()) : null);
+                            tr.getAttrs() != null ? ZicoUtil.toIntArray(tr.getAttrs().keySet()) : null);
                     checkAttrs(tir);
                     infos.put(lastPos, tir);
                     int traceId = tir.getTraceId();
@@ -351,13 +351,15 @@ public class HostStore implements Closeable, RDSCleanupListener {
 
     private void checkAttrs(TraceInfoRecord tir) {
         Set<Integer> ta = attrs.get(tir.getTraceId());
-        if (ta == null || tir.getAttrs() != null && !ta.containsAll(tir.getAttrs())) {
+        if (ta == null || tir.getAttrs() != null && !ZicoUtil.containsAll(ta, tir.getAttrs())) {
             Set<Integer> nta = new HashSet<>();
             if (ta != null) {
                 nta.addAll(ta);
             }
             if (tir.getAttrs() != null) {
-                nta.addAll(tir.getAttrs());
+                for (int i : tir.getAttrs()) {
+                    nta.add(i);
+                }
             }
             attrs.put(tir.getTraceId(), nta);
         }
@@ -396,7 +398,10 @@ public class HostStore implements Closeable, RDSCleanupListener {
             }
 
             if (tir.getAttrs() != null) {
-                rslt.get(tid).addAll(tir.getAttrs());
+                Set<Integer> ids = rslt.get(tid);
+                for (int i : tir.getAttrs()) {
+                    ids.add(i);
+                }
             }
         }
 
@@ -467,7 +472,7 @@ public class HostStore implements Closeable, RDSCleanupListener {
             }
 
             if (tir.getTraceId() == query.getTraceId() && tir.getAttrs() != null
-                    && tir.getAttrs().contains(query.getAttrId())) {
+                    && ZicoUtil.contains(tir.getAttrs(), query.getAttrId())) {
 
                 TraceRecord idxtr = traceIndexStore.read(tir.getIndexChunk());
 
