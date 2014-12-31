@@ -68,9 +68,6 @@ public class TraceSearchPanel extends Composite {
     Resources resources;
 
     @UiField
-    ToolButton btnDeepSearch;
-
-    @UiField
     ToolButton btnErrors;
 
     @UiField
@@ -156,6 +153,7 @@ public class TraceSearchPanel extends Composite {
         initWidget(panel);
 
         btnFindMore.setEnabled(false);
+        btnErrors.setToggled(true);
 
         if (traceName != null) {
             lstTraceType.addItem(traceName);
@@ -367,7 +365,6 @@ public class TraceSearchPanel extends Composite {
 
     private void intoSearchMode(boolean inSearch, final boolean moreResults, String message) {
         seqnum++;
-        btnDeepSearch.setEnabled(!inSearch);
         btnErrors.setEnabled(!inSearch);
         lstTraceType.setEnabled(!inSearch);
         txtDuration.setEnabled(!inSearch);
@@ -437,6 +434,9 @@ public class TraceSearchPanel extends Composite {
         refresh();
     }
 
+    @UiHandler("btnErrors")
+    void toggleErrors(ClickEvent e) { refresh(); }
+
     @UiHandler("btnFindMore")
     void findMoreClicked(ClickEvent e) {
         loadMore();
@@ -505,8 +505,7 @@ public class TraceSearchPanel extends Composite {
         q.setSeq(seqnum);
 
         q.setFlags(TraceInfoSearchQuery.ORDER_DESC |
-                (btnErrors.isToggled() ? TraceInfoSearchQuery.ERRORS_ONLY : 0)
-              | (btnDeepSearch.isToggled() ? TraceInfoSearchQuery.DEEP_SEARCH : 0)
+                (btnErrors.isToggled() ? 0 : TraceInfoSearchQuery.ERRORS_ONLY)
               | (btnEnableEql.isToggled() ? TraceInfoSearchQuery.EQL_QUERY : 0)
         );
 
