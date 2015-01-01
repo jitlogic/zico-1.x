@@ -30,8 +30,8 @@ public interface TraceDataService extends RestService {
     @Path("traces/search")
     void search(TraceInfoSearchQuery query, MethodCallback<TraceInfoSearchResult> result);
 
-    @GET @Path("traces/attrs/{host}")
-    void attrNames(@PathParam("host") String host, MethodCallback<Map<Integer,Map<String,Integer>>> cb);
+    @GET @Path("traces/attrs/{host}/{id}")
+    void attrNames(@PathParam("host") String host, @PathParam("id") int id, MethodCallback<List<SymbolInfo>> cb);
 
     @POST @Path("traces/stats")
     void statTraces(TraceInfoStatsQuery query, MethodCallback<List<TraceInfoStatsResult>> cb);

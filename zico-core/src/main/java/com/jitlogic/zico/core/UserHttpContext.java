@@ -53,7 +53,7 @@ public class UserHttpContext implements UserContext {
             String username = ZicoRequestContextFilter.getRequest().getRemoteUser();
 
             if (username != null) {
-                UserInfo user = userManager.find(username);
+                UserInfo user = userManager.find(username.toUpperCase());
                 if (user != null) {
                     return user;
                 }

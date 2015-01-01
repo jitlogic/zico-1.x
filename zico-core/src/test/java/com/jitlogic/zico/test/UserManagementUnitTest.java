@@ -66,7 +66,7 @@ public class UserManagementUnitTest extends ZicoFixture {
     public void testCreateCheckAndModifyUser() {
         userService.create(mkuser("test", "Test User", "1qaz2wsx", true, "host1", "host2", "host3", "host4"));
 
-        UserInfo user = userService.get("test");
+        UserInfo user = userService.get("TEST");
 
         assertEquals("test", user.getUserName());
         assertEquals(Arrays.asList("host1", "host2", "host3", "host4"), user.getAllowedHosts());
@@ -79,12 +79,12 @@ public class UserManagementUnitTest extends ZicoFixture {
     public void testManageAllowedHosts() {
         userService.create(mkuser("test", "Test User", "1qaz2wsx", true, "host1", "host2", "host3", "host4"));
 
-        assertEquals(4, userService.get("test").getAllowedHosts().size());
+        assertEquals(4, userService.get("TEST").getAllowedHosts().size());
 
-        UserInfo user = userService.get("test");
+        UserInfo user = userService.get("TEST");
         user.setAllowedHosts(Arrays.asList("a", "b", "c"));
         userService.update(user.getUserName(), user);
-        assertEquals(3, userService.get("test").getAllowedHosts().size());
+        assertEquals(3, userService.get("TEST").getAllowedHosts().size());
     }
 
 
@@ -113,7 +113,7 @@ public class UserManagementUnitTest extends ZicoFixture {
         userService.create(mkuser("test", "Test User", "noPass", true, "host1", "host2", "host3", "host4"));
         UserManager uman = injector.getInstance(UserManager.class);
         uman.close(); uman.open();
-        assertNotNull("User account should persist across restarts", userService.get("test"));
+        assertNotNull("User account should persist across restarts", userService.get("TEST"));
     }
 
 
@@ -124,7 +124,7 @@ public class UserManagementUnitTest extends ZicoFixture {
         userManager.close();
         userManager.open();
 
-        UserInfo user = userManager.find("test");
+        UserInfo user = userManager.find("TEST");
         assertNotNull(user);
         //assertEquals("noPass", user.getPassword());
         assertEquals(Arrays.asList("host1", "host2", "host3", "host4"), user.getAllowedHosts());
@@ -145,7 +145,7 @@ public class UserManagementUnitTest extends ZicoFixture {
 
         userManager.open();
 
-        UserInfo user = userManager.find("test");
+        UserInfo user = userManager.find("TEST");
         assertNotNull(user);
         assertEquals(Arrays.asList("host1", "host2", "host3", "host4"), user.getAllowedHosts());
     }

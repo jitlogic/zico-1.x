@@ -25,9 +25,6 @@
     <g:DockLayoutPanel unit="PX" ui:field="panel">
         <g:north size="32">
             <g:HTMLPanel addStyleNames="{style.toolbar} {wres.formCss.form}">
-                <z:ToolButton width="16px" height="16px" upIcon="{resources.methodTreeIcon}" toggleMode="true"
-                              addStyleNames="{style.item}" ui:field="btnDeepSearch"/>
-                <z:ToolSeparator height="20px"/>
                 <z:ToolButton width="16px" height="16px" upIcon="{resources.errorMarkIcon}" toggleMode="true"
                               addStyleNames="{style.item}" ui:field="btnErrors"
                               title="Search only error traces"/>

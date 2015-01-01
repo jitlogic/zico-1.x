@@ -36,6 +36,9 @@ public class TraceRecordInfo {
     long time;
 
     @JsonProperty
+    long ctime;
+
+    @JsonProperty
     int flags;
 
     @JsonProperty
@@ -82,6 +85,14 @@ public class TraceRecordInfo {
 
     public void setTime(long time) {
         this.time = time;
+    }
+
+    public long getCtime() {
+        return ctime;
+    }
+
+    public void setCtime(long ctime) {
+        this.ctime = ctime;
     }
 
     public int getFlags() {

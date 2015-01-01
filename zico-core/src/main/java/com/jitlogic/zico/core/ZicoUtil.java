@@ -292,4 +292,36 @@ public class ZicoUtil {
         rslt.addAll(inp);
         return rslt;
     }
+
+    public static int[] toIntArray(Set<Integer> is) {
+        int[] rslt = new int[is.size()];
+        Iterator<Integer> iter = is.iterator();
+        for (int i = 0; i < rslt.length; i++) {
+            Integer x = iter.next();
+            if (x != null) {
+                rslt[i] = x;
+            }
+        }
+        return rslt;
+    }
+
+    public static boolean containsAll(Set<Integer> c, int[] a) {
+
+        for (int i : a) {
+            if (!c.contains(i)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean contains(int[] a, int x) {
+        for (int i : a) {
+            if (i == x) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

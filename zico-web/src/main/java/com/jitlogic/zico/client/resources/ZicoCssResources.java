@@ -32,4 +32,6 @@ public interface ZicoCssResources  extends CssResource {
     String methodErrorStack();
 
     String traceSmallCell();
+
+    String traceSmallCellR();
 }

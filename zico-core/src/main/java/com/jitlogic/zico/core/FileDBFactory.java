@@ -9,7 +9,7 @@ public class FileDBFactory implements DBFactory {
 
     @Override
     public DB openDB(String path) {
-        return DBMaker.newFileDB(new File(path)).closeOnJvmShutdown().make();
+        return DBMaker.newFileDB(new File(path)).closeOnJvmShutdown().cacheSize(8192).make();
     }
 
     @Override
