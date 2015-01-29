@@ -179,7 +179,7 @@ public class UserManager {
 
 
     public UserInfo find(String username) {
-        return users.get(username);
+        return users.get(username.toUpperCase());
     }
 
 
