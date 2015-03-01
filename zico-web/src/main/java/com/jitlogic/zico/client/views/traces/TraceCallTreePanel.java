@@ -1,5 +1,5 @@
 /**
- * Copyright 2012-2014 Rafal Lewczuk <rafal.lewczuk@jitlogic.com>
+ * Copyright 2012-2015 Rafal Lewczuk <rafal.lewczuk@jitlogic.com>
  * <p/>
  * This is free software. You can redistribute it and/or modify it under the
  * terms of the GNU General Public License as published by the Free Software
@@ -317,7 +317,8 @@ public class TraceCallTreePanel extends Composite {
     }
 
 
-    private void loadData(final boolean recursive, final Runnable action) {
+    private void
+    loadData(final boolean recursive, final Runnable action) {
 
         if (recursive) {
             btnExpandAll.setEnabled(false);
