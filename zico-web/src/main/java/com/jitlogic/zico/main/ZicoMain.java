@@ -17,9 +17,9 @@ package com.jitlogic.zico.main;
 
 
 
-import org.eclipse.jetty.security.ConstraintMapping;
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.LoginService;
+import com.jitlogic.zorka.common.util.ZorkaUtil;
+import org.eclipse.jetty.jaas.JAASLoginService;
+import org.eclipse.jetty.security.*;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
@@ -103,6 +103,35 @@ public class ZicoMain {
     }
 
 
+    private void initJAASSecurity() {
+
+        System.setProperty("java.security.auth.login.config", ZorkaUtil.path(homeDir, "login.conf"));
+
+        Constraint constraint = new Constraint();
+        constraint.setName(Constraint.__FORM_AUTH);
+        constraint.setRoles(new String[]{"VIEWER","ADMIN",props.getProperty("auth.jaas.group", "ZicoUsers")});
+        constraint.setAuthenticate(true);
+
+        ConstraintMapping mapping = new ConstraintMapping();
+        mapping.setConstraint(constraint);
+        mapping.setPathSpec("/*");
+
+        FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/login-fail.html", false);
+
+        JAASLoginService service = new JAASLoginService("zico");
+        service.setLoginModuleName(props.getProperty("auth.jaas.module", "zico"));
+        service.setIdentityService(new DefaultIdentityService());
+
+
+        ConstraintSecurityHandler handler = new ConstraintSecurityHandler();
+        handler.addConstraintMapping(mapping);
+        handler.setLoginService(service);
+        handler.setAuthenticator(authenticator);
+
+        webapp.setSecurityHandler(handler);
+    }
+
+
     private void initCasSecurity() {
         FilterHolder authFilter = webapp.addFilter(
                 "org.jasig.cas.client.authentication.AuthenticationFilter", "/*",
@@ -132,11 +161,14 @@ public class ZicoMain {
         if ("anonymous".equalsIgnoreCase(auth)) {
             System.err.println("Starting SLAC without any authentication (fake user).");
         } else if ("form".equalsIgnoreCase(auth)) {
-            System.err.println("Starting SLAC with FORM security.");
+            System.err.println("Starting ZICO with FORM security.");
             initFormSecurity();
         } else if ("cas".equalsIgnoreCase(auth)) {
-            System.err.println("Starting SLAC with CAS security.");
+            System.err.println("Starting ZICO with CAS security.");
             initCasSecurity();
+        } else if ("jaas".equalsIgnoreCase(auth)) {
+            System.err.println("Starting ZICO with JAAS security.mc");
+            initJAASSecurity();
         }
 
     }
