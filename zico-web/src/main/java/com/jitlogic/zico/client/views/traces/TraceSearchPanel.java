@@ -172,7 +172,7 @@ public class TraceSearchPanel extends Composite {
         refresh();
     }
 
-    @UiHandler({"txtDuration", "txtFilter", "txtStartDate"})
+    @UiHandler({"txtDuration", "txtFilter", "txtStartDate", "txtEndDate"})
     void onTapEnter(KeyDownEvent e) {
         if (e.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
             refresh();
