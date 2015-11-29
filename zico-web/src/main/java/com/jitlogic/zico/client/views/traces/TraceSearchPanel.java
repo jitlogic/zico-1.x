@@ -172,7 +172,7 @@ public class TraceSearchPanel extends Composite {
         refresh();
     }
 
-    @UiHandler({"txtDuration", "txtFilter", "txtStartDate"})
+    @UiHandler({"txtDuration", "txtFilter", "txtStartDate", "txtEndDate"})
     void onTapEnter(KeyDownEvent e) {
         if (e.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
             refresh();
@@ -188,7 +188,7 @@ public class TraceSearchPanel extends Composite {
     void onClearClick(ClickEvent e) {
         txtFilter.setText("");
         txtDuration.setText("");
-        btnErrors.setToggled(false);
+        btnErrors.setToggled(true);
         strTraceType = null;
         refresh();
     }
@@ -216,7 +216,6 @@ public class TraceSearchPanel extends Composite {
 
         colTraceClock.setSortable(true);
         sortHandler.setComparator(colTraceClock, new Comparator<TraceInfo>() {
-            @Override
             public int compare(TraceInfo o1, TraceInfo o2) {
                 return (int)(o1.getClock()-o2.getClock());
             }
@@ -235,7 +234,6 @@ public class TraceSearchPanel extends Composite {
 
         colTraceDuration.setSortable(true);
         sortHandler.setComparator(colTraceDuration, new Comparator<TraceInfo>() {
-            @Override
             public int compare(TraceInfo o1, TraceInfo o2) {
                 return (int)((o1.getExecutionTime()-o2.getExecutionTime())/1000000L);
             }
@@ -248,7 +246,6 @@ public class TraceSearchPanel extends Composite {
 
         colTraceCalls.setSortable(true);
         sortHandler.setComparator(colTraceCalls, new Comparator<TraceInfo>() {
-            @Override
             public int compare(TraceInfo o1, TraceInfo o2) {
                 return (int)(o1.getCalls()-o2.getCalls());
             }
@@ -261,7 +258,6 @@ public class TraceSearchPanel extends Composite {
 
         colTraceErrors.setSortable(true);
         sortHandler.setComparator(colTraceErrors, new Comparator<TraceInfo>() {
-            @Override
             public int compare(TraceInfo o1, TraceInfo o2) {
                 return (int)(o1.getErrors()-o2.getErrors());
             }
@@ -274,7 +270,6 @@ public class TraceSearchPanel extends Composite {
 
         colTraceRecords.setSortable(true);
         sortHandler.setComparator(colTraceRecords, new Comparator<TraceInfo>() {
-            @Override
             public int compare(TraceInfo o1, TraceInfo o2) {
                 return (int)(o1.getRecords()-o2.getRecords());
             }
@@ -294,7 +289,6 @@ public class TraceSearchPanel extends Composite {
         grid.setKeyboardSelectionPolicy(HasKeyboardSelectionPolicy.KeyboardSelectionPolicy.DISABLED);
 
         grid.addCellPreviewHandler(new CellPreviewEvent.Handler<TraceInfo>() {
-            @Override
             public void onCellPreview(CellPreviewEvent<TraceInfo> event) {
                 NativeEvent nev = event.getNativeEvent();
                 String eventType = nev.getType();
@@ -316,13 +310,11 @@ public class TraceSearchPanel extends Composite {
         });
 
         grid.addDomHandler(new DoubleClickHandler() {
-            @Override
             public void onDoubleClick(DoubleClickEvent event) {
                 event.preventDefault();
             }
         }, DoubleClickEvent.getType());
         grid.addDomHandler(new ContextMenuHandler() {
-            @Override
             public void onContextMenu(ContextMenuEvent event) {
                 event.preventDefault();
             }
@@ -334,7 +326,6 @@ public class TraceSearchPanel extends Composite {
 
         MenuItem mnuMethodTree = new MenuItem("Method call tree", Resources.INSTANCE.methodTreeIcon(),
                 new Scheduler.ScheduledCommand() {
-                    @Override
                     public void execute() {
                         openDetailView();
                     }
@@ -343,7 +334,6 @@ public class TraceSearchPanel extends Composite {
 
         MenuItem mnuMethodRank = new MenuItem("Method call stats", Resources.INSTANCE.methodRankIcon(),
                 new Scheduler.ScheduledCommand() {
-                    @Override
                     public void execute() {
                         openRankingView();
                     }
@@ -354,7 +344,6 @@ public class TraceSearchPanel extends Composite {
 
         MenuItem mnuMethodAttrs = new MenuItem("Trace Attributes", Resources.INSTANCE.methodAttrsIcon(),
                 new Scheduler.ScheduledCommand() {
-                    @Override
                     public void execute() {
                         openMethodAttrsDialog();
                     }
@@ -377,7 +366,6 @@ public class TraceSearchPanel extends Composite {
         if (inSearch) {
             md.info(MDS, message, "Cancel",
                     new Scheduler.ScheduledCommand() {
-                        @Override
                         public void execute() {
                             intoSearchMode(false, moreResults, "Search canceled.");
                         }
@@ -386,7 +374,6 @@ public class TraceSearchPanel extends Composite {
         } else if (moreResults) {
             md.info(MDS, message, "More",
                     new Scheduler.ScheduledCommand() {
-                        @Override
                         public void execute() {
                             loadMore(100);
                         }
@@ -457,7 +444,6 @@ public class TraceSearchPanel extends Composite {
         dtp.setPopupPosition(Window.getClientWidth()-384, e.getClientY());
 
         dtp.addValueChangeHandler(new ValueChangeHandler<Date>() {
-            @Override
             public void onValueChange(ValueChangeEvent<Date> event) {
                 txtStartDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(event.getValue()));
                 dtp.hide();
@@ -482,7 +468,6 @@ public class TraceSearchPanel extends Composite {
         dtp.setPopupPosition(Window.getClientWidth()-256, e.getClientY());
 
         dtp.addValueChangeHandler(new ValueChangeHandler<Date>() {
-            @Override
             public void onValueChange(ValueChangeEvent<Date> event) {
                 txtEndDate.setValue(ClientUtil.TSTAMP_FORMAT1.format(event.getValue()));
                 dtp.hide();
@@ -537,13 +522,11 @@ public class TraceSearchPanel extends Composite {
 
         md.info(MDS, "Searching for traces ...");
         traceDataService.search(q, new MethodCallback<TraceInfoSearchResult>() {
-            @Override
             public void onFailure(Method method, Throwable e) {
                 intoSearchMode(false, false, "Error occured while searching: " + e.getMessage());
                 md.error(MDS, "Trace search request failed", e);
             }
 
-            @Override
             public void onSuccess(Method method, TraceInfoSearchResult response) {
                 if (response.getSeq() == seqnum) {
                     List<TraceInfo> results = response.getResults();
@@ -564,12 +547,10 @@ public class TraceSearchPanel extends Composite {
 
     private void loadTraceTypes() {
         systemService.getTidMap(host.getName(), new MethodCallback<List<SymbolInfo>>() {
-            @Override
             public void onFailure(Method method, Throwable e) {
                 md.error(MDS, "Error loading TID map", e);
             }
 
-            @Override
             public void onSuccess(Method method, List<SymbolInfo> response) {
                 lstTraceType.clear();
                 lstTraceType.addItem("<all>");
@@ -591,7 +572,6 @@ public class TraceSearchPanel extends Composite {
     }
 
     private static final ProvidesKey<TraceInfo> KEY_PROVIDER = new ProvidesKey<TraceInfo>() {
-        @Override
         public Object getKey(TraceInfo item) {
             return item.getDataOffs();
         }
@@ -604,7 +584,6 @@ public class TraceSearchPanel extends Composite {
 
     private final Cell<TraceInfo> DETAIL_EXPANDER_CELL = new ActionCell<TraceInfo>("",
             new ActionCell.Delegate<TraceInfo>() {
-                @Override
                 public void execute(TraceInfo rec) {
                     toggleDetails(rec);
                 }
