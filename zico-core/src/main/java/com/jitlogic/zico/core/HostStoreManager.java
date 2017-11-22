@@ -71,6 +71,11 @@ public class HostStoreManager implements Closeable, ZicoDataProcessorFactory {
             return storesByName.get(name);
         }
 
+        if (name == null) {
+            throw new RuntimeException(
+                "Cannot create host without name. Please check if zorka.hostname is set in your agent.");
+        }
+
         File hostPath = new File(dataDir, ZicoUtil.safePath(name));
 
         if (create || new File(hostPath, HostStore.HOST_PROPERTIES).exists()) {
